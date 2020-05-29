@@ -1,0 +1,164 @@
+* {
+    box-sizing: border-box;
+}
+:root {
+    --ratio: 1.5;
+    --s-5: calc(var(--s-4) / var(--ratio));
+    --s-4: calc(var(--s-3) / var(--ratio));
+    --s-3: calc(var(--s-2) / var(--ratio));
+    --s-2: calc(var(--s-1) / var(--ratio));
+    --s-1: calc(var(--s0) / var(--ratio));
+    --s0: 1rem;
+    --s1: calc(var(--s0) * var(--ratio));
+    --s2: calc(var(--s1) * var(--ratio));
+    --s3: calc(var(--s2) * var(--ratio));
+    --s4: calc(var(--s3) * var(--ratio));
+    --s5: calc(var(--s4) * var(--ratio));
+    --round: var(--s0);
+    --test-border-width: 0px;
+
+    /* COLOR PALETTE */
+    --cAccentDark: #409;
+    --cAccentLight: #a4f;
+
+    --cGray90: #e2e2e2;
+    --cGrayShadow: #bbb;
+    --cGrayTextOnWhite: #888;
+    --cWhite: #fff;
+    --cBlack: #222;
+    --cYellow: #fef8bb;
+
+    /* USE THE COLOR PALETTE */
+    --cText: var(--cBlack);
+    --cSmallText: var(--cGrayTextOnWhite);
+    --cNavbarBg: var(--cWhite);
+    --cNavbarShadow: var(--cGrayShadow);
+    --cCardBg: var(--cWhite);
+    --cPageBg: var(--cGray90);
+    --cPillText: var(--cAccentDark);
+    --cPillBg: var(--cGray90);
+
+    line-height: 21px;
+    font-size: 16px;
+    font-family: sans-serif;
+    color: var(--cText);
+    background: var(--cPageBg);
+}
+
+/*================================================================================*/
+
+a {
+    text-decoration: none;
+}
+
+button:focus {
+    outline:0;  /* don't highlight buttons when focused */
+}
+
+input[type='text'] {
+    border: 2px solid var(--cGray90) !important;
+    padding: var(--s-2);
+}
+input[type='text']:focus {
+    outline:0;
+    /*background: var(--cYellow);*/
+}
+
+.navbar {
+    /*
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    */
+    background: var(--cNavbarBg);
+    border-bottom: 2px solid var(--cNavbarShadow) !important;
+
+    /* todo: move this to a new container for everything except the navbar */
+    margin-bottom: var(--s1);
+}
+
+.small {
+    font-size: 75%;
+    color: var(--cSmallText);
+}
+.small > a {
+    color: inherit;
+}
+
+/*================================================================================*/
+
+.center {
+    max-width: 70ch;
+    box-sizing: content-box;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--s1);
+    padding-right: var(--s1);
+}
+
+.stack {
+    border: 0px solid red;
+    border-width: var(--test-border-width);
+}
+.stack > * + * {
+    margin-top: var(--s0);
+}
+
+.box {
+    padding: var(--s0);
+
+    border: 0px solid green;
+    border-width: var(--test-border-width);
+}
+.card {
+    padding: var(--s0);
+    background: var(--cCardBg);
+    border-radius: var(--round);;
+
+    border: 0px solid blue;
+    border-width: var(--test-border-width);
+}
+
+.cluster {
+    --space: var(--s-1);
+    overflow: hidden;
+
+    border: 0px solid #f0f;
+    border-width: var(--test-border-width);
+}
+.cluster > * {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;  /* horizontal alignment */
+    align-items: center;  /* vertical alignment */
+    margin: calc(var(--space) / 2 * -1);
+
+    border: 0px solid #a0a;
+    border-width: var(--test-border-width);
+}
+.cluster > * > * {
+    margin: calc(var(--space) / 2);
+
+    border: 0px solid #505;
+    border-width: var(--test-border-width);
+}
+
+/*================================================================================*/
+
+.pill {
+    color: var(--cPillText);
+    background: var(--cPillBg);
+    border-radius: 999px;
+    /*display: inline-block;*/
+    padding: 0.3em 1em;
+    font-size: 75%;
+    font-weight: bold;
+
+    border: 0px solid #f90;
+    border-width: var(--test-border-width);
+}
+.pill > a {
+    color: inherit;
+}
+
