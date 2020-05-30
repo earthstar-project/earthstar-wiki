@@ -1,7 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import * as earthstar from 'earthstar';
+import {
+    StoreMemory,
+    ValidatorEs1,
+    Crypto,
+} from 'earthstar';
 
 import * as config from './config';
 import * as layouts from './layouts';
@@ -15,27 +19,21 @@ let log = (...args : any[]) => console.log(...args);
 let main = async () => {
     log('hello world');
     let workspace = 'demo';
-    let es = new earthstar.StoreMemory([earthstar.ValidatorUnsigned1], workspace);
+    let es = new StoreMemory([ValidatorEs1], workspace);
     log('workspace:', es.workspace);
-    let demoKeypair : earthstar.Keypair = {
-        public: 'fakeDqWS5O5pQlmrQWv2kT97abIWCC0wqbMrwoqoZq0=',
-        secret: 'fakeKDZzl2A4Cm7AW5GGgGWv3MtNKszf7bOcvgW/LRo='
-    }
-    //let demoKeypair = earthstar.generateFakeKeypair();
-    let demoAuthor = earthstar.addSigilToKey(demoKeypair.public);
+    let demoKeypair = Crypto.generateKeypair();
+    let demoAuthor = demoKeypair.public;
     log('author:', demoAuthor);
-    let ok = es.set({
-        format: 'unsigned.1',
+    let ok = es.set(demoKeypair, {
+        format: 'es.1',
         key: 'wiki/bumblebee',
         value: 'Buzz buzz buzz',
-        author: demoAuthor,
-        authorSecret: demoKeypair.secret,
     });
     log('ok:', ok);
     log('keys:', es.keys());
     let item = es.items()[0];
     log('item:', item);
-    log('hash:', earthstar.ValidatorUnsigned1.hashItem(item));
+    log('hash:', ValidatorEs1.hashItem(item));
     log('-------------------------------');
     log('syncing:');
     await syncLocalAndHttp(es, 'http://localhost:3333/earthstar/');

@@ -1,11 +1,5 @@
 import fetch from 'isomorphic-fetch';
 import {
-    ValidatorEs1,
-    ValidatorUnsigned1,
-    addSigilToKey,
-    StoreSqlite,
-    generateKeypair,
-    IValidator,
     IStore,
 } from 'earthstar';
 
