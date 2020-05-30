@@ -3,18 +3,22 @@ import * as ReactDOM from 'react-dom';
 
 import {
     StoreMemory,
+    IStore,
     ValidatorEs1,
     Crypto,
 } from 'earthstar';
+import {
+    syncLocalAndHttp,
+} from './sync';
 
 import * as config from './config';
 import * as layouts from './layouts';
 
 import {
-    syncLocalAndHttp,
-} from './sync';
+    EsDebugView
+} from './esDebugView';
 
-let log = (...args : any[]) => console.log(...args);
+let log = (...args : any[]) => console.log('main', ...args);
 
 let main = async () => {
     log('hello world');
@@ -40,12 +44,13 @@ let main = async () => {
     log('-------------------------------');
     log('keys:', es.keys());
 };
-main();
+//main();
 
 //================================================================================
 // APP VIEW
 
 interface AppViewProps {
+    es : IStore,
 }
 interface AppViewState {
 }
@@ -56,14 +61,24 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
     }
     render() {
         log('AppView.render()');
-        return <b>hello from react</b>;
+        return <EsDebugView es={this.props.es} />
     }
 }
 
 //================================================================================
 // MAIN
 
+let workspace = 'demo';
+let es = new StoreMemory([ValidatorEs1], workspace);
+let demoKeypair = Crypto.generateKeypair();
+let demoAuthor = demoKeypair.public;
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/bumblebee',
+    value: 'Buzz buzz buzz',
+});
+
 ReactDOM.render(
-    <AppView />,
+    <AppView es={es} />,
     document.getElementById('react-slot')
 );

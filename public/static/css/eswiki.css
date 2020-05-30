@@ -1,0 +1,39 @@
+html {
+    line-height: 21px;
+    font-size: 16px;
+    font-family: sans-serif;
+}
+
+:root {
+    --cKey: #f90;
+    --cValue: #0f9;
+    --cWorkspace: #09f;
+}
+
+.cKey { background: --cKey; }
+.cValue { background: --cValue; }
+.cWorkspace { background: --cWorkspace; }
+code {
+    background: #ddd;
+    padding: 4px 7px;
+    margin: 2px;
+    border-radius: 3px;
+    border: 1px solid #888;
+    display: inline-block;
+    word-break: break-all;
+    font-size: 16px;
+}
+pre {
+    background: #ddd;
+    padding: 4px 7px;
+    margin: 2px;
+    border-radius: 3px;
+    border: 1px solid #888;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+a code {
+    text-decoration: underline;
+}
+td { vertical-align: top; }

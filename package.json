@@ -6,6 +6,7 @@
   "scripts": {
     "clean": "rm -f public/static/js/bundle.js build/*",
     "build": "browserify src/app.tsx -p tsify > public/static/js/bundle.js",
+    "build-prod": "browserify src/app.tsx --full-paths -p tsify -g [ envify --NODE_ENV production ] -g uglifyify > public/static/js/bundle.js",
     "watch": "onchange -v --initial 'src/*' -- npm run build",
     "serve": "ecstatic -p 8003 --cache 'no-store' public",
     "watch-and-serve": "npm run watch & npm run serve",

@@ -65938,7 +65938,8 @@ const React = __importStar(require("react"));
 const ReactDOM = __importStar(require("react-dom"));
 const earthstar_1 = require("earthstar");
 const sync_1 = require("./sync");
-let log = (...args) => console.log(...args);
+const esDebugView_1 = require("./esDebugView");
+let log = (...args) => console.log('main', ...args);
 let main = () => __awaiter(void 0, void 0, void 0, function* () {
     log('hello world');
     let workspace = 'demo';
@@ -65963,7 +65964,6 @@ let main = () => __awaiter(void 0, void 0, void 0, function* () {
     log('-------------------------------');
     log('keys:', es.keys());
 });
-main();
 class AppView extends React.Component {
     constructor(props) {
         super(props);
@@ -65971,14 +65971,108 @@ class AppView extends React.Component {
     }
     render() {
         log('AppView.render()');
-        return React.createElement("b", null, "hello from react");
+        return React.createElement(esDebugView_1.EsDebugView, { es: this.props.es });
     }
 }
 //================================================================================
 // MAIN
-ReactDOM.render(React.createElement(AppView, null), document.getElementById('react-slot'));
+let workspace = 'demo';
+let es = new earthstar_1.StoreMemory([earthstar_1.ValidatorEs1], workspace);
+let demoKeypair = earthstar_1.Crypto.generateKeypair();
+let demoAuthor = demoKeypair.public;
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/bumblebee',
+    value: 'Buzz buzz buzz',
+});
+ReactDOM.render(React.createElement(AppView, { es: es }), document.getElementById('react-slot'));
 
-},{"./sync":245,"earthstar":94,"react":199,"react-dom":196}],245:[function(require,module,exports){
+},{"./esDebugView":245,"./sync":247,"earthstar":94,"react":199,"react-dom":196}],245:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EsDebugView = void 0;
+const React = __importStar(require("react"));
+const layouts_1 = require("./layouts");
+let log = (...args) => console.log('EsDebugView', ...args);
+class EsDebugView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    render() {
+        log('render()');
+        let es = this.props.es;
+        return React.createElement(layouts_1.Stack, null,
+            React.createElement("h3", null,
+                "Workspace: ",
+                React.createElement("code", { className: 'cWorkspace' }, es.workspace)),
+            es.items().map(item => React.createElement("div", null,
+                React.createElement("div", null,
+                    React.createElement("code", { className: 'cKey' }, item.key)),
+                React.createElement("div", null,
+                    React.createElement("code", { className: 'cValue', style: { marginLeft: 20 } }, item.value)))));
+    }
+}
+exports.EsDebugView = EsDebugView;
+
+},{"./layouts":246,"react":199}],246:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Tag = exports.Pill = exports.Cluster = exports.Card = exports.Box = exports.Stack = exports.Center = exports.Navbar = void 0;
+const React = __importStar(require("react"));
+exports.Navbar = (props) => React.createElement("div", { className: "navbar box" }, props.children);
+exports.Center = (props) => React.createElement("div", { className: "center" }, props.children);
+exports.Stack = (props) => React.createElement("div", { className: "stack" }, props.children);
+exports.Box = (props) => React.createElement("div", { className: "box" }, props.children);
+exports.Card = (props) => React.createElement("div", { className: "card" }, props.children);
+exports.Cluster = (props) => 
+// note: extra div is needed
+React.createElement("div", { className: "cluster" },
+    React.createElement("div", null, props.children));
+exports.Pill = (props) => React.createElement("div", { className: "pill" }, props.children);
+;
+exports.Tag = ({ text }) => React.createElement(exports.Pill, null,
+    React.createElement("a", { href: "#" }, text));
+
+},{"react":199}],247:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
