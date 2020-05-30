@@ -2,6 +2,7 @@ html {
     line-height: 21px;
     font-size: 16px;
     font-family: sans-serif;
+    padding: var(--s0);
 }
 
 :root {
@@ -35,7 +36,7 @@ pre {
     white-space: pre-wrap;
 }
 
-a code {
-    text-decoration: underline;
+a {
+    text-decoration: underline !important;
 }
 td { vertical-align: top; }

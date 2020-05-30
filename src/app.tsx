@@ -18,9 +18,8 @@ import {
     Stack,
 } from './layouts';
 
-import {
-    EsDebugView
-} from './esDebugView';
+import { EsDebugView } from './esDebugView';
+import { WikiView } from './wikiView';
 
 
 let logMain = (...args : any[]) => console.log('main | ', ...args);
@@ -72,8 +71,16 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
     render() {
         logApp('render()');
         return <Center>
+            <h2>
+                <img src="static/img/earthstar-logo-only.png"
+                    style={{width: 50, verticalAlign: 'middle'}}
+                />
+                Earthstar Wiki
+            </h2>
             <Stack>
-                <Card>hello</Card>
+                <Card>
+                    <WikiView es={this.props.es} keypair={this.props.keypair} />
+                </Card>
                 <Card>
                     <EsDebugView es={this.props.es} keypair={this.props.keypair} />
                 </Card>
@@ -91,8 +98,18 @@ let demoKeypair = Crypto.generateKeypair();
 let demoAuthor = demoKeypair.public;
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/bumblebee',
+    key: 'wiki/Bumblebee',
     value: 'Buzz buzz buzz',
+});
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/Puppy',
+    value: 'Bark bark bark',
+});
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/Kitten',
+    value: 'Meow meow meow',
 });
 
 ReactDOM.render(

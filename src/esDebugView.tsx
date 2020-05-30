@@ -4,7 +4,6 @@ import {
     Keypair,
 } from 'earthstar';
 import {
-    Card,
     Stack,
 } from './layouts';
 
@@ -43,17 +42,14 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
         log('render()');
         let es = this.props.es;
         return <Stack>
-            <h3 style={{textAlign: 'center'}}>
-                <img src="static/img/earthstar-logo-only.png"
-                    style={{width: 50, verticalAlign: 'middle'}}
-                />
+            <div style={{textAlign: 'center'}}><b>
                 Earthstar debug view
-            </h3>
+            </b></div>
             <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
             <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.public.slice(0,10)+'...'}</code></div>
             <div><b>Keys and values:</b> (click to edit)</div>
             {es.items().map(item =>
-                <div key={'key-'+item.key}
+                <div key={item.key}
                     onClick={() => this.setState({newKey: item.key, newValue: item.value})}
                     >
                     <div><code className='cKey'>{item.key}</code></div>

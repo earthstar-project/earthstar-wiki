@@ -65940,6 +65940,7 @@ const earthstar_1 = require("earthstar");
 const sync_1 = require("./sync");
 const layouts_1 = require("./layouts");
 const esDebugView_1 = require("./esDebugView");
+const wikiView_1 = require("./wikiView");
 let logMain = (...args) => console.log('main | ', ...args);
 let main = () => __awaiter(void 0, void 0, void 0, function* () {
     logMain('hello world');
@@ -65981,8 +65982,12 @@ class AppView extends React.Component {
     render() {
         logApp('render()');
         return React.createElement(layouts_1.Center, null,
+            React.createElement("h2", null,
+                React.createElement("img", { src: "static/img/earthstar-logo-only.png", style: { width: 50, verticalAlign: 'middle' } }),
+                "Earthstar Wiki"),
             React.createElement(layouts_1.Stack, null,
-                React.createElement(layouts_1.Card, null, "hello"),
+                React.createElement(layouts_1.Card, null,
+                    React.createElement(wikiView_1.WikiView, { es: this.props.es, keypair: this.props.keypair })),
                 React.createElement(layouts_1.Card, null,
                     React.createElement(esDebugView_1.EsDebugView, { es: this.props.es, keypair: this.props.keypair }))));
     }
@@ -65998,9 +66003,19 @@ es.set(demoKeypair, {
     key: 'wiki/bumblebee',
     value: 'Buzz buzz buzz',
 });
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/puppy',
+    value: 'Bark bark bark',
+});
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/kitten',
+    value: 'Meow meow meow',
+});
 ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair }), document.getElementById('react-slot'));
 
-},{"./esDebugView":245,"./layouts":246,"./sync":247,"earthstar":94,"react":199,"react-dom":196}],245:[function(require,module,exports){
+},{"./esDebugView":245,"./layouts":246,"./sync":247,"./wikiView":248,"earthstar":94,"react":199,"react-dom":196}],245:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66053,9 +66068,8 @@ class EsDebugView extends React.Component {
         log('render()');
         let es = this.props.es;
         return React.createElement(layouts_1.Stack, null,
-            React.createElement("h3", { style: { textAlign: 'center' } },
-                React.createElement("img", { src: "static/img/earthstar-logo-only.png", style: { width: 50, verticalAlign: 'middle' } }),
-                "Earthstar debug view"),
+            React.createElement("div", { style: { textAlign: 'center' } },
+                React.createElement("b", null, "Earthstar debug view")),
             React.createElement("div", null,
                 React.createElement("b", null, "Workspace:"),
                 " ",
@@ -66067,7 +66081,7 @@ class EsDebugView extends React.Component {
             React.createElement("div", null,
                 React.createElement("b", null, "Keys and values:"),
                 " (click to edit)"),
-            es.items().map(item => React.createElement("div", { key: 'key-' + item.key, onClick: () => this.setState({ newKey: item.key, newValue: item.value }) },
+            es.items().map(item => React.createElement("div", { key: item.key, onClick: () => this.setState({ newKey: item.key, newValue: item.value }) },
                 React.createElement("div", null,
                     React.createElement("code", { className: 'cKey' }, item.key)),
                 React.createElement("div", { style: { paddingLeft: 50 } },
@@ -66111,13 +66125,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Tag = exports.Pill = exports.Cluster = exports.Card = exports.Box = exports.Stack = exports.Center = exports.Navbar = void 0;
+exports.FlexItem = exports.FlexRow = exports.Tag = exports.Pill = exports.Cluster = exports.Card = exports.Box = exports.Stack = exports.Center = exports.Navbar = void 0;
 const React = __importStar(require("react"));
 exports.Navbar = (props) => React.createElement("div", { className: "navbar box" }, props.children);
 exports.Center = (props) => React.createElement("div", { className: "center" }, props.children);
 exports.Stack = (props) => React.createElement("div", { className: "stack" }, props.children);
-exports.Box = (props) => React.createElement("div", { className: "box" }, props.children);
-exports.Card = (props) => React.createElement("div", { className: "card" }, props.children);
+;
+exports.Box = (props) => React.createElement("div", { className: "box", style: props.style }, props.children);
+;
+exports.Card = (props) => React.createElement("div", { className: "card", style: props.background
+        ? { background: props.background }
+        : null }, props.children);
 exports.Cluster = (props) => 
 // note: extra div is needed
 React.createElement("div", { className: "cluster" },
@@ -66126,6 +66144,9 @@ exports.Pill = (props) => React.createElement("div", { className: "pill" }, prop
 ;
 exports.Tag = ({ text }) => React.createElement(exports.Pill, null,
     React.createElement("a", { href: "#" }, text));
+exports.FlexRow = (props) => React.createElement("div", { style: { display: 'flex' } }, props.children);
+;
+exports.FlexItem = (props) => React.createElement("div", { style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
 
 },{"react":199}],247:[function(require,module,exports){
 "use strict";
@@ -66214,4 +66235,77 @@ exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 
-},{"isomorphic-fetch":155}]},{},[244]);
+},{"isomorphic-fetch":155}],248:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WikiView = void 0;
+const React = __importStar(require("react"));
+const layouts_1 = require("./layouts");
+let log = (...args) => console.log('WikiView |', ...args);
+class WikiView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { currentPage: null };
+    }
+    _viewPage(key) {
+        log('_viewPage', key);
+        if (!key.startsWith('wiki/')) {
+            console.error('key must start with wiki/', key);
+            return;
+        }
+        this.setState({
+            currentPage: key,
+        });
+    }
+    render() {
+        log('render()');
+        let es = this.props.es;
+        let wikiItems = es.items({ prefix: 'wiki/' });
+        let currentItem = this.state.currentPage === null ? null : es.getItem(this.state.currentPage) || null;
+        return React.createElement(layouts_1.Stack, null,
+            React.createElement(layouts_1.FlexRow, null,
+                React.createElement(layouts_1.FlexItem, { basis: "150px" },
+                    React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } },
+                        React.createElement("div", null,
+                            React.createElement("b", null, "Pages:")),
+                        wikiItems.map(item => React.createElement("div", { key: item.key },
+                            React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == (currentItem === null || currentItem === void 0 ? void 0 : currentItem.key) ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
+                React.createElement(layouts_1.FlexItem, { grow: 1 },
+                    React.createElement(layouts_1.Box, null, currentItem !== null ?
+                        [
+                            React.createElement("h3", { style: { marginTop: 0 } }, currentItem.key.slice(5)),
+                            React.createElement("p", null, currentItem.value)
+                        ]
+                        : " "))));
+    }
+}
+exports.WikiView = WikiView;
+/*
+            <input list="wikipages" />
+            <datalist id="wikipages">
+                {wikiItems.map(item =>
+                    <option key={item.key} value={item.key} />
+                )}
+            </datalist>
+*/ 
+
+},{"./layouts":246,"react":199}]},{},[244]);
