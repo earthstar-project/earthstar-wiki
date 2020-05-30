@@ -8,11 +8,13 @@ html {
     --cKey: #ffd699;
     --cValue: #afff93;
     --cWorkspace: #c5e8ff;
+    --cAuthor: #f7c0ff;
 }
 
 .cKey { background: var(--cKey); }
 .cValue { background: var(--cValue); }
 .cWorkspace { background: var(--cWorkspace); }
+.cAuthor { background: var(--cAuthor); }
 code {
     background: #ddd;
     padding: 4px 7px;

@@ -50,7 +50,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                 Earthstar debug view
             </h3>
             <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
-            <div><b>Demo author:</b> {this.props.keypair.public}</div>
+            <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.public.slice(0,10)+'...'}</code></div>
             <div><b>Keys and values:</b> (click to edit)</div>
             {es.items().map(item =>
                 <div key={'key-'+item.key}
@@ -58,6 +58,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     >
                     <div><code className='cKey'>{item.key}</code></div>
                     <div style={{paddingLeft: 50}}>= <code className='cValue'>{item.value}</code></div>
+                    <div style={{paddingLeft: 50}}>by <code className='cAuthor'>{item.author.slice(0,10)+'...'}</code></div>
                 </div>
             )}
             <div>
