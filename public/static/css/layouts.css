@@ -55,6 +55,14 @@ button:focus {
     outline:0;  /* don't highlight buttons when focused */
 }
 
+button {
+    background: var(--cAccentDark);
+    color: var(--cWhite);
+    padding: var(--s-1) var(--s0);
+    border: none;
+    border-radius: var(--round);
+}
+
 input[type='text'] {
     border: 2px solid var(--cGray90) !important;
     padding: var(--s-2);

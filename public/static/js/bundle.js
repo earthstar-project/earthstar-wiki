@@ -65938,6 +65938,7 @@ const React = __importStar(require("react"));
 const ReactDOM = __importStar(require("react-dom"));
 const earthstar_1 = require("earthstar");
 const sync_1 = require("./sync");
+const layouts_1 = require("./layouts");
 const esDebugView_1 = require("./esDebugView");
 let log = (...args) => console.log('main', ...args);
 let main = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -65971,7 +65972,11 @@ class AppView extends React.Component {
     }
     render() {
         log('AppView.render()');
-        return React.createElement(esDebugView_1.EsDebugView, { es: this.props.es });
+        return React.createElement(layouts_1.Center, null,
+            React.createElement(layouts_1.Stack, null,
+                React.createElement(layouts_1.Card, null, "hello"),
+                React.createElement(layouts_1.Card, null,
+                    React.createElement(esDebugView_1.EsDebugView, { es: this.props.es }))));
     }
 }
 //================================================================================
@@ -65987,7 +65992,7 @@ es.set(demoKeypair, {
 });
 ReactDOM.render(React.createElement(AppView, { es: es }), document.getElementById('react-slot'));
 
-},{"./esDebugView":245,"./sync":247,"earthstar":94,"react":199,"react-dom":196}],245:[function(require,module,exports){
+},{"./esDebugView":245,"./layouts":246,"./sync":247,"earthstar":94,"react":199,"react-dom":196}],245:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66022,14 +66027,19 @@ class EsDebugView extends React.Component {
         log('render()');
         let es = this.props.es;
         return React.createElement(layouts_1.Stack, null,
-            React.createElement("h3", null,
-                "Workspace: ",
+            React.createElement("h3", null, "Earthstar debug view"),
+            React.createElement("div", null,
+                React.createElement("b", null, "Workspace:"),
+                " ",
                 React.createElement("code", { className: 'cWorkspace' }, es.workspace)),
+            React.createElement("div", null,
+                React.createElement("b", null, "Keys and values:")),
             es.items().map(item => React.createElement("div", null,
                 React.createElement("div", null,
                     React.createElement("code", { className: 'cKey' }, item.key)),
                 React.createElement("div", null,
-                    React.createElement("code", { className: 'cValue', style: { marginLeft: 20 } }, item.value)))));
+                    React.createElement("code", { className: 'cValue', style: { marginLeft: 50 } }, item.value)))),
+            React.createElement("button", { type: "button" }, "Sync"));
     }
 }
 exports.EsDebugView = EsDebugView;

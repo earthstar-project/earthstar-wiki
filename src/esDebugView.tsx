@@ -3,7 +3,8 @@ import {
     IStore,
 } from 'earthstar';
 import {
-    Stack
+    Card,
+    Stack,
 } from './layouts';
 
 let log = (...args : any[]) => console.log('EsDebugView', ...args);
@@ -22,13 +23,16 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
         log('render()');
         let es = this.props.es;
         return <Stack>
-            <h3>Workspace: <code className='cWorkspace'>{es.workspace}</code></h3>
+            <h3>Earthstar debug view</h3>
+            <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
+            <div><b>Keys and values:</b></div>
             {es.items().map(item =>
                 <div>
                     <div><code className='cKey'>{item.key}</code></div>
-                    <div><code className='cValue' style={{marginLeft: 20}}>{item.value}</code></div>
+                    <div><code className='cValue' style={{marginLeft: 50}}>{item.value}</code></div>
                 </div>
             )}
+            <button type="button">Sync</button>
         </Stack>
     }
 }

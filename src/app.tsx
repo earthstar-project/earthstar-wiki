@@ -11,8 +11,11 @@ import {
     syncLocalAndHttp,
 } from './sync';
 
-import * as config from './config';
-import * as layouts from './layouts';
+import {
+    Card,
+    Center,
+    Stack,
+} from './layouts';
 
 import {
     EsDebugView
@@ -61,7 +64,12 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
     }
     render() {
         log('AppView.render()');
-        return <EsDebugView es={this.props.es} />
+        return <Center>
+            <Stack>
+                <Card>hello</Card>
+                <Card><EsDebugView es={this.props.es} /></Card>
+            </Stack>
+        </Center>
     }
 }
 

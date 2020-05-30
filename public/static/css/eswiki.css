@@ -5,20 +5,20 @@ html {
 }
 
 :root {
-    --cKey: #f90;
-    --cValue: #0f9;
-    --cWorkspace: #09f;
+    --cKey: #ffd699;
+    --cValue: #afff93;
+    --cWorkspace: #c5e8ff;
 }
 
-.cKey { background: --cKey; }
-.cValue { background: --cValue; }
-.cWorkspace { background: --cWorkspace; }
+.cKey { background: var(--cKey); }
+.cValue { background: var(--cValue); }
+.cWorkspace { background: var(--cWorkspace); }
 code {
     background: #ddd;
     padding: 4px 7px;
     margin: 2px;
     border-radius: 3px;
-    border: 1px solid #888;
+    border: 1px solid #aaa;
     display: inline-block;
     word-break: break-all;
     font-size: 16px;
