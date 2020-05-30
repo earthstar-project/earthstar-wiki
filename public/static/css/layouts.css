@@ -58,7 +58,7 @@ button:focus {
 button {
     background: var(--cAccentDark);
     color: var(--cWhite);
-    padding: var(--s-1) var(--s0);
+    padding: var(--s-2) var(--s-1);
     border: none;
     border-radius: var(--round);
 }

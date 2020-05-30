@@ -65976,7 +65976,7 @@ class AppView extends React.Component {
     }
     componentDidMount() {
         // poll for updates until earthstar supports watching for changes
-        setInterval(() => this.forceUpdate(), 1500);
+        //setInterval(() => this.forceUpdate(), 1500);
     }
     render() {
         logApp('render()');
@@ -65984,7 +65984,7 @@ class AppView extends React.Component {
             React.createElement(layouts_1.Stack, null,
                 React.createElement(layouts_1.Card, null, "hello"),
                 React.createElement(layouts_1.Card, null,
-                    React.createElement(esDebugView_1.EsDebugView, { es: this.props.es }))));
+                    React.createElement(esDebugView_1.EsDebugView, { es: this.props.es, keypair: this.props.keypair }))));
     }
 }
 //================================================================================
@@ -65998,7 +65998,7 @@ es.set(demoKeypair, {
     key: 'wiki/bumblebee',
     value: 'Buzz buzz buzz',
 });
-ReactDOM.render(React.createElement(AppView, { es: es }), document.getElementById('react-slot'));
+ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair }), document.getElementById('react-slot'));
 
 },{"./esDebugView":245,"./layouts":246,"./sync":247,"earthstar":94,"react":199,"react-dom":196}],245:[function(require,module,exports){
 "use strict";
@@ -66029,25 +66029,59 @@ let log = (...args) => console.log('EsDebugView |', ...args);
 class EsDebugView extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            newKey: '',
+            newValue: '',
+        };
+    }
+    _setKeyValue() {
+        if (this.state.newKey === '') {
+            return;
+        }
+        let ok = this.props.es.set(this.props.keypair, {
+            format: 'es.1',
+            key: this.state.newKey,
+            value: this.state.newValue,
+        });
+        if (!ok) {
+            log('set failed');
+            return;
+        }
+        this.setState({ newKey: '', newValue: '' });
     }
     render() {
         log('render()');
         let es = this.props.es;
         return React.createElement(layouts_1.Stack, null,
-            React.createElement("h3", null, "Earthstar debug view"),
+            React.createElement("h3", { style: { textAlign: 'center' } },
+                React.createElement("img", { src: "static/img/earthstar-logo-only.png", style: { width: 50, verticalAlign: 'middle' } }),
+                "Earthstar debug view"),
             React.createElement("div", null,
                 React.createElement("b", null, "Workspace:"),
                 " ",
                 React.createElement("code", { className: 'cWorkspace' }, es.workspace)),
             React.createElement("div", null,
-                React.createElement("b", null, "Keys and values:")),
-            es.items().map(item => React.createElement("div", { key: 'key-' + item.key },
+                React.createElement("b", null, "Demo author:"),
+                " ",
+                this.props.keypair.public),
+            React.createElement("div", null,
+                React.createElement("b", null, "Keys and values:"),
+                " (click to edit)"),
+            es.items().map(item => React.createElement("div", { key: 'key-' + item.key, onClick: () => this.setState({ newKey: item.key, newValue: item.value }) },
                 React.createElement("div", null,
                     React.createElement("code", { className: 'cKey' }, item.key)),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    "= ",
+                    React.createElement("code", { className: 'cValue' }, item.value)))),
+            React.createElement("div", null,
                 React.createElement("div", null,
-                    React.createElement("code", { className: 'cValue', style: { marginLeft: 50 } }, item.value)))),
-            React.createElement("button", { type: "button" }, "Sync"));
+                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newKey, placeholder: "new or existing key", onChange: e => this.setState({ newKey: e.target.value }) })),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
+                    React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Set or overwrite"))),
+            React.createElement("div", null,
+                React.createElement("b", null, "Networking: Pubs")),
+            React.createElement("div", null, "(this works but is not hooked up in the UI yet)"));
     }
 }
 exports.EsDebugView = EsDebugView;

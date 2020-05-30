@@ -6,6 +6,7 @@ import {
     IStore,
     ValidatorEs1,
     Crypto,
+    Keypair,
 } from 'earthstar';
 import {
     syncLocalAndHttp,
@@ -55,6 +56,7 @@ let main = async () => {
 let logApp = (...args : any[]) => console.log('AppView | ', ...args);
 interface AppViewProps {
     es : IStore,
+    keypair : Keypair,
 }
 interface AppViewState {
 }
@@ -65,14 +67,16 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
     }
     componentDidMount() {
         // poll for updates until earthstar supports watching for changes
-        setInterval(() => this.forceUpdate(), 1500);
+        //setInterval(() => this.forceUpdate(), 1500);
     }
     render() {
         logApp('render()');
         return <Center>
             <Stack>
                 <Card>hello</Card>
-                <Card><EsDebugView es={this.props.es} /></Card>
+                <Card>
+                    <EsDebugView es={this.props.es} keypair={this.props.keypair} />
+                </Card>
             </Stack>
         </Center>
     }
@@ -92,6 +96,6 @@ es.set(demoKeypair, {
 });
 
 ReactDOM.render(
-    <AppView es={es} />,
+    <AppView es={es} keypair={demoKeypair} />,
     document.getElementById('react-slot')
 );
