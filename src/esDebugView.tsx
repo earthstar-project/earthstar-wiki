@@ -7,7 +7,7 @@ import {
     Stack,
 } from './layouts';
 
-let log = (...args : any[]) => console.log('EsDebugView', ...args);
+let log = (...args : any[]) => console.log('EsDebugView |', ...args);
 
 interface EsDebugProps {
     es : IStore,
@@ -27,7 +27,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
             <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
             <div><b>Keys and values:</b></div>
             {es.items().map(item =>
-                <div>
+                <div key={'key-'+item.key}>
                     <div><code className='cKey'>{item.key}</code></div>
                     <div><code className='cValue' style={{marginLeft: 50}}>{item.value}</code></div>
                 </div>

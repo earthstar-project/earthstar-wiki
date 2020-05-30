@@ -65940,38 +65940,46 @@ const earthstar_1 = require("earthstar");
 const sync_1 = require("./sync");
 const layouts_1 = require("./layouts");
 const esDebugView_1 = require("./esDebugView");
-let log = (...args) => console.log('main', ...args);
+let logMain = (...args) => console.log('main | ', ...args);
 let main = () => __awaiter(void 0, void 0, void 0, function* () {
-    log('hello world');
+    logMain('hello world');
     let workspace = 'demo';
     let es = new earthstar_1.StoreMemory([earthstar_1.ValidatorEs1], workspace);
-    log('workspace:', es.workspace);
+    logMain('workspace:', es.workspace);
     let demoKeypair = earthstar_1.Crypto.generateKeypair();
     let demoAuthor = demoKeypair.public;
-    log('author:', demoAuthor);
+    logMain('author:', demoAuthor);
     let ok = es.set(demoKeypair, {
         format: 'es.1',
         key: 'wiki/bumblebee',
         value: 'Buzz buzz buzz',
     });
-    log('ok:', ok);
-    log('keys:', es.keys());
+    logMain('ok:', ok);
+    logMain('keys:', es.keys());
     let item = es.items()[0];
-    log('item:', item);
-    log('hash:', earthstar_1.ValidatorEs1.hashItem(item));
-    log('-------------------------------');
-    log('syncing:');
+    logMain('item:', item);
+    logMain('hash:', earthstar_1.ValidatorEs1.hashItem(item));
+    logMain('-------------------------------');
+    logMain('syncing:');
     yield sync_1.syncLocalAndHttp(es, 'http://localhost:3333/earthstar/');
-    log('-------------------------------');
-    log('keys:', es.keys());
+    logMain('-------------------------------');
+    logMain('keys:', es.keys());
 });
+//main();
+//================================================================================
+// APP VIEW
+let logApp = (...args) => console.log('AppView | ', ...args);
 class AppView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
     }
+    componentDidMount() {
+        // poll for updates until earthstar supports watching for changes
+        setInterval(() => this.forceUpdate(), 1500);
+    }
     render() {
-        log('AppView.render()');
+        logApp('render()');
         return React.createElement(layouts_1.Center, null,
             React.createElement(layouts_1.Stack, null,
                 React.createElement(layouts_1.Card, null, "hello"),
@@ -66017,7 +66025,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EsDebugView = void 0;
 const React = __importStar(require("react"));
 const layouts_1 = require("./layouts");
-let log = (...args) => console.log('EsDebugView', ...args);
+let log = (...args) => console.log('EsDebugView |', ...args);
 class EsDebugView extends React.Component {
     constructor(props) {
         super(props);
@@ -66034,7 +66042,7 @@ class EsDebugView extends React.Component {
                 React.createElement("code", { className: 'cWorkspace' }, es.workspace)),
             React.createElement("div", null,
                 React.createElement("b", null, "Keys and values:")),
-            es.items().map(item => React.createElement("div", null,
+            es.items().map(item => React.createElement("div", { key: 'key-' + item.key },
                 React.createElement("div", null,
                     React.createElement("code", { className: 'cKey' }, item.key)),
                 React.createElement("div", null,

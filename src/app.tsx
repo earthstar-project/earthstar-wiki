@@ -21,37 +21,38 @@ import {
     EsDebugView
 } from './esDebugView';
 
-let log = (...args : any[]) => console.log('main', ...args);
 
+let logMain = (...args : any[]) => console.log('main | ', ...args);
 let main = async () => {
-    log('hello world');
+    logMain('hello world');
     let workspace = 'demo';
     let es = new StoreMemory([ValidatorEs1], workspace);
-    log('workspace:', es.workspace);
+    logMain('workspace:', es.workspace);
     let demoKeypair = Crypto.generateKeypair();
     let demoAuthor = demoKeypair.public;
-    log('author:', demoAuthor);
+    logMain('author:', demoAuthor);
     let ok = es.set(demoKeypair, {
         format: 'es.1',
         key: 'wiki/bumblebee',
         value: 'Buzz buzz buzz',
     });
-    log('ok:', ok);
-    log('keys:', es.keys());
+    logMain('ok:', ok);
+    logMain('keys:', es.keys());
     let item = es.items()[0];
-    log('item:', item);
-    log('hash:', ValidatorEs1.hashItem(item));
-    log('-------------------------------');
-    log('syncing:');
+    logMain('item:', item);
+    logMain('hash:', ValidatorEs1.hashItem(item));
+    logMain('-------------------------------');
+    logMain('syncing:');
     await syncLocalAndHttp(es, 'http://localhost:3333/earthstar/');
-    log('-------------------------------');
-    log('keys:', es.keys());
+    logMain('-------------------------------');
+    logMain('keys:', es.keys());
 };
 //main();
 
 //================================================================================
 // APP VIEW
 
+let logApp = (...args : any[]) => console.log('AppView | ', ...args);
 interface AppViewProps {
     es : IStore,
 }
@@ -62,8 +63,12 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
         super(props);
         this.state = { };
     }
+    componentDidMount() {
+        // poll for updates until earthstar supports watching for changes
+        setInterval(() => this.forceUpdate(), 1500);
+    }
     render() {
-        log('AppView.render()');
+        logApp('render()');
         return <Center>
             <Stack>
                 <Card>hello</Card>
