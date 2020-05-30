@@ -66,22 +66,24 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
     }
     componentDidMount() {
         // poll for updates until earthstar supports watching for changes
-        //setInterval(() => this.forceUpdate(), 1500);
+        setInterval(() => this.forceUpdate(), 1000);
     }
     render() {
         logApp('render()');
         return <Center>
-            <h2>
-                <img src="static/img/earthstar-logo-only.png"
-                    style={{width: 50, verticalAlign: 'middle'}}
-                />
-                Earthstar Wiki
-            </h2>
             <Stack>
+                <h2>
+                    <img src="static/img/earthstar-pal-transparent.png"
+                        style={{width: 100, verticalAlign: 'middle'}}
+                    />
+                    Earthstar Wiki
+                </h2>
                 <Card>
                     <WikiView es={this.props.es} keypair={this.props.keypair} />
                 </Card>
-                <Card>
+                <div style={{height: 60}} />
+                <h3 style={{opacity: 0.6}}>Debug View</h3>
+                <Card style={{opacity: 0.6}}>
                     <EsDebugView es={this.props.es} keypair={this.props.keypair} />
                 </Card>
             </Stack>

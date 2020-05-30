@@ -65977,18 +65977,20 @@ class AppView extends React.Component {
     }
     componentDidMount() {
         // poll for updates until earthstar supports watching for changes
-        //setInterval(() => this.forceUpdate(), 1500);
+        setInterval(() => this.forceUpdate(), 1000);
     }
     render() {
         logApp('render()');
         return React.createElement(layouts_1.Center, null,
-            React.createElement("h2", null,
-                React.createElement("img", { src: "static/img/earthstar-logo-only.png", style: { width: 50, verticalAlign: 'middle' } }),
-                "Earthstar Wiki"),
             React.createElement(layouts_1.Stack, null,
+                React.createElement("h2", null,
+                    React.createElement("img", { src: "static/img/earthstar-pal-transparent.png", style: { width: 100, verticalAlign: 'middle' } }),
+                    "Earthstar Wiki"),
                 React.createElement(layouts_1.Card, null,
                     React.createElement(wikiView_1.WikiView, { es: this.props.es, keypair: this.props.keypair })),
-                React.createElement(layouts_1.Card, null,
+                React.createElement("div", { style: { height: 60 } }),
+                React.createElement("h3", { style: { opacity: 0.6 } }, "Debug View"),
+                React.createElement(layouts_1.Card, { style: { opacity: 0.6 } },
                     React.createElement(esDebugView_1.EsDebugView, { es: this.props.es, keypair: this.props.keypair }))));
     }
 }
@@ -66000,17 +66002,17 @@ let demoKeypair = earthstar_1.Crypto.generateKeypair();
 let demoAuthor = demoKeypair.public;
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/bumblebee',
+    key: 'wiki/Bumblebee',
     value: 'Buzz buzz buzz',
 });
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/puppy',
+    key: 'wiki/Puppy',
     value: 'Bark bark bark',
 });
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/kitten',
+    key: 'wiki/Kitten',
     value: 'Meow meow meow',
 });
 ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair }), document.getElementById('react-slot'));
@@ -66068,8 +66070,6 @@ class EsDebugView extends React.Component {
         log('render()');
         let es = this.props.es;
         return React.createElement(layouts_1.Stack, null,
-            React.createElement("div", { style: { textAlign: 'center' } },
-                React.createElement("b", null, "Earthstar debug view")),
             React.createElement("div", null,
                 React.createElement("b", null, "Workspace:"),
                 " ",
@@ -66098,7 +66098,7 @@ class EsDebugView extends React.Component {
                     React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Set or overwrite"))),
             React.createElement("div", null,
                 React.createElement("b", null, "Networking: Pubs")),
-            React.createElement("div", null, "(this works but is not hooked up in the UI yet)"));
+            React.createElement("div", null, "(pub sync works but is not hooked up in the UI yet)"));
     }
 }
 exports.EsDebugView = EsDebugView;
@@ -66133,9 +66133,7 @@ exports.Stack = (props) => React.createElement("div", { className: "stack" }, pr
 ;
 exports.Box = (props) => React.createElement("div", { className: "box", style: props.style }, props.children);
 ;
-exports.Card = (props) => React.createElement("div", { className: "card", style: props.background
-        ? { background: props.background }
-        : null }, props.children);
+exports.Card = (props) => React.createElement("div", { className: "card", style: props.style }, props.children);
 exports.Cluster = (props) => 
 // note: extra div is needed
 React.createElement("div", { className: "cluster" },
@@ -66287,7 +66285,7 @@ class WikiView extends React.Component {
                     React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } },
                         React.createElement("div", null,
                             React.createElement("b", null, "Pages:")),
-                        wikiItems.map(item => React.createElement("div", { key: item.key },
+                        wikiItems.map(item => React.createElement("p", { key: item.key },
                             React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == (currentItem === null || currentItem === void 0 ? void 0 : currentItem.key) ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
                 React.createElement(layouts_1.FlexItem, { grow: 1 },
                     React.createElement(layouts_1.Box, null, currentItem !== null ?

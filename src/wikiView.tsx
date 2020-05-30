@@ -47,14 +47,14 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
                     <Box style={{borderRight: '2px solid #aaa'}}>
                         <div><b>Pages:</b></div>
                         {wikiItems.map(item =>
-                            <div key={item.key}>
+                            <p key={item.key}>
                                 <a href="#"
                                     onClick={() => this._viewPage(item.key)}
                                     style={{fontWeight: item.key == currentItem?.key ? 'bold' : 'normal'}}
                                     >
                                     {item.key.slice(5) /* remove "wiki/" from title */}
                                 </a>
-                            </div>
+                            </p>
                         )}
                     </Box>
                 </FlexItem>

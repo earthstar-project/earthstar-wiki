@@ -16,17 +16,10 @@ export const Box : React.FunctionComponent<BoxProps> = (props) =>
     <div className="box" style={props.style}>{props.children}</div>;
 
 interface CardProps {
-    background? : string;
+    style? : any;
 };
 export const Card : React.FunctionComponent<CardProps> = (props) =>
-    <div className="card"
-        style={
-            props.background
-                ? {background: props.background}
-                : null as any
-        }>
-        {props.children}
-    </div>;
+    <div className="card" style={props.style}>{props.children}</div>;
 
 export const Cluster : React.FunctionComponent = (props) =>
     // note: extra div is needed

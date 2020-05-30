@@ -42,9 +42,6 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
         log('render()');
         let es = this.props.es;
         return <Stack>
-            <div style={{textAlign: 'center'}}><b>
-                Earthstar debug view
-            </b></div>
             <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
             <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.public.slice(0,10)+'...'}</code></div>
             <div><b>Keys and values:</b> (click to edit)</div>
@@ -81,7 +78,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                 </div>
             </div>
             <div><b>Networking: Pubs</b></div>
-            <div>(this works but is not hooked up in the UI yet)</div>
+            <div>(pub sync works but is not hooked up in the UI yet)</div>
         </Stack>
     }
 }
