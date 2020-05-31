@@ -39,7 +39,7 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
     render() {
         log('render()');
         let es = this.props.es;
-        let wikiItems = es.items({ prefix:'wiki/' });
+        let wikiItems = es.items({ prefix:'wiki/' }).filter(item => item.value);
         let currentItem : Item | null = this.state.currentPage === null ? null : es.getItem(this.state.currentPage) || null;
         return <Stack>
             <FlexRow>

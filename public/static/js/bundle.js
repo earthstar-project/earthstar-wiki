@@ -66089,8 +66089,17 @@ class EsDebugView extends React.Component {
                 " ",
                 React.createElement("code", { className: 'cAuthor' }, this.props.keypair.public.slice(0, 10) + '...')),
             React.createElement("div", null,
+                React.createElement("b", null, "Editor:")),
+            React.createElement("div", null,
+                React.createElement("div", null,
+                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newKey, placeholder: "new or existing key", onChange: e => this.setState({ newKey: e.target.value }) })),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    React.createElement("textarea", { style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
+                    React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Save"),
+                    "(Delete items by saving an empty value)")),
+            React.createElement("div", null,
                 React.createElement("b", null, "Keys and values:"),
-                " (click to edit)"),
+                " (Click to load into the edit box)"),
             es.items().map(item => React.createElement("div", { key: item.key, onClick: () => this.setState({ newKey: item.key, newValue: item.value }) },
                 React.createElement("div", null,
                     React.createElement("code", { className: 'cKey' }, item.key)),
@@ -66101,14 +66110,8 @@ class EsDebugView extends React.Component {
                     "by ",
                     React.createElement("code", { className: 'cAuthor' }, item.author.slice(0, 10) + '...')))),
             React.createElement("div", null,
-                React.createElement("div", null,
-                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newKey, placeholder: "new or existing key", onChange: e => this.setState({ newKey: e.target.value }) })),
-                React.createElement("div", { style: { paddingLeft: 50 } },
-                    React.createElement("textarea", { style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
-                    React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Set or overwrite"))),
-            React.createElement("div", null,
                 React.createElement("b", null, "Networking: Pubs")),
-            React.createElement("div", null, "(pub sync works but is not hooked up in the UI yet)"));
+            React.createElement("div", null, "(Pub sync works but is not hooked up in the UI yet)"));
     }
 }
 exports.EsDebugView = EsDebugView;
@@ -66287,7 +66290,7 @@ class WikiView extends React.Component {
     render() {
         log('render()');
         let es = this.props.es;
-        let wikiItems = es.items({ prefix: 'wiki/' });
+        let wikiItems = es.items({ prefix: 'wiki/' }).filter(item => item.value);
         let currentItem = this.state.currentPage === null ? null : es.getItem(this.state.currentPage) || null;
         return React.createElement(layouts_1.Stack, null,
             React.createElement(layouts_1.FlexRow, null,

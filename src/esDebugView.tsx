@@ -44,16 +44,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
         return <Stack>
             <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
             <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.public.slice(0,10)+'...'}</code></div>
-            <div><b>Keys and values:</b> (click to edit)</div>
-            {es.items().map(item =>
-                <div key={item.key}
-                    onClick={() => this.setState({newKey: item.key, newValue: item.value})}
-                    >
-                    <div><code className='cKey'>{item.key}</code></div>
-                    <div style={{paddingLeft: 50}}>= <pre className='cValue'>{item.value}</pre></div>
-                    <div style={{paddingLeft: 50}}>by <code className='cAuthor'>{item.author.slice(0,10)+'...'}</code></div>
-                </div>
-            )}
+            <div><b>Editor:</b></div>
             <div>
                 <div>
                     <input type="text"
@@ -73,12 +64,23 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     <button type="button"
                         onClick={() => this._setKeyValue()}
                         >
-                        Set or overwrite
-                        </button>
+                        Save
+                    </button>
+                    (Delete items by saving an empty value)
                 </div>
             </div>
+            <div><b>Keys and values:</b> (Click to load into the edit box)</div>
+            {es.items().map(item =>
+                <div key={item.key}
+                    onClick={() => this.setState({newKey: item.key, newValue: item.value})}
+                    >
+                    <div><code className='cKey'>{item.key}</code></div>
+                    <div style={{paddingLeft: 50}}>= <pre className='cValue'>{item.value}</pre></div>
+                    <div style={{paddingLeft: 50}}>by <code className='cAuthor'>{item.author.slice(0,10)+'...'}</code></div>
+                </div>
+            )}
             <div><b>Networking: Pubs</b></div>
-            <div>(pub sync works but is not hooked up in the UI yet)</div>
+            <div>(Pub sync works but is not hooked up in the UI yet)</div>
         </Stack>
     }
 }
