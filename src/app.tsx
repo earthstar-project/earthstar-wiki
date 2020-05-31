@@ -110,6 +110,16 @@ es.set(demoKeypair, {
 });
 es.set(demoKeypair, {
     format: 'es.1',
+    key: 'wiki/Bird',
+    value: 'Cheep cheep\nCheep\n\nCheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep\n🦆',
+});
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/Fish Of The Deep Sea',
+    value: '🐟🐠\n           🐙\n    🐡',
+});
+es.set(demoKeypair, {
+    format: 'es.1',
     key: 'wiki/Kitten',
     value: 'Meow meow meow',
 });

@@ -43,9 +43,8 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
         let currentItem : Item | null = this.state.currentPage === null ? null : es.getItem(this.state.currentPage) || null;
         return <Stack>
             <FlexRow>
-                <FlexItem basis="150px">
+                <FlexItem basis="150px" shrink={0}>
                     <Box style={{borderRight: '2px solid #aaa'}}>
-                        <div><b>Pages:</b></div>
                         {wikiItems.map(item =>
                             <p key={item.key}>
                                 <a href="#"
@@ -62,8 +61,12 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
                     <Box>
                         {currentItem !== null ?
                             [
-                                <h3 style={{marginTop: 0}}>{currentItem.key.slice(5)}</h3>,
-                                <p>{currentItem.value}</p>
+                                <h2 style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
+                                    {currentItem.key.slice(5)}
+                                </h2>,
+                                <p style={{whiteSpace: 'pre-wrap'}}>
+                                    {currentItem.value}
+                                </p>
                             ]
                             : " "
                         }

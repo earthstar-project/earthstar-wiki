@@ -50,7 +50,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     onClick={() => this.setState({newKey: item.key, newValue: item.value})}
                     >
                     <div><code className='cKey'>{item.key}</code></div>
-                    <div style={{paddingLeft: 50}}>= <code className='cValue'>{item.value}</code></div>
+                    <div style={{paddingLeft: 50}}>= <pre className='cValue'>{item.value}</pre></div>
                     <div style={{paddingLeft: 50}}>by <code className='cAuthor'>{item.author.slice(0,10)+'...'}</code></div>
                 </div>
             )}
@@ -64,7 +64,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                         />
                 </div>
                 <div style={{paddingLeft: 50}}>
-                    <input type="text"
+                    <textarea
                         style={{width: '100%'}}
                         value={this.state.newValue}
                         placeholder="value"

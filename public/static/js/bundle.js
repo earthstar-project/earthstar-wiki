@@ -66012,6 +66012,16 @@ es.set(demoKeypair, {
 });
 es.set(demoKeypair, {
     format: 'es.1',
+    key: 'wiki/Bird',
+    value: 'Cheep cheep\nCheep\n\nCheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep\n🦆',
+});
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: 'wiki/Fish Of The Deep Sea',
+    value: '🐟🐠\n           🐙\n    🐡',
+});
+es.set(demoKeypair, {
+    format: 'es.1',
     key: 'wiki/Kitten',
     value: 'Meow meow meow',
 });
@@ -66086,7 +66096,7 @@ class EsDebugView extends React.Component {
                     React.createElement("code", { className: 'cKey' }, item.key)),
                 React.createElement("div", { style: { paddingLeft: 50 } },
                     "= ",
-                    React.createElement("code", { className: 'cValue' }, item.value)),
+                    React.createElement("pre", { className: 'cValue' }, item.value)),
                 React.createElement("div", { style: { paddingLeft: 50 } },
                     "by ",
                     React.createElement("code", { className: 'cAuthor' }, item.author.slice(0, 10) + '...')))),
@@ -66094,7 +66104,7 @@ class EsDebugView extends React.Component {
                 React.createElement("div", null,
                     React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newKey, placeholder: "new or existing key", onChange: e => this.setState({ newKey: e.target.value }) })),
                 React.createElement("div", { style: { paddingLeft: 50 } },
-                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
+                    React.createElement("textarea", { style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
                     React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Set or overwrite"))),
             React.createElement("div", null,
                 React.createElement("b", null, "Networking: Pubs")),
@@ -66281,17 +66291,14 @@ class WikiView extends React.Component {
         let currentItem = this.state.currentPage === null ? null : es.getItem(this.state.currentPage) || null;
         return React.createElement(layouts_1.Stack, null,
             React.createElement(layouts_1.FlexRow, null,
-                React.createElement(layouts_1.FlexItem, { basis: "150px" },
-                    React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } },
-                        React.createElement("div", null,
-                            React.createElement("b", null, "Pages:")),
-                        wikiItems.map(item => React.createElement("p", { key: item.key },
-                            React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == (currentItem === null || currentItem === void 0 ? void 0 : currentItem.key) ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
+                React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0 },
+                    React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } }, wikiItems.map(item => React.createElement("p", { key: item.key },
+                        React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == (currentItem === null || currentItem === void 0 ? void 0 : currentItem.key) ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
                 React.createElement(layouts_1.FlexItem, { grow: 1 },
                     React.createElement(layouts_1.Box, null, currentItem !== null ?
                         [
-                            React.createElement("h3", { style: { marginTop: 0 } }, currentItem.key.slice(5)),
-                            React.createElement("p", null, currentItem.value)
+                            React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
+                            React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, currentItem.value)
                         ]
                         : " "))));
     }
