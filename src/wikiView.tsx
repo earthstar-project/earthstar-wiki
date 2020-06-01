@@ -72,7 +72,7 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
             <FlexItem grow={1}>
                 <Box>
                     {currentItem === null
-                        ? <div className="small"><i>Pick a page from the left.</i></div>
+                        ? <div className="small"><i>Pick a page to read.  To edit or create a page, go into the Debug View for now.</i></div>
                         : <div>
                             <h2 style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
                                 {currentItem.key.slice(5)}

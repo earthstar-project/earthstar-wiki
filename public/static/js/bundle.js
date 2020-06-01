@@ -66538,7 +66538,7 @@ class WikiView extends React.Component {
             React.createElement(layouts_1.FlexItem, { grow: 1 },
                 React.createElement(layouts_1.Box, null, currentItem === null
                     ? React.createElement("div", { className: "small" },
-                        React.createElement("i", null, "Pick a page from the left."))
+                        React.createElement("i", null, "Pick a page to read.  To edit or create a page, go into the Debug View for now."))
                     : React.createElement("div", null,
                         React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
                         React.createElement("p", { className: "small" },
