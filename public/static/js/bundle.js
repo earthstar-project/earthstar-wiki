@@ -65962,30 +65962,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(require("react"));
 const ReactDOM = __importStar(require("react-dom"));
 const earthstar_1 = require("earthstar");
-const sync_1 = require("./sync");
 const layouts_1 = require("./layouts");
+const sync_1 = require("./sync");
 const esDebugView_1 = require("./esDebugView");
 const wikiView_1 = require("./wikiView");
-let logMain = (...args) => console.log('main | ', ...args);
-let main = () => __awaiter(void 0, void 0, void 0, function* () {
+/*
+import {
+    syncLocalAndHttp,
+} from './sync';
+let logMain = (...args : any[]) => console.log('main | ', ...args);
+let main = async () => {
     logMain('hello world');
     let workspace = 'demo';
-    let es = new earthstar_1.StoreMemory([earthstar_1.ValidatorEs1], workspace);
+    let es = new StoreMemory([ValidatorEs1], workspace);
     logMain('workspace:', es.workspace);
-    let demoKeypair = earthstar_1.Crypto.generateKeypair();
+    let demoKeypair = Crypto.generateKeypair();
     let demoAuthor = demoKeypair.public;
     logMain('author:', demoAuthor);
     let ok = es.set(demoKeypair, {
@@ -65997,14 +65992,15 @@ let main = () => __awaiter(void 0, void 0, void 0, function* () {
     logMain('keys:', es.keys());
     let item = es.items()[0];
     logMain('item:', item);
-    logMain('hash:', earthstar_1.ValidatorEs1.hashItem(item));
+    logMain('hash:', ValidatorEs1.hashItem(item));
     logMain('-------------------------------');
     logMain('syncing:');
-    yield sync_1.syncLocalAndHttp(es, 'http://localhost:3333/earthstar/');
+    await syncLocalAndHttp(es, 'http://localhost:3333/earthstar/');
     logMain('-------------------------------');
     logMain('keys:', es.keys());
-});
+};
 //main();
+*/
 //================================================================================
 // APP VIEW
 let logApp = (...args) => console.log('AppView | ', ...args);
@@ -66023,17 +66019,26 @@ class AppView extends React.Component {
                 React.createElement(layouts_1.Card, null,
                     React.createElement(wikiView_1.WikiView, { es: this.props.es, keypair: this.props.keypair })),
                 React.createElement("div", { style: { height: 60 } }),
-                React.createElement("h3", { style: { opacity: 0.6 } }, "Debug View"),
-                React.createElement(layouts_1.Card, { style: { opacity: 0.6 } },
-                    React.createElement(esDebugView_1.EsDebugView, { es: this.props.es, keypair: this.props.keypair }))));
+                React.createElement("h3", { style: { opacity: 1.0 } }, "Debug View"),
+                React.createElement(layouts_1.Card, { style: { opacity: 1.0 } },
+                    React.createElement(esDebugView_1.EsDebugView, { es: this.props.es, keypair: this.props.keypair, syncer: this.props.syncer }))));
     }
 }
 //================================================================================
 // MAIN
 let workspace = 'demo';
 let es = new earthstar_1.StoreMemory([earthstar_1.ValidatorEs1], workspace);
-let demoKeypair = earthstar_1.Crypto.generateKeypair();
+// let demoKeypair = Crypto.generateKeypair();
+let demoKeypair = {
+    public: "@mVkCjHbAcjEBddaZwxFVSiQdVFuvXSiH3B5K5bH7Hcx",
+    secret: "6DxjAHzdJHgMvJBqgD4iUNhmuwQbuMzPuDkntLi1sjjz"
+};
 let demoAuthor = demoKeypair.public;
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: `~${demoAuthor}/about/name`,
+    value: 'Example Wiki Author',
+});
 es.set(demoKeypair, {
     format: 'es.1',
     key: 'wiki/Bumblebee',
@@ -66042,12 +66047,12 @@ es.set(demoKeypair, {
 es.set(demoKeypair, {
     format: 'es.1',
     key: 'wiki/Puppy',
-    value: 'Bark bark bark',
+    value: 'Bark bark\nbark',
 });
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/Bird',
-    value: 'Cheep cheep\nCheep\n\nCheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep\n🦆',
+    key: 'wiki/Duck',
+    value: 'Quack quack quack 🦆',
 });
 es.set(demoKeypair, {
     format: 'es.1',
@@ -66059,9 +66064,69 @@ es.set(demoKeypair, {
     key: 'wiki/Kitten',
     value: 'Meow meow meow',
 });
-ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair }), document.getElementById('react-slot'));
+let syncer = new sync_1.Syncer(es);
+syncer.addPub('http://localhost:3333/earthstar/');
+ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair, syncer: syncer }), document.getElementById('react-slot'));
 
-},{"./esDebugView":246,"./layouts":247,"./sync":248,"./wikiView":249,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
+},{"./esDebugView":247,"./layouts":248,"./sync":249,"./wikiView":251,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
+(function (process){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Atom = void 0;
+class Atom {
+    //callbacksBlockingAsync : ((val : T)=>Promise<void>)[];
+    constructor(val) {
+        this.val = val;
+        this.callbacksSync = [];
+        this.callbacksNextTick = [];
+        //this.callbacksBlockingAsync = [];
+    }
+    subscribeSync(cb) {
+        this.callbacksSync.push(cb);
+        let unsub = () => {
+            this.callbacksSync = this.callbacksSync.filter(c => c != cb);
+        };
+        return unsub;
+    }
+    subscribeNextTick(cb) {
+        this.callbacksNextTick.push(cb);
+        let unsub = () => {
+            this.callbacksNextTick = this.callbacksNextTick.filter(c => c != cb);
+        };
+        return unsub;
+    }
+    //subscribeBlockingAsync(cb : (val : T) => Promise<void>) : () => void {
+    //    let unsub = () => {
+    //        this.callbacksBlockingAsync = this.callbacksBlockingAsync.filter(c => c != cb);
+    //    };
+    //    return unsub;
+    //}
+    setAndNotify(val) {
+        this.val = val;
+        this.notify();
+    }
+    setQuietly(val) {
+        this.val = val;
+    }
+    notify() {
+        for (let cb of this.callbacksSync) {
+            cb(this.val);
+        }
+        for (let cb of this.callbacksNextTick) {
+            process.nextTick(() => cb(this.val));
+        }
+        //for (let cb of this.callbacksBlockingAsync) {
+        //    await cb(val);
+        //}
+    }
+    get() {
+        return this.val;
+    }
+}
+exports.Atom = Atom;
+
+}).call(this,require('_process'))
+},{"_process":183}],247:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66097,6 +66162,7 @@ class EsDebugView extends React.Component {
     }
     componentDidMount() {
         this.props.es.onChange.subscribe(() => this.forceUpdate());
+        this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
     }
     _setKeyValue() {
         if (this.state.newKey === '') {
@@ -66126,18 +66192,46 @@ class EsDebugView extends React.Component {
                 " ",
                 React.createElement("code", { className: 'cAuthor' }, this.props.keypair.public.slice(0, 10) + '...')),
             React.createElement("div", null,
+                React.createElement("b", null, "Networking: Pubs")),
+            this.props.syncer.state.pubs.map(pub => {
+                let lastSynced = pub.lastSync === 0
+                    ? 'never'
+                    : new Date(pub.lastSync)
+                        .toString()
+                        .split(' ').slice(0, 5).join(' ');
+                return React.createElement("div", { key: pub.url },
+                    React.createElement("div", null,
+                        "\uD83D\uDDC3 ",
+                        React.createElement("b", null,
+                            React.createElement("a", { href: "{pub.url}" }, pub.url))),
+                    React.createElement("div", { style: { paddingLeft: 50 } },
+                        "last synced: ",
+                        lastSynced),
+                    React.createElement("div", { style: { paddingLeft: 50 } },
+                        "state: ",
+                        React.createElement("b", null, pub.syncState)));
+            }),
+            React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: this.props.syncer.state.syncState === 'syncing' }, this.props.syncer.state.syncState === 'idle'
+                ? "Sync now"
+                : "Syncing..."),
+            React.createElement("div", { id: "es-editor" },
                 React.createElement("b", null, "Editor:")),
             React.createElement("div", null,
                 React.createElement("div", null,
                     React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newKey, placeholder: "new or existing key", onChange: e => this.setState({ newKey: e.target.value }) })),
                 React.createElement("div", { style: { paddingLeft: 50 } },
-                    React.createElement("textarea", { style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
+                    React.createElement("textarea", { rows: 4, style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
                     React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Save"),
                     "(Delete items by saving an empty value)")),
             React.createElement("div", null,
                 React.createElement("b", null, "Keys and values:"),
                 " (Click to load into the edit box)"),
-            es.items().map(item => React.createElement("div", { key: item.key, onClick: () => this.setState({ newKey: item.key, newValue: item.value }) },
+            es.items().map(item => React.createElement("div", { key: item.key, onClick: () => {
+                    var _a;
+                    // load this item into the editor
+                    this.setState({ newKey: item.key, newValue: item.value });
+                    (_a = document.getElementById('es-editor')) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } },
                 React.createElement("div", null,
                     React.createElement("code", { className: 'cKey' }, item.key)),
                 React.createElement("div", { style: { paddingLeft: 50 } },
@@ -66145,15 +66239,12 @@ class EsDebugView extends React.Component {
                     React.createElement("pre", { className: 'cValue' }, item.value)),
                 React.createElement("div", { style: { paddingLeft: 50 } },
                     "by ",
-                    React.createElement("code", { className: 'cAuthor' }, item.author.slice(0, 10) + '...')))),
-            React.createElement("div", null,
-                React.createElement("b", null, "Networking: Pubs")),
-            React.createElement("div", null, "(Pub sync works but is not hooked up in the UI yet)"));
+                    React.createElement("code", { className: 'cAuthor' }, item.author.slice(0, 10) + '...')))));
     }
 }
 exports.EsDebugView = EsDebugView;
 
-},{"./layouts":247,"react":200}],247:[function(require,module,exports){
+},{"./layouts":248,"react":200}],248:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66196,7 +66287,7 @@ exports.FlexRow = (props) => React.createElement("div", { style: { display: 'fle
 ;
 exports.FlexItem = (props) => React.createElement("div", { style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
 
-},{"react":200}],248:[function(require,module,exports){
+},{"react":200}],249:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -66211,22 +66302,86 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.syncLocalAndHttp = void 0;
+exports.syncLocalAndHttp = exports.Syncer = void 0;
 const isomorphic_fetch_1 = __importDefault(require("isomorphic-fetch"));
-exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('existing database workspace:', store.workspace);
+const atom_1 = require("./atom");
+const util_1 = require("./util");
+let normalizePubUrl = (url) => {
     if (!url.endsWith('/')) {
-        url = url + '/';
+        url += '/';
     }
     if (!url.endsWith('/earthstar/')) {
-        console.error('ERROR: url is expected to end with "/earthstar/"');
-        return;
+        console.error('WARNING: pub url is expected to end with "/earthstar/"');
     }
+    return url;
+};
+let logSyncer = (...args) => console.log('💚 syncer | ', ...args);
+class Syncer {
+    constructor(store) {
+        this.store = store;
+        this.state = {
+            pubs: [],
+            syncState: 'idle',
+            lastSync: 0,
+        };
+        this.atom = new atom_1.Atom(this.state);
+    }
+    removePub(url) {
+        this.state.pubs = this.state.pubs.filter(pub => pub.url !== url);
+        this.atom.setAndNotify(this.state);
+    }
+    addPub(url) {
+        url = normalizePubUrl(url);
+        // don't allow adding the same pub twice
+        if (this.state.pubs.filter(pub => pub.url === url).length > 0) {
+            return;
+        }
+        this.state.pubs.push({
+            url: url,
+            syncState: 'idle',
+            lastSync: 0,
+        });
+        this.atom.setAndNotify(this.state);
+    }
+    sync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logSyncer('starting');
+            this.state.syncState = 'syncing';
+            this.atom.setAndNotify(this.state);
+            for (let pub of this.state.pubs) {
+                logSyncer('starting pub:', pub.url);
+                pub.syncState = 'syncing';
+                this.atom.setAndNotify(this.state);
+                let resultStats = yield exports.syncLocalAndHttp(this.store, pub.url);
+                logSyncer('finished pub');
+                logSyncer(JSON.stringify(resultStats, null, 2));
+                pub.lastSync = Date.now();
+                pub.syncState = 'idle';
+                this.atom.setAndNotify(this.state);
+            }
+            // wait a moment so the user can keep track of what's happening
+            yield util_1.sleep(500);
+            logSyncer('finished');
+            this.state.lastSync = Date.now();
+            this.state.syncState = 'idle';
+            this.atom.setAndNotify(this.state);
+        });
+    }
+}
+exports.Syncer = Syncer;
+let logSyncAlg = (...args) => console.log('sync algorithm | ', ...args);
+exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, function* () {
+    logSyncAlg('existing database workspace:', store.workspace);
+    let resultStats = {
+        pull: null,
+        push: null,
+    };
+    url = normalizePubUrl(url);
     let urlWithWorkspace = url + store.workspace;
     // pull from server
     // this can 404 the first time, because the server only creates workspaces
     // when we push them
-    console.log('pulling from ' + urlWithWorkspace);
+    logSyncAlg('pulling from ' + urlWithWorkspace);
     let resp;
     try {
         resp = yield isomorphic_fetch_1.default(urlWithWorkspace + '/items');
@@ -66234,30 +66389,31 @@ exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, fun
     catch (e) {
         console.error('ERROR: could not connect to server');
         console.error(e.toString());
-        return;
+        return resultStats;
     }
+    resultStats.pull = {
+        numIngested: 0,
+        numIgnored: 0,
+        numTotal: 0,
+    };
     if (resp.status === 404) {
-        console.log('    server 404: server does not know about this workspace yet');
+        logSyncAlg('    server 404: server does not know about this workspace yet');
     }
     else {
         let items = yield resp.json();
-        let pullStats = {
-            numIngested: 0,
-            numIgnored: 0,
-            numTotal: items.length,
-        };
+        resultStats.pull.numTotal = items.length;
         for (let item of items) {
             if (store.ingestItem(item)) {
-                pullStats.numIngested += 1;
+                resultStats.pull.numIngested += 1;
             }
             else {
-                pullStats.numIgnored += 1;
+                resultStats.pull.numIgnored += 1;
             }
         }
-        console.log(JSON.stringify(pullStats, null, 2));
+        logSyncAlg(JSON.stringify(resultStats.pull, null, 2));
     }
     // push to server
-    console.log('pushing to ' + urlWithWorkspace);
+    logSyncAlg('pushing to ' + urlWithWorkspace);
     let resp2;
     try {
         resp2 = yield isomorphic_fetch_1.default(urlWithWorkspace + '/items', {
@@ -66269,21 +66425,41 @@ exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, fun
     catch (e) {
         console.error('ERROR: could not connect to server');
         console.error(e.toString());
-        return;
+        return resultStats;
     }
     if (resp2.status === 404) {
-        console.log('    server 404: server is not accepting new workspaces');
+        logSyncAlg('    server 404: server is not accepting new workspaces');
     }
     else if (resp2.status === 403) {
-        console.log('    server 403: server is in readonly mode');
+        logSyncAlg('    server 403: server is in readonly mode');
     }
     else {
-        let pushStats = yield resp2.json();
-        console.log(JSON.stringify(pushStats, null, 2));
+        resultStats.pushStats = yield resp2.json();
+        logSyncAlg(JSON.stringify(resultStats.pushStats, null, 2));
     }
+    return resultStats;
 });
 
-},{"isomorphic-fetch":156}],249:[function(require,module,exports){
+},{"./atom":246,"./util":250,"isomorphic-fetch":156}],250:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sleep = void 0;
+exports.sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, ms);
+    });
+});
+
+},{}],251:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66331,28 +66507,35 @@ class WikiView extends React.Component {
         log('render()');
         let es = this.props.es;
         let wikiItems = es.items({ prefix: 'wiki/' }).filter(item => item.value);
-        let currentItem = this.state.currentPage === null ? null : es.getItem(this.state.currentPage) || null;
-        return React.createElement(layouts_1.Stack, null,
-            React.createElement(layouts_1.FlexRow, null,
-                React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0 },
-                    React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } }, wikiItems.map(item => React.createElement("p", { key: item.key },
-                        React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == (currentItem === null || currentItem === void 0 ? void 0 : currentItem.key) ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
-                React.createElement(layouts_1.FlexItem, { grow: 1 },
-                    React.createElement(layouts_1.Box, null, currentItem !== null ?
-                        [
-                            React.createElement("h2", { key: 'title', style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
-                            React.createElement("p", { key: 'author', className: "small" },
-                                React.createElement("i", null,
-                                    "updated ",
-                                    new Date(currentItem.timestamp / 1000)
-                                        .toString()
-                                        .split(' ').slice(0, 5).join(' '),
-                                    React.createElement("br", null),
-                                    "by ",
-                                    currentItem.author.slice(0, 10) + '...')),
-                            React.createElement("p", { key: 'body', style: { whiteSpace: 'pre-wrap' } }, currentItem.value)
-                        ]
-                        : " "))));
+        let currentItem = this.state.currentPage === null
+            ? null
+            : es.getItem(this.state.currentPage) || null;
+        let currentAuthorName = currentItem === null
+            ? ''
+            : es.getValue('~' + currentItem.author + '/about/name') || currentItem.author.slice(0, 10) + '...';
+        let currentItemTime = currentItem === null
+            ? ''
+            : new Date(currentItem.timestamp / 1000)
+                .toString()
+                .split(' ').slice(0, 5).join(' ');
+        return React.createElement(layouts_1.FlexRow, null,
+            React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0 },
+                React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } }, wikiItems.map(item => React.createElement("div", { key: item.key },
+                    "\uD83D\uDCC4 ",
+                    React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == (currentItem === null || currentItem === void 0 ? void 0 : currentItem.key) ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
+            React.createElement(layouts_1.FlexItem, { grow: 1 },
+                React.createElement(layouts_1.Box, null, currentItem === null
+                    ? React.createElement("i", null, "Pick a page from the left.")
+                    : React.createElement("div", null,
+                        React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
+                        React.createElement("p", { className: "small" },
+                            React.createElement("i", null,
+                                "updated ",
+                                currentItemTime,
+                                React.createElement("br", null),
+                                "by ",
+                                currentAuthorName)),
+                        React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, currentItem.value)))));
     }
 }
 exports.WikiView = WikiView;
@@ -66365,4 +66548,4 @@ exports.WikiView = WikiView;
             </datalist>
 */ 
 
-},{"./layouts":247,"react":200}]},{},[245]);
+},{"./layouts":248,"react":200}]},{},[245]);

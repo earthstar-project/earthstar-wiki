@@ -6,10 +6,10 @@ html {
 }
 
 :root {
-    --cKey: #ffd699;
-    --cValue: #afff93;
+    --cKey: #ffe2b8;
+    --cValue: #c9fcb7;
     --cWorkspace: #c5e8ff;
-    --cAuthor: #f7c0ff;
+    --cAuthor: #f6cdff;
 }
 
 .cKey { background: var(--cKey); }

@@ -30,6 +30,7 @@
     "uglifyify": "^5.0.2"
   },
   "dependencies": {
+    "@types/nano-equal": "^2.0.0",
     "earthstar": "^0.9.1",
     "isomorphic-fetch": "^2.2.1",
     "react": "^16.12.0",

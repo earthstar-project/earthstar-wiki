@@ -18,7 +18,7 @@
     --test-border-width: 0px;
 
     /* COLOR PALETTE */
-    --cAccentDark: #409;
+    --cAccentDark: #5e4d76;
     --cAccentLight: #a4f;
 
     --cGray90: #e2e2e2;
@@ -61,6 +61,10 @@ button {
     padding: var(--s-2) var(--s-1);
     border: none;
     border-radius: var(--round);
+}
+
+button:disabled {
+    background: var(--cGrayTextOnWhite);
 }
 
 input[type='text'] {

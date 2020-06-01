@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-
 import {
     StoreMemory,
     IStore,
@@ -9,19 +8,18 @@ import {
     Keypair,
 } from 'earthstar';
 import {
-    syncLocalAndHttp,
-} from './sync';
-
-import {
     Card,
     Center,
     Stack,
 } from './layouts';
-
+import { Syncer } from './sync';
 import { EsDebugView } from './esDebugView';
 import { WikiView } from './wikiView';
 
-
+/*
+import {
+    syncLocalAndHttp,
+} from './sync';
 let logMain = (...args : any[]) => console.log('main | ', ...args);
 let main = async () => {
     logMain('hello world');
@@ -48,6 +46,7 @@ let main = async () => {
     logMain('keys:', es.keys());
 };
 //main();
+*/
 
 //================================================================================
 // APP VIEW
@@ -56,6 +55,7 @@ let logApp = (...args : any[]) => console.log('AppView | ', ...args);
 interface AppViewProps {
     es : IStore,
     keypair : Keypair,
+    syncer : Syncer,
 }
 interface AppViewState {
 }
@@ -78,9 +78,13 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
                     <WikiView es={this.props.es} keypair={this.props.keypair} />
                 </Card>
                 <div style={{height: 60}} />
-                <h3 style={{opacity: 0.6}}>Debug View</h3>
-                <Card style={{opacity: 0.6}}>
-                    <EsDebugView es={this.props.es} keypair={this.props.keypair} />
+                <h3 style={{opacity: 1.0}}>Debug View</h3>
+                <Card style={{opacity: 1.0}}>
+                    <EsDebugView
+                        es={this.props.es}
+                        keypair={this.props.keypair}
+                        syncer={this.props.syncer}
+                        />
                 </Card>
             </Stack>
         </Center>
@@ -92,8 +96,17 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
 
 let workspace = 'demo';
 let es = new StoreMemory([ValidatorEs1], workspace);
-let demoKeypair = Crypto.generateKeypair();
+// let demoKeypair = Crypto.generateKeypair();
+let demoKeypair = {
+    public: "@mVkCjHbAcjEBddaZwxFVSiQdVFuvXSiH3B5K5bH7Hcx",
+    secret: "6DxjAHzdJHgMvJBqgD4iUNhmuwQbuMzPuDkntLi1sjjz"
+}
 let demoAuthor = demoKeypair.public;
+es.set(demoKeypair, {
+    format: 'es.1',
+    key: `~${demoAuthor}/about/name`,
+    value: 'Example Wiki Author',
+});
 es.set(demoKeypair, {
     format: 'es.1',
     key: 'wiki/Bumblebee',
@@ -102,12 +115,12 @@ es.set(demoKeypair, {
 es.set(demoKeypair, {
     format: 'es.1',
     key: 'wiki/Puppy',
-    value: 'Bark bark bark',
+    value: 'Bark bark\nbark',
 });
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/Bird',
-    value: 'Cheep cheep\nCheep\n\nCheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep cheep\n🦆',
+    key: 'wiki/Duck',
+    value: 'Quack quack quack 🦆',
 });
 es.set(demoKeypair, {
     format: 'es.1',
@@ -120,7 +133,10 @@ es.set(demoKeypair, {
     value: 'Meow meow meow',
 });
 
+let syncer = new Syncer(es);
+syncer.addPub('http://localhost:3333/earthstar/');
+
 ReactDOM.render(
-    <AppView es={es} keypair={demoKeypair} />,
+    <AppView es={es} keypair={demoKeypair} syncer={syncer} />,
     document.getElementById('react-slot')
 );

@@ -6,12 +6,14 @@ import {
 import {
     Stack,
 } from './layouts';
+import { Syncer } from './sync';
 
 let log = (...args : any[]) => console.log('EsDebugView |', ...args);
 
 interface EsDebugProps {
     es : IStore,
     keypair : Keypair,
+    syncer : Syncer,
 }
 interface EsDebugState {
     newKey : string,
@@ -27,6 +29,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
     }
     componentDidMount() {
         this.props.es.onChange.subscribe(() => this.forceUpdate());
+        this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
     }
     _setKeyValue() {
         if (this.state.newKey === '') { return; }
@@ -47,7 +50,28 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
         return <Stack>
             <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
             <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.public.slice(0,10)+'...'}</code></div>
-            <div><b>Editor:</b></div>
+            <div><b>Networking: Pubs</b></div>
+            {this.props.syncer.state.pubs.map(pub => {
+                let lastSynced : string = pub.lastSync === 0
+                    ? 'never'
+                    : new Date(pub.lastSync)
+                        .toString()
+                        .split(' ').slice(0, 5).join(' ');
+                return <div key={pub.url}>
+                    <div>🗃 <b><a href="{pub.url}">{pub.url}</a></b></div>
+                    <div style={{paddingLeft: 50}}>last synced: {lastSynced}</div>
+                    <div style={{paddingLeft: 50}}>state: <b>{pub.syncState}</b></div>
+                </div>
+            })}
+            <button type="button"
+                onClick={() => this.props.syncer.sync()}
+                disabled={this.props.syncer.state.syncState === 'syncing'}
+                >
+                {this.props.syncer.state.syncState === 'idle'
+                    ? "Sync now"
+                    : "Syncing..."}
+            </button>
+            <div id="es-editor"><b>Editor:</b></div>
             <div>
                 <div>
                     <input type="text"
@@ -59,6 +83,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                 </div>
                 <div style={{paddingLeft: 50}}>
                     <textarea
+                        rows={4}
                         style={{width: '100%'}}
                         value={this.state.newValue}
                         placeholder="value"
@@ -75,15 +100,17 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
             <div><b>Keys and values:</b> (Click to load into the edit box)</div>
             {es.items().map(item =>
                 <div key={item.key}
-                    onClick={() => this.setState({newKey: item.key, newValue: item.value})}
+                    onClick={() => {
+                        // load this item into the editor
+                        this.setState({newKey: item.key, newValue: item.value})
+                        document.getElementById('es-editor')?.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                    }}
                     >
                     <div><code className='cKey'>{item.key}</code></div>
                     <div style={{paddingLeft: 50}}>= <pre className='cValue'>{item.value}</pre></div>
                     <div style={{paddingLeft: 50}}>by <code className='cAuthor'>{item.author.slice(0,10)+'...'}</code></div>
                 </div>
             )}
-            <div><b>Networking: Pubs</b></div>
-            <div>(Pub sync works but is not hooked up in the UI yet)</div>
         </Stack>
     }
 }
