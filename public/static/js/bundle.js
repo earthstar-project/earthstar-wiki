@@ -66341,6 +66341,15 @@ class WikiView extends React.Component {
                     React.createElement(layouts_1.Box, null, currentItem !== null ?
                         [
                             React.createElement("h2", { key: 'title', style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
+                            React.createElement("p", { key: 'author', className: "small" },
+                                React.createElement("i", null,
+                                    "updated ",
+                                    new Date(currentItem.timestamp / 1000)
+                                        .toString()
+                                        .split(' ').slice(0, 5).join(' '),
+                                    React.createElement("br", null),
+                                    "by ",
+                                    currentItem.author.slice(0, 10) + '...')),
                             React.createElement("p", { key: 'body', style: { whiteSpace: 'pre-wrap' } }, currentItem.value)
                         ]
                         : " "))));

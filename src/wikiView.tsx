@@ -67,6 +67,13 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
                                 <h2 key='title' style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
                                     {currentItem.key.slice(5)}
                                 </h2>,
+                                <p key='author' className="small"><i>
+                                    updated {new Date(currentItem.timestamp/1000)
+                                        .toString()
+                                        .split(' ').slice(0, 5).join(' ')
+                                    }<br/>
+                                    by {currentItem.author.slice(0,10)+'...'}
+                                </i></p>,
                                 <p key='body' style={{whiteSpace: 'pre-wrap'}}>
                                     {currentItem.value}
                                 </p>
