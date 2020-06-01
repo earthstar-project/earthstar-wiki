@@ -39,4 +39,10 @@ pre {
 a {
     text-decoration: underline !important;
 }
-td { vertical-align: top; }
+summary {
+    display: list-item; /* ensure the disclosure triangle is shown */
+    cursor: pointer;
+}
+summary h3 {
+    display: inline;
+}

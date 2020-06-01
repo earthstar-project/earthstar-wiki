@@ -91,7 +91,7 @@ input[type='text']:focus {
 }
 
 .small {
-    font-size: 75%;
+    font-size: 80%;
     color: var(--cSmallText);
 }
 .small > a {

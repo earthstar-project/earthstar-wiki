@@ -60,7 +60,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                         .toString()
                         .split(' ').slice(0, 5).join(' ');
                 return <div key={pub.url}>
-                    <div>🗃 <b><a href="{pub.url}">{pub.url}</a></b></div>
+                    <div>🗃 <b><a href={pub.url}>{pub.url}</a></b></div>
                     <div style={{paddingLeft: 50}}>last synced: {lastSynced}</div>
                     <div style={{paddingLeft: 50}}>state: <b>{pub.syncState}</b></div>
                 </div>

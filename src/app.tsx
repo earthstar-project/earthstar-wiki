@@ -70,7 +70,7 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
             <Stack>
                 <h2>
                     <img src="static/img/earthstar-pal-transparent.png"
-                        style={{width: 100, verticalAlign: 'middle'}}
+                        style={{width: 50, verticalAlign: 'middle'}}
                     />
                     Earthstar Wiki
                 </h2>
@@ -78,14 +78,18 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
                     <WikiView es={this.props.es} keypair={this.props.keypair} />
                 </Card>
                 <div style={{height: 60}} />
-                <h3 style={{opacity: 1.0}}>Debug View</h3>
-                <Card style={{opacity: 1.0}}>
-                    <EsDebugView
-                        es={this.props.es}
-                        keypair={this.props.keypair}
-                        syncer={this.props.syncer}
-                        />
-                </Card>
+                <details>
+                    <summary>
+                        <h3 style={{opacity: 1.0}}>Debug View</h3>
+                    </summary>
+                    <Card style={{opacity: 1.0}}>
+                        <EsDebugView
+                            es={this.props.es}
+                            keypair={this.props.keypair}
+                            syncer={this.props.syncer}
+                            />
+                    </Card>
+                </details>
             </Stack>
         </Center>
     }
