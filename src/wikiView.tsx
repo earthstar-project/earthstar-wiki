@@ -26,6 +26,9 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
         super(props);
         this.state = { currentPage : null };
     }
+    componentDidMount() {
+        this.props.es.onChange.subscribe(() => this.forceUpdate());
+    }
     _viewPage(key : string) {
         log('_viewPage', key);
         if (!key.startsWith('wiki/')) {

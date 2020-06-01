@@ -25,6 +25,9 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
             newValue: '',
         };
     }
+    componentDidMount() {
+        this.props.es.onChange.subscribe(() => this.forceUpdate());
+    }
     _setKeyValue() {
         if (this.state.newKey === '') { return; }
         let ok = this.props.es.set(this.props.keypair, {

@@ -64,10 +64,6 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
         super(props);
         this.state = { };
     }
-    componentDidMount() {
-        // poll for updates until earthstar supports watching for changes
-        setInterval(() => this.forceUpdate(), 1000);
-    }
     render() {
         logApp('render()');
         return <Center>
