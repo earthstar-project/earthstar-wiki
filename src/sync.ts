@@ -7,7 +7,7 @@ import { sleep } from './util';
 
 interface Pub {
     url : string;
-    syncState : 'idle' | 'syncing';
+    syncState : 'idle' | 'syncing' | 'could not connect';
     lastSync : number;
 }
 interface SyncState {
@@ -69,8 +69,12 @@ export class Syncer {
 
             logSyncer('finished pub');
             logSyncer(JSON.stringify(resultStats, null, 2));
-            pub.lastSync = Date.now();
-            pub.syncState = 'idle';
+            if (resultStats.pull === null && resultStats.push === null) {
+                pub.syncState = 'could not connect';
+            } else {
+                pub.lastSync = Date.now();
+                pub.syncState = 'idle';
+            }
             this.atom.setAndNotify(this.state);
         }
 

@@ -66066,6 +66066,7 @@ es.set(demoKeypair, {
 });
 let syncer = new sync_1.Syncer(es);
 syncer.addPub('http://localhost:3333/earthstar/');
+syncer.addPub('http://167.71.153.73:3333/earthstar/');
 ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair, syncer: syncer }), document.getElementById('react-slot'));
 
 },{"./esDebugView":247,"./layouts":248,"./sync":249,"./wikiView":251,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
@@ -66187,10 +66188,12 @@ class EsDebugView extends React.Component {
                 React.createElement("b", null, "Workspace:"),
                 " ",
                 React.createElement("code", { className: 'cWorkspace' }, es.workspace)),
+            React.createElement("hr", null),
             React.createElement("div", null,
                 React.createElement("b", null, "Demo author:"),
                 " ",
                 React.createElement("code", { className: 'cAuthor' }, this.props.keypair.public.slice(0, 10) + '...')),
+            React.createElement("hr", null),
             React.createElement("div", null,
                 React.createElement("b", null, "Networking: Pubs")),
             this.props.syncer.state.pubs.map(pub => {
@@ -66214,6 +66217,7 @@ class EsDebugView extends React.Component {
             React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: this.props.syncer.state.syncState === 'syncing' }, this.props.syncer.state.syncState === 'idle'
                 ? "Sync now"
                 : "Syncing..."),
+            React.createElement("hr", null),
             React.createElement("div", { id: "es-editor" },
                 React.createElement("b", null, "Editor:")),
             React.createElement("div", null,
@@ -66223,6 +66227,7 @@ class EsDebugView extends React.Component {
                     React.createElement("textarea", { rows: 4, style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
                     React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Save"),
                     "(Delete items by saving an empty value)")),
+            React.createElement("hr", null),
             React.createElement("div", null,
                 React.createElement("b", null, "Keys and values:"),
                 " (Click to load into the edit box)"),
@@ -66355,8 +66360,13 @@ class Syncer {
                 let resultStats = yield exports.syncLocalAndHttp(this.store, pub.url);
                 logSyncer('finished pub');
                 logSyncer(JSON.stringify(resultStats, null, 2));
-                pub.lastSync = Date.now();
-                pub.syncState = 'idle';
+                if (resultStats.pull === null && resultStats.push === null) {
+                    pub.syncState = 'could not connect';
+                }
+                else {
+                    pub.lastSync = Date.now();
+                    pub.syncState = 'idle';
+                }
                 this.atom.setAndNotify(this.state);
             }
             // wait a moment so the user can keep track of what's happening

@@ -135,6 +135,7 @@ es.set(demoKeypair, {
 
 let syncer = new Syncer(es);
 syncer.addPub('http://localhost:3333/earthstar/');
+syncer.addPub('http://167.71.153.73:3333/earthstar/');
 
 ReactDOM.render(
     <AppView es={es} keypair={demoKeypair} syncer={syncer} />,

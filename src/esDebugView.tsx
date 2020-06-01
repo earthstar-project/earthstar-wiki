@@ -49,7 +49,9 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
         let es = this.props.es;
         return <Stack>
             <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
+            <hr/>
             <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.public.slice(0,10)+'...'}</code></div>
+            <hr/>
             <div><b>Networking: Pubs</b></div>
             {this.props.syncer.state.pubs.map(pub => {
                 let lastSynced : string = pub.lastSync === 0
@@ -71,6 +73,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     ? "Sync now"
                     : "Syncing..."}
             </button>
+            <hr/>
             <div id="es-editor"><b>Editor:</b></div>
             <div>
                 <div>
@@ -97,6 +100,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     (Delete items by saving an empty value)
                 </div>
             </div>
+            <hr/>
             <div><b>Keys and values:</b> (Click to load into the edit box)</div>
             {es.items().map(item =>
                 <div key={item.key}
