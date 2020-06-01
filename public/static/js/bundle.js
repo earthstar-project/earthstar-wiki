@@ -66340,8 +66340,8 @@ class WikiView extends React.Component {
                 React.createElement(layouts_1.FlexItem, { grow: 1 },
                     React.createElement(layouts_1.Box, null, currentItem !== null ?
                         [
-                            React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
-                            React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, currentItem.value)
+                            React.createElement("h2", { key: 'title', style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
+                            React.createElement("p", { key: 'body', style: { whiteSpace: 'pre-wrap' } }, currentItem.value)
                         ]
                         : " "))));
     }

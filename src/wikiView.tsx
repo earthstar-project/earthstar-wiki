@@ -64,10 +64,10 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
                     <Box>
                         {currentItem !== null ?
                             [
-                                <h2 style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
+                                <h2 key='title' style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
                                     {currentItem.key.slice(5)}
                                 </h2>,
-                                <p style={{whiteSpace: 'pre-wrap'}}>
+                                <p key='body' style={{whiteSpace: 'pre-wrap'}}>
                                     {currentItem.value}
                                 </p>
                             ]
