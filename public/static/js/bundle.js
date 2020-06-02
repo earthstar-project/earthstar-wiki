@@ -66493,14 +66493,76 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WikiView = void 0;
+exports.WikiView = exports.WikiPageView = void 0;
 const React = __importStar(require("react"));
 const layouts_1 = require("./layouts");
 let log = (...args) => console.log('WikiView |', ...args);
+class WikiPageView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isEditing: false,
+            editedText: '',
+        };
+    }
+    _startEditing() {
+        var _a;
+        this.setState({
+            isEditing: true,
+            editedText: ((_a = this.props.es.getItem(this.props.currentPageKey || '')) === null || _a === void 0 ? void 0 : _a.value) || '',
+        });
+    }
+    _save() {
+        if (this.props.currentPageKey === null) {
+            return;
+        }
+        let ok = this.props.es.set(this.props.keypair, {
+            format: 'es.1',
+            key: this.props.currentPageKey,
+            value: this.state.editedText,
+        });
+        log('saving success:', ok);
+        if (ok) {
+            this.setState({
+                isEditing: false,
+                editedText: '',
+            });
+        }
+    }
+    render() {
+        let es = this.props.es;
+        let currentItem = this.props.currentPageKey === null
+            ? null
+            : es.getItem(this.props.currentPageKey) || null;
+        if (currentItem === null) {
+            return React.createElement("div", { className: "small" },
+                React.createElement("i", null, "Pick a page to read.  To edit or create a page, go into the Debug View for now."));
+        }
+        let currentAuthorName = es.getValue('~' + currentItem.author + '/about/name') || (currentItem.author.slice(0, 10) + '...');
+        let currentItemTime = new Date(currentItem.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
+        let isEditing = this.state.isEditing;
+        return React.createElement("div", null,
+            isEditing
+                ? React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._save() }, "Save")
+                : React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._startEditing() }, "Edit"),
+            React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
+            React.createElement("p", { className: "small" },
+                React.createElement("i", null,
+                    "updated ",
+                    currentItemTime,
+                    React.createElement("br", null),
+                    "by ",
+                    currentAuthorName)),
+            isEditing
+                ? React.createElement("textarea", { rows: 7, value: this.state.editedText, style: { width: '100%' }, onChange: (e) => this.setState({ editedText: e.target.value }) })
+                : React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, currentItem.value));
+    }
+}
+exports.WikiPageView = WikiPageView;
 class WikiView extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { currentPage: null };
+        this.state = { currentPageKey: null };
     }
     componentDidMount() {
         this.props.es.onChange.subscribe(() => this.forceUpdate());
@@ -66512,43 +66574,21 @@ class WikiView extends React.Component {
             return;
         }
         this.setState({
-            currentPage: key,
+            currentPageKey: key,
         });
     }
     render() {
         log('render()');
         let es = this.props.es;
         let wikiItems = es.items({ prefix: 'wiki/' }).filter(item => item.value);
-        let currentItem = this.state.currentPage === null
-            ? null
-            : es.getItem(this.state.currentPage) || null;
-        let currentAuthorName = currentItem === null
-            ? ''
-            : es.getValue('~' + currentItem.author + '/about/name') || currentItem.author.slice(0, 10) + '...';
-        let currentItemTime = currentItem === null
-            ? ''
-            : new Date(currentItem.timestamp / 1000)
-                .toString()
-                .split(' ').slice(0, 5).join(' ');
         return React.createElement(layouts_1.FlexRow, null,
             React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0 },
                 React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } }, wikiItems.map(item => React.createElement("div", { key: item.key },
                     "\uD83D\uDCC4 ",
-                    React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == (currentItem === null || currentItem === void 0 ? void 0 : currentItem.key) ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
+                    React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == this.state.currentPageKey ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
             React.createElement(layouts_1.FlexItem, { grow: 1 },
-                React.createElement(layouts_1.Box, null, currentItem === null
-                    ? React.createElement("div", { className: "small" },
-                        React.createElement("i", null, "Pick a page to read.  To edit or create a page, go into the Debug View for now."))
-                    : React.createElement("div", null,
-                        React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
-                        React.createElement("p", { className: "small" },
-                            React.createElement("i", null,
-                                "updated ",
-                                currentItemTime,
-                                React.createElement("br", null),
-                                "by ",
-                                currentAuthorName)),
-                        React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, currentItem.value)))));
+                React.createElement(layouts_1.Box, null,
+                    React.createElement(WikiPageView, { es: this.props.es, keypair: this.props.keypair, currentPageKey: this.state.currentPageKey }))));
     }
 }
 exports.WikiView = WikiView;
