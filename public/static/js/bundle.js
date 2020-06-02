@@ -65970,37 +65970,6 @@ const layouts_1 = require("./layouts");
 const sync_1 = require("./sync");
 const esDebugView_1 = require("./esDebugView");
 const wikiView_1 = require("./wikiView");
-/*
-import {
-    syncLocalAndHttp,
-} from './sync';
-let logMain = (...args : any[]) => console.log('main | ', ...args);
-let main = async () => {
-    logMain('hello world');
-    let workspace = 'demo';
-    let es = new StoreMemory([ValidatorEs1], workspace);
-    logMain('workspace:', es.workspace);
-    let demoKeypair = Crypto.generateKeypair();
-    let demoAuthor = demoKeypair.public;
-    logMain('author:', demoAuthor);
-    let ok = es.set(demoKeypair, {
-        format: 'es.1',
-        key: 'wiki/bumblebee',
-        value: 'Buzz buzz buzz',
-    });
-    logMain('ok:', ok);
-    logMain('keys:', es.keys());
-    let item = es.items()[0];
-    logMain('item:', item);
-    logMain('hash:', ValidatorEs1.hashItem(item));
-    logMain('-------------------------------');
-    logMain('syncing:');
-    await syncLocalAndHttp(es, 'http://localhost:3333/earthstar/');
-    logMain('-------------------------------');
-    logMain('keys:', es.keys());
-};
-//main();
-*/
 //================================================================================
 // APP VIEW
 let logApp = (...args) => console.log('AppView | ', ...args);
@@ -66027,9 +65996,12 @@ class AppView extends React.Component {
     }
 }
 //================================================================================
-// MAIN
+// SET UP DEMO CONTENT
 let workspace = 'demo';
 let es = new earthstar_1.StoreMemory([earthstar_1.ValidatorEs1], workspace);
+// use an old time so we don't keep overwriting stuff with our demo content
+// one year ago
+let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
 // let demoKeypair = Crypto.generateKeypair();
 let demoKeypair = {
     public: "@mVkCjHbAcjEBddaZwxFVSiQdVFuvXSiH3B5K5bH7Hcx",
@@ -66040,35 +66012,31 @@ es.set(demoKeypair, {
     format: 'es.1',
     key: `~${demoAuthor}/about/name`,
     value: 'Example Wiki Author',
+    timestamp: now,
 });
 es.set(demoKeypair, {
     format: 'es.1',
     key: 'wiki/Bumblebee',
     value: 'Buzz buzz buzz',
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/Puppy',
-    value: 'Bark bark\nbark',
+    timestamp: now,
 });
 es.set(demoKeypair, {
     format: 'es.1',
     key: 'wiki/Duck',
     value: 'Quack quack quack 🦆',
+    timestamp: now,
 });
 es.set(demoKeypair, {
     format: 'es.1',
     key: 'wiki/Fish Of The Deep Sea',
     value: '🐟🐠\n           🐙\n    🐡',
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/Kitten',
-    value: 'Meow meow meow',
+    timestamp: now,
 });
 let syncer = new sync_1.Syncer(es);
 syncer.addPub('http://localhost:3333/earthstar/');
 syncer.addPub('http://167.71.153.73:3333/earthstar/');
+//================================================================================
+// MAIN
 ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair, syncer: syncer }), document.getElementById('react-slot'));
 
 },{"./esDebugView":247,"./layouts":248,"./sync":249,"./wikiView":251,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
