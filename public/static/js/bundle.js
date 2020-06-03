@@ -66497,6 +66497,12 @@ class WikiPageView extends React.Component {
             });
         }
     }
+    _cancelEditing() {
+        this.setState({
+            isEditing: false,
+            editedText: '',
+        });
+    }
     render() {
         let es = this.props.es;
         let currentItem = this.props.currentPageKey === null
@@ -66504,14 +66510,16 @@ class WikiPageView extends React.Component {
             : es.getItem(this.props.currentPageKey) || null;
         if (currentItem === null) {
             return React.createElement("div", { className: "small" },
-                React.createElement("i", null, "Pick a page to read.  To edit or create a page, go into the Debug View for now."));
+                React.createElement("i", null, "Pick a page to read."));
         }
         let currentAuthorName = es.getValue('~' + currentItem.author + '/about/name') || (currentItem.author.slice(0, 10) + '...');
         let currentItemTime = new Date(currentItem.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
         let isEditing = this.state.isEditing;
         return React.createElement("div", null,
             isEditing
-                ? React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._save() }, "Save")
+                ? React.createElement("div", null,
+                    React.createElement("button", { type: "button", style: { float: 'right', marginLeft: 10 }, onClick: () => this._save() }, "Save"),
+                    React.createElement("button", { type: "button", className: "secondary", style: { float: 'right' }, onClick: () => this._cancelEditing() }, "Cancel"))
                 : React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._startEditing() }, "Edit"),
             React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, decodeURIComponent(currentItem.key.slice(5))),
             React.createElement("p", { className: "small" },

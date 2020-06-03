@@ -7,6 +7,7 @@ import {
 import {
     Box,
     Card,
+    Cluster,
     FlexItem,
     FlexRow,
     Stack,
@@ -52,20 +53,29 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
             });
         }
     }
+    _cancelEditing() {
+        this.setState({
+            isEditing: false,
+            editedText: '',
+        });
+    }
     render() {
         let es = this.props.es;
         let currentItem : Item | null = this.props.currentPageKey === null
             ? null
             : es.getItem(this.props.currentPageKey) || null;
         if (currentItem === null) {
-            return <div className="small"><i>Pick a page to read.  To edit or create a page, go into the Debug View for now.</i></div>;
+            return <div className="small"><i>Pick a page to read.</i></div>;
         }
         let currentAuthorName : string = es.getValue('~' + currentItem.author + '/about/name') || (currentItem.author.slice(0, 10) + '...');
         let currentItemTime : string = new Date(currentItem.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
         let isEditing = this.state.isEditing;
         return <div>
             {isEditing
-                ? <button type="button" style={{float: 'right'}} onClick={() => this._save()}>Save</button>
+                ? <div>
+                    <button type="button" style={{float: 'right', marginLeft: 10}} onClick={() => this._save()}>Save</button>
+                    <button type="button" className="secondary" style={{float: 'right'}} onClick={() => this._cancelEditing()}>Cancel</button>
+                </div>
                 : <button type="button" style={{float: 'right'}} onClick={() => this._startEditing()}>Edit</button>
             }
             <h2 style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>

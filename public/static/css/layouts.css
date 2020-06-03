@@ -66,6 +66,11 @@ button {
 button:disabled {
     background: var(--cGrayTextOnWhite);
 }
+button.secondary {
+    border: 2px solid var(--cAccentDark);
+    background: none;
+    color: var(--cAccentDark);
+}
 
 input[type='text'] {
     border: 2px solid var(--cGray90) !important;
