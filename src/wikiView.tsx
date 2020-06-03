@@ -69,7 +69,7 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
                 : <button type="button" style={{float: 'right'}} onClick={() => this._startEditing()}>Edit</button>
             }
             <h2 style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
-                {currentItem.key.slice(5)}
+                {decodeURIComponent(currentItem.key.slice(5))}
             </h2>
             <p className="small"><i>
                 updated {currentItemTime}<br/>
@@ -112,6 +112,23 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
             currentPageKey: key,
         });
     }
+    _newPage() {
+        let title = window.prompt('Page title');
+        if (title === null) { return; }
+        log('_newPage:', title);
+        title = encodeURIComponent(title);
+        log('_newPage:', title);
+        let key = 'wiki/' + title;
+        let ok = this.props.es.set(this.props.keypair, {
+            format: 'es.1',
+            key: key,
+            value: '...',
+        });
+        log('_newPage creation success:', ok);
+        this.setState({
+            currentPageKey: key,
+        });
+    }
     render() {
         log('render()');
         let es = this.props.es;
@@ -125,10 +142,12 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
                                 onClick={() => this._viewPage(item.key)}
                                 style={{fontWeight: item.key == this.state.currentPageKey ? 'bold' : 'normal'}}
                                 >
-                                {item.key.slice(5) /* remove "wiki/" from title */}
+                                {decodeURIComponent(item.key.slice(5)) /* remove "wiki/" from title */}
                             </a>
                         </div>
                     )}
+                    <p></p>
+                    <button type="button" onClick={() => this._newPage()}>New page</button>
                 </Box>
             </FlexItem>
             <FlexItem grow={1}>

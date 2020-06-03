@@ -66028,7 +66028,7 @@ es.set(demoKeypair, {
 });
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/Fish Of The Deep Sea',
+    key: 'wiki/' + encodeURIComponent('Fish Of The Deep Sea'),
     value: '🐟🐠\n           🐙\n    🐡',
     timestamp: now,
 });
@@ -66513,7 +66513,7 @@ class WikiPageView extends React.Component {
             isEditing
                 ? React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._save() }, "Save")
                 : React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._startEditing() }, "Edit"),
-            React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, currentItem.key.slice(5)),
+            React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, decodeURIComponent(currentItem.key.slice(5))),
             React.createElement("p", { className: "small" },
                 React.createElement("i", null,
                     "updated ",
@@ -66545,15 +66545,37 @@ class WikiView extends React.Component {
             currentPageKey: key,
         });
     }
+    _newPage() {
+        let title = window.prompt('Page title');
+        if (title === null) {
+            return;
+        }
+        log('_newPage:', title);
+        title = encodeURIComponent(title);
+        log('_newPage:', title);
+        let key = 'wiki/' + title;
+        let ok = this.props.es.set(this.props.keypair, {
+            format: 'es.1',
+            key: key,
+            value: '...',
+        });
+        log('_newPage creation success:', ok);
+        this.setState({
+            currentPageKey: key,
+        });
+    }
     render() {
         log('render()');
         let es = this.props.es;
         let wikiItems = es.items({ prefix: 'wiki/' }).filter(item => item.value);
         return React.createElement(layouts_1.FlexRow, null,
             React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0 },
-                React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } }, wikiItems.map(item => React.createElement("div", { key: item.key },
-                    "\uD83D\uDCC4 ",
-                    React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == this.state.currentPageKey ? 'bold' : 'normal' } }, item.key.slice(5) /* remove "wiki/" from title */))))),
+                React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } },
+                    wikiItems.map(item => React.createElement("div", { key: item.key },
+                        "\uD83D\uDCC4 ",
+                        React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == this.state.currentPageKey ? 'bold' : 'normal' } }, decodeURIComponent(item.key.slice(5)) /* remove "wiki/" from title */))),
+                    React.createElement("p", null),
+                    React.createElement("button", { type: "button", onClick: () => this._newPage() }, "New page"))),
             React.createElement(layouts_1.FlexItem, { grow: 1 },
                 React.createElement(layouts_1.Box, null,
                     React.createElement(WikiPageView, { es: this.props.es, keypair: this.props.keypair, currentPageKey: this.state.currentPageKey }))));

@@ -97,7 +97,7 @@ es.set(demoKeypair, {
 });
 es.set(demoKeypair, {
     format: 'es.1',
-    key: 'wiki/Fish Of The Deep Sea',
+    key: 'wiki/' + encodeURIComponent('Fish Of The Deep Sea'),
     value: '🐟🐠\n           🐙\n    🐡',
     timestamp: now,
 });
