@@ -10,9 +10,13 @@ import {
 import {
     Card,
     Center,
+    Cluster,
     Stack,
+    FlexRow,
+    FlexItem,
 } from './layouts';
 import { Syncer } from './sync';
+import { SyncButton } from './syncButton';
 import { EsDebugView } from './esDebugView';
 import { WikiView } from './wikiView';
 
@@ -36,12 +40,19 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
         logApp('render()');
         return <Center>
             <Stack>
-                <h2>
-                    <img src="static/img/earthstar-pal-transparent.png"
-                        style={{width: 50, verticalAlign: 'middle'}}
-                    />
-                    Earthstar Wiki
-                </h2>
+                <FlexRow style={{alignItems: 'center'}}>
+                    <FlexItem grow={1} shrink={1}>
+                        <h2>
+                            <img src="static/img/earthstar-pal-transparent.png"
+                                style={{width: 50, verticalAlign: 'middle'}}
+                            />
+                            Earthstar Wiki
+                        </h2>
+                    </FlexItem>
+                    <FlexItem grow={0} shrink={0}>
+                        <SyncButton syncer={this.props.syncer} />
+                    </FlexItem>
+                </FlexRow>
                 <Card>
                     <WikiView es={this.props.es} keypair={this.props.keypair} />
                 </Card>

@@ -6,6 +6,7 @@ import {
 import {
     Stack,
 } from './layouts';
+import { SyncButton } from './syncButton';
 import { Syncer } from './sync';
 
 let log = (...args : any[]) => console.log('EsDebugView |', ...args);
@@ -28,7 +29,9 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
         };
     }
     componentDidMount() {
+        // update on changes to the earthstar contents...
         this.props.es.onChange.subscribe(() => this.forceUpdate());
+        // and the syncer details
         this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
     }
     _setKeyValue() {
@@ -65,14 +68,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     <div style={{paddingLeft: 50}}>state: <b>{pub.syncState}</b></div>
                 </div>
             })}
-            <button type="button"
-                onClick={() => this.props.syncer.sync()}
-                disabled={this.props.syncer.state.syncState === 'syncing'}
-                >
-                {this.props.syncer.state.syncState === 'idle'
-                    ? "Sync now"
-                    : "Syncing..."}
-            </button>
+            <SyncButton syncer={this.props.syncer} />
             <hr/>
             <div id="es-editor"><b>Editor:</b></div>
             <div>

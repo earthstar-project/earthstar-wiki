@@ -79,7 +79,7 @@ export class Syncer {
         }
 
         // wait a moment so the user can keep track of what's happening
-        await sleep(500);
+        await sleep(150);
 
         logSyncer('finished');
         this.state.lastSync = Date.now();

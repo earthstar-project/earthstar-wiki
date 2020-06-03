@@ -65968,6 +65968,7 @@ const ReactDOM = __importStar(require("react-dom"));
 const earthstar_1 = require("earthstar");
 const layouts_1 = require("./layouts");
 const sync_1 = require("./sync");
+const syncButton_1 = require("./syncButton");
 const esDebugView_1 = require("./esDebugView");
 const wikiView_1 = require("./wikiView");
 //================================================================================
@@ -65982,9 +65983,13 @@ class AppView extends React.Component {
         logApp('render()');
         return React.createElement(layouts_1.Center, null,
             React.createElement(layouts_1.Stack, null,
-                React.createElement("h2", null,
-                    React.createElement("img", { src: "static/img/earthstar-pal-transparent.png", style: { width: 50, verticalAlign: 'middle' } }),
-                    "Earthstar Wiki"),
+                React.createElement(layouts_1.FlexRow, { style: { alignItems: 'center' } },
+                    React.createElement(layouts_1.FlexItem, { grow: 1, shrink: 1 },
+                        React.createElement("h2", null,
+                            React.createElement("img", { src: "static/img/earthstar-pal-transparent.png", style: { width: 50, verticalAlign: 'middle' } }),
+                            "Earthstar Wiki")),
+                    React.createElement(layouts_1.FlexItem, { grow: 0, shrink: 0 },
+                        React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }))),
                 React.createElement(layouts_1.Card, null,
                     React.createElement(wikiView_1.WikiView, { es: this.props.es, keypair: this.props.keypair })),
                 React.createElement("div", { style: { height: 60 } }),
@@ -66039,7 +66044,7 @@ syncer.addPub('http://167.71.153.73:3333/earthstar/');
 // MAIN
 ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair, syncer: syncer }), document.getElementById('react-slot'));
 
-},{"./esDebugView":247,"./layouts":248,"./sync":249,"./wikiView":251,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
+},{"./esDebugView":247,"./layouts":248,"./sync":249,"./syncButton":250,"./wikiView":252,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
 (function (process){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -66122,6 +66127,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EsDebugView = void 0;
 const React = __importStar(require("react"));
 const layouts_1 = require("./layouts");
+const syncButton_1 = require("./syncButton");
 let log = (...args) => console.log('EsDebugView |', ...args);
 class EsDebugView extends React.Component {
     constructor(props) {
@@ -66132,7 +66138,9 @@ class EsDebugView extends React.Component {
         };
     }
     componentDidMount() {
+        // update on changes to the earthstar contents...
         this.props.es.onChange.subscribe(() => this.forceUpdate());
+        // and the syncer details
         this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
     }
     _setKeyValue() {
@@ -66184,9 +66192,7 @@ class EsDebugView extends React.Component {
                         "state: ",
                         React.createElement("b", null, pub.syncState)));
             }),
-            React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: this.props.syncer.state.syncState === 'syncing' }, this.props.syncer.state.syncState === 'idle'
-                ? "Sync now"
-                : "Syncing..."),
+            React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }),
             React.createElement("hr", null),
             React.createElement("div", { id: "es-editor" },
                 React.createElement("b", null, "Editor:")),
@@ -66219,7 +66225,7 @@ class EsDebugView extends React.Component {
 }
 exports.EsDebugView = EsDebugView;
 
-},{"./layouts":248,"react":200}],248:[function(require,module,exports){
+},{"./layouts":248,"./syncButton":250,"react":200}],248:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66243,12 +66249,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FlexItem = exports.FlexRow = exports.Tag = exports.Pill = exports.Cluster = exports.Card = exports.Box = exports.Stack = exports.Center = exports.Navbar = void 0;
 const React = __importStar(require("react"));
+;
 exports.Navbar = (props) => React.createElement("div", { className: "navbar box" }, props.children);
 exports.Center = (props) => React.createElement("div", { className: "center" }, props.children);
 exports.Stack = (props) => React.createElement("div", { className: "stack" }, props.children);
-;
 exports.Box = (props) => React.createElement("div", { className: "box", style: props.style }, props.children);
-;
 exports.Card = (props) => React.createElement("div", { className: "card", style: props.style }, props.children);
 exports.Cluster = (props) => 
 // note: extra div is needed
@@ -66258,7 +66263,7 @@ exports.Pill = (props) => React.createElement("div", { className: "pill" }, prop
 ;
 exports.Tag = ({ text }) => React.createElement(exports.Pill, null,
     React.createElement("a", { href: "#" }, text));
-exports.FlexRow = (props) => React.createElement("div", { style: { display: 'flex' } }, props.children);
+exports.FlexRow = (props) => React.createElement("div", { style: Object.assign({ display: 'flex' }, props.style) }, props.children);
 ;
 exports.FlexItem = (props) => React.createElement("div", { style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
 
@@ -66340,7 +66345,7 @@ class Syncer {
                 this.atom.setAndNotify(this.state);
             }
             // wait a moment so the user can keep track of what's happening
-            yield util_1.sleep(500);
+            yield util_1.sleep(150);
             logSyncer('finished');
             this.state.lastSync = Date.now();
             this.state.syncState = 'idle';
@@ -66420,7 +66425,49 @@ exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, fun
     return resultStats;
 });
 
-},{"./atom":246,"./util":250,"isomorphic-fetch":156}],250:[function(require,module,exports){
+},{"./atom":246,"./util":251,"isomorphic-fetch":156}],250:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SyncButton = void 0;
+const React = __importStar(require("react"));
+let log = (...args) => console.log('SyncButton |', ...args);
+class SyncButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    componentDidMount() {
+        this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
+    }
+    render() {
+        log('render()');
+        return React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: this.props.syncer.state.syncState === 'syncing' }, this.props.syncer.state.syncState === 'idle'
+            ? "Sync now"
+            : "Syncing...");
+    }
+}
+exports.SyncButton = SyncButton;
+
+},{"react":200}],251:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -66439,7 +66486,7 @@ exports.sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 
-},{}],251:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;

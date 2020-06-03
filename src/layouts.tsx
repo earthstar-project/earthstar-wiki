@@ -1,4 +1,9 @@
 import * as React from 'react';
+import { Style } from 'util';
+
+interface StyleProps {
+    style? : any;
+};
 
 export const Navbar : React.FunctionComponent = (props) =>
     <div className="navbar box">{props.children}</div>;
@@ -9,16 +14,10 @@ export const Center : React.FunctionComponent = (props) =>
 export const Stack : React.FunctionComponent = (props) =>
     <div className="stack">{props.children}</div>;
 
-interface BoxProps {
-    style? : any;
-};
-export const Box : React.FunctionComponent<BoxProps> = (props) =>
+export const Box : React.FunctionComponent<StyleProps> = (props) =>
     <div className="box" style={props.style}>{props.children}</div>;
 
-interface CardProps {
-    style? : any;
-};
-export const Card : React.FunctionComponent<CardProps> = (props) =>
+export const Card : React.FunctionComponent<StyleProps> = (props) =>
     <div className="card" style={props.style}>{props.children}</div>;
 
 export const Cluster : React.FunctionComponent = (props) =>
@@ -36,8 +35,8 @@ export const Tag : React.FunctionComponent<TagProps> = ({text}) =>
         <a href="#">{text}</a>
     </Pill>
 
-export const FlexRow : React.FunctionComponent = (props) =>
-    <div style={{display: 'flex'}}>
+export const FlexRow : React.FunctionComponent<StyleProps> = (props) =>
+    <div style={{display: 'flex', ...props.style}}>
         {props.children}
     </div>;
 
