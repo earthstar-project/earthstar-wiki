@@ -66503,6 +66503,18 @@ class WikiPageView extends React.Component {
             editedText: '',
         });
     }
+    _renameAuthor(currentAuthorName) {
+        let newName = window.prompt('Rename author', currentAuthorName);
+        if (!newName) {
+            return;
+        }
+        let ok = this.props.es.set(this.props.keypair, {
+            format: 'es.1',
+            key: '~' + this.props.keypair.public + '/about/name',
+            value: newName,
+        });
+        log('set new author name success:', ok);
+    }
     render() {
         let es = this.props.es;
         let currentItem = this.props.currentPageKey === null
@@ -66515,6 +66527,7 @@ class WikiPageView extends React.Component {
         let currentAuthorName = es.getValue('~' + currentItem.author + '/about/name') || (currentItem.author.slice(0, 10) + '...');
         let currentItemTime = new Date(currentItem.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
         let isEditing = this.state.isEditing;
+        let lastEditedByMe = this.props.keypair.public === currentItem.author;
         return React.createElement("div", null,
             isEditing
                 ? React.createElement("div", null,
@@ -66527,8 +66540,13 @@ class WikiPageView extends React.Component {
                     "updated ",
                     currentItemTime,
                     React.createElement("br", null),
-                    "by ",
-                    currentAuthorName)),
+                    lastEditedByMe
+                        ? React.createElement("span", null,
+                            "by ",
+                            React.createElement("a", { href: "#", onClick: () => this._renameAuthor(currentAuthorName) }, currentAuthorName))
+                        : React.createElement("span", null,
+                            "by ",
+                            currentAuthorName))),
             isEditing
                 ? React.createElement("textarea", { rows: 7, value: this.state.editedText, style: { width: '100%' }, onChange: (e) => this.setState({ editedText: e.target.value }) })
                 : React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, currentItem.value));
@@ -66555,7 +66573,7 @@ class WikiView extends React.Component {
     }
     _newPage() {
         let title = window.prompt('Page title');
-        if (title === null) {
+        if (!title) {
             return;
         }
         log('_newPage:', title);

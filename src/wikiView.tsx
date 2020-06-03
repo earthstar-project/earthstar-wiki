@@ -6,11 +6,8 @@ import {
 } from 'earthstar';
 import {
     Box,
-    Card,
-    Cluster,
     FlexItem,
     FlexRow,
-    Stack,
 } from './layouts';
 
 let log = (...args : any[]) => console.log('WikiView |', ...args);
@@ -59,6 +56,16 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
             editedText: '',
         });
     }
+    _renameAuthor(currentAuthorName : string) {
+        let newName = window.prompt('Rename author', currentAuthorName);
+        if (!newName) { return; }
+        let ok = this.props.es.set(this.props.keypair, {
+            format: 'es.1',
+            key: '~' + this.props.keypair.public + '/about/name',
+            value: newName,
+        });
+        log('set new author name success:', ok);
+    }
     render() {
         let es = this.props.es;
         let currentItem : Item | null = this.props.currentPageKey === null
@@ -70,6 +77,7 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
         let currentAuthorName : string = es.getValue('~' + currentItem.author + '/about/name') || (currentItem.author.slice(0, 10) + '...');
         let currentItemTime : string = new Date(currentItem.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
         let isEditing = this.state.isEditing;
+        let lastEditedByMe = this.props.keypair.public === currentItem.author;
         return <div>
             {isEditing
                 ? <div>
@@ -83,7 +91,10 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
             </h2>
             <p className="small"><i>
                 updated {currentItemTime}<br/>
-                by {currentAuthorName}
+                {lastEditedByMe
+                    ? <span>by <a href="#" onClick={() => this._renameAuthor(currentAuthorName)}>{currentAuthorName}</a></span>
+                    : <span>by {currentAuthorName}</span>
+                }
             </i></p>
             {isEditing
                 ? <textarea rows={7}
@@ -124,7 +135,7 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
     }
     _newPage() {
         let title = window.prompt('Page title');
-        if (title === null) { return; }
+        if (!title) { return; }
         log('_newPage:', title);
         title = encodeURIComponent(title);
         log('_newPage:', title);
