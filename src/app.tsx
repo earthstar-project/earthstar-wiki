@@ -1,6 +1,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Link
+} from "react-router-dom";
+
+import {
     StoreMemory,
     IStore,
     ValidatorEs1,
@@ -19,6 +26,43 @@ import { Syncer } from './sync';
 import { SyncButton } from './syncButton';
 import { EsDebugView } from './esDebugView';
 import { WikiView } from './wikiView';
+
+//================================================================================
+// REACT ROUTER EXAMPLE
+
+class ReactRouterExample extends React.Component<any, any> {
+    render() {
+        return <Router>
+            <Card>
+                <Stack>
+                    <div><Link to="/">Home</Link></div>
+                    <div><Link to="/foo">Foo</Link></div>
+                    <div><Link to="/bar">Bar</Link></div>
+                </Stack>
+            </Card>
+
+            <hr />
+
+            <Switch>
+                <Route path="/">
+                    <CardExample text={'home'} />
+                </Route>
+                <Route path="/foo">
+                    <CardExample text={'foo'} />
+                </Route>
+                <Route path="/bar">
+                    <CardExample text={'bar'} />
+                </Route>
+            </Switch>
+        </Router>;
+    }
+}
+
+interface CardExampleProps {
+    text : string;
+};
+const CardExample : React.FunctionComponent<CardExampleProps> = (props) =>
+    <Card>{props.text}</Card>;
 
 //================================================================================
 // APP VIEW
@@ -43,7 +87,7 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
                 <FlexRow style={{alignItems: 'center'}}>
                     <FlexItem grow={1} shrink={1}>
                         <h2>
-                            <img src="static/img/earthstar-pal-transparent.png"
+                            <img src="/static/img/earthstar-pal-transparent.png"
                                 style={{width: 50, verticalAlign: 'middle'}}
                             />
                             Earthstar Wiki
@@ -122,5 +166,6 @@ syncer.addPub('http://167.71.153.73:3333/earthstar/');
 
 ReactDOM.render(
     <AppView es={es} keypair={demoKeypair} syncer={syncer} />,
+    //<ReactRouterExample />,
     document.getElementById('react-slot')
 );

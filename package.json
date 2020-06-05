@@ -8,9 +8,10 @@
     "build": "browserify src/app.tsx -p tsify > public/static/js/bundle.js",
     "build-prod": "browserify src/app.tsx --full-paths -p tsify -g [ envify --NODE_ENV production ] -g uglifyify > public/static/js/bundle.js",
     "watch": "onchange -v --initial 'src/*' -- npm run build",
-    "start": "ecstatic -p 8003 --cache 'no-store' public",
+    "start-ecstatic": "ecstatic -p 8003 --cache 'no-store' public",
+    "start": "node build/server.js",
     "watch-and-start": "npm run watch & npm run start",
-    "tsc": "tsc",
+    "build-server": "tsc --p tsconfig-server.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Cinnamon <cinnamon_npm@fastmail.com>",
@@ -21,6 +22,7 @@
     "@types/node": "^14.0.5",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
+    "@types/react-router-dom": "^5.1.5",
     "browserify": "^16.5.0",
     "ecstatic": "^4.1.2",
     "envify": "^4.1.0",
@@ -32,9 +34,11 @@
   "dependencies": {
     "@types/nano-equal": "^2.0.0",
     "earthstar": "^0.9.1",
+    "express": "^4.17.1",
     "isomorphic-fetch": "^2.2.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-router-dom": "^5.2.0",
     "tslib": "^2.0.0"
   }
 }
