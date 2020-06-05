@@ -39,6 +39,9 @@ pre {
 a {
     text-decoration: underline !important;
 }
+a.active {
+    font-weight: bold;
+}
 summary {
     display: list-item; /* ensure the disclosure triangle is shown */
     cursor: pointer;
