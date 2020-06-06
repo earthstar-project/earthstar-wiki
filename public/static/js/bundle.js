@@ -65967,6 +65967,8 @@ const React = __importStar(require("react"));
 const ReactDOM = __importStar(require("react-dom"));
 const earthstar_1 = require("earthstar");
 const layouts_1 = require("./layouts");
+const layerAbout_1 = require("./layerAbout");
+const layerWiki_1 = require("./layerWiki");
 const sync_1 = require("./sync");
 const syncButton_1 = require("./syncButton");
 const esDebugView_1 = require("./esDebugView");
@@ -65991,7 +65993,7 @@ class AppView extends React.Component {
                     React.createElement(layouts_1.FlexItem, { grow: 0, shrink: 0 },
                         React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }))),
                 React.createElement(layouts_1.Card, null,
-                    React.createElement(wikiView_1.WikiView, { es: this.props.es, keypair: this.props.keypair })),
+                    React.createElement(wikiView_1.WikiView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer })),
                 React.createElement("div", { style: { height: 60 } }),
                 React.createElement("details", null,
                     React.createElement("summary", null,
@@ -66004,47 +66006,29 @@ class AppView extends React.Component {
 // SET UP DEMO CONTENT
 let workspace = 'demo';
 let es = new earthstar_1.StoreMemory([earthstar_1.ValidatorEs1], workspace);
-// use an old time so we don't keep overwriting stuff with our demo content
-// one year ago
-let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
 // let demoKeypair = Crypto.generateKeypair();
 let demoKeypair = {
     public: "@mVkCjHbAcjEBddaZwxFVSiQdVFuvXSiH3B5K5bH7Hcx",
     secret: "6DxjAHzdJHgMvJBqgD4iUNhmuwQbuMzPuDkntLi1sjjz"
 };
-let demoAuthor = demoKeypair.public;
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: `~${demoAuthor}/about/name`,
-    value: 'Example Wiki Author',
-    timestamp: now,
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/Bumblebee',
-    value: 'Buzz buzz buzz',
-    timestamp: now,
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/Duck',
-    value: 'Quack quack quack 🦆',
-    timestamp: now,
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/' + encodeURIComponent('Fish Of The Deep Sea'),
-    value: '🐟🐠\n           🐙\n    🐡',
-    timestamp: now,
-});
+let wikiLayer = new layerWiki_1.WikiLayer(es, demoKeypair);
+let aboutLayer = new layerAbout_1.AboutLayer(es, demoKeypair);
+// use an old time so we don't keep overwriting stuff with our demo content
+// one year ago
+let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
+aboutLayer.setMyAuthorName('Example Wiki Author', now);
+wikiLayer.setPageText(layerWiki_1.WikiLayer.makeKey('Bumblebee', 'shared'), 'Buzz buzz buzz', now);
+wikiLayer.setPageText(layerWiki_1.WikiLayer.makeKey('Duck', 'shared'), 'Quack quack quack', now);
+wikiLayer.setPageText(layerWiki_1.WikiLayer.makeKey('Fish Of The Deep Sea', 'shared'), '🐟🐠\n           🐙\n    🐡', now);
 let syncer = new sync_1.Syncer(es);
 syncer.addPub('http://localhost:3333/earthstar/');
 syncer.addPub('http://167.71.153.73:3333/earthstar/');
 //================================================================================
 // MAIN
-ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair, syncer: syncer }), document.getElementById('react-slot'));
+// TODO TODO TODO TODO TODO TODO TODO TODO TODO: pass the layers down into the react components
+ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./esDebugView":247,"./layouts":248,"./sync":249,"./syncButton":250,"./wikiView":252,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
+},{"./esDebugView":247,"./layerAbout":248,"./layerWiki":249,"./layouts":250,"./sync":251,"./syncButton":252,"./wikiView":254,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
 (function (process){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -66225,7 +66209,122 @@ class EsDebugView extends React.Component {
 }
 exports.EsDebugView = EsDebugView;
 
-},{"./layouts":248,"./syncButton":250,"react":200}],248:[function(require,module,exports){
+},{"./layouts":250,"./syncButton":252,"react":200}],248:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AboutLayer = void 0;
+/*
+    keys are like
+
+    about/~@aaa/name
+    about/~@aaa/description    // coming soon
+    about/~@aaa/icon           // coming soon
+*/
+class AboutLayer {
+    constructor(es, keypair) {
+        this.es = es;
+        this.keypair = keypair;
+    }
+    listAuthors() {
+        return this.es.items({ prefix: 'about/' })
+            .filter(item => item.key.endsWith('/name'))
+            .map(item => ({
+            author: item.author,
+            name: item.value,
+        }));
+    }
+    getAuthorInfo(author) {
+        let item = this.es.getItem(`about/~${author}/name`);
+        if (!item) {
+            return {
+                author: author,
+                name: author.slice(0, 10) + '...',
+            };
+        }
+        return {
+            author: author,
+            name: item.value,
+        };
+    }
+    setMyAuthorName(name, timestamp) {
+        // we can only set our own name so we don't need an author input parameter
+        return this.es.set(this.keypair, {
+            format: 'es.1',
+            key: `about/~${this.keypair.public}/name`,
+            value: name,
+            timestamp: timestamp,
+        });
+    }
+}
+exports.AboutLayer = AboutLayer;
+
+},{}],249:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WikiLayer = void 0;
+/*
+    keys are like
+
+    wiki/shared/Little%20Snails
+    wiki/~@aaa/Little%20Snails
+*/
+class WikiLayer {
+    constructor(es, keypair) {
+        this.es = es;
+        this.keypair = keypair;
+    }
+    static makeKey(title, owner) {
+        if (owner.startsWith('@')) {
+            owner = '~' + owner;
+        }
+        return `wiki/${owner}/${encodeURIComponent(title)}`;
+    }
+    static parseKey(key) {
+        if (!key.startsWith('wiki/')) {
+            throw 'oops';
+        }
+        let ownerTitle = key.slice(5);
+        let parts = ownerTitle.split('/');
+        if (parts.length !== 2) {
+            throw 'whoa';
+        }
+        let [owner, title] = parts;
+        title = decodeURIComponent(title);
+        if (owner.startsWith('~')) {
+            owner = owner.slice(1);
+        }
+        return { key, owner, title };
+    }
+    listPages() {
+        return this.es.keys({ prefix: 'wiki/' }).map(key => WikiLayer.parseKey(key));
+    }
+    getPageDetails(key) {
+        let item = this.es.getItem(key);
+        if (!item) {
+            throw 'dang';
+        }
+        let { owner, title } = WikiLayer.parseKey(key);
+        return {
+            key: key,
+            title: title,
+            owner: owner,
+            lastAuthor: item.author,
+            timestamp: item.timestamp,
+            text: item.value,
+        };
+    }
+    setPageText(key, text, timestamp) {
+        return this.es.set(this.keypair, {
+            format: 'es.1',
+            key: key,
+            value: text,
+            timestamp: timestamp,
+        });
+    }
+}
+exports.WikiLayer = WikiLayer;
+
+},{}],250:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66267,7 +66366,7 @@ exports.FlexRow = (props) => React.createElement("div", { style: Object.assign({
 ;
 exports.FlexItem = (props) => React.createElement("div", { style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
 
-},{"react":200}],249:[function(require,module,exports){
+},{"react":200}],251:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -66425,7 +66524,7 @@ exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, fun
     return resultStats;
 });
 
-},{"./atom":246,"./util":251,"isomorphic-fetch":156}],250:[function(require,module,exports){
+},{"./atom":246,"./util":253,"isomorphic-fetch":156}],252:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66467,7 +66566,7 @@ class SyncButton extends React.Component {
 }
 exports.SyncButton = SyncButton;
 
-},{"react":200}],251:[function(require,module,exports){
+},{"react":200}],253:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -66486,7 +66585,7 @@ exports.sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 
-},{}],252:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -66510,8 +66609,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WikiView = exports.WikiPageView = void 0;
 const React = __importStar(require("react"));
+const layerWiki_1 = require("./layerWiki");
 const layouts_1 = require("./layouts");
-let log = (...args) => console.log('WikiView |', ...args);
+let logPage = (...args) => console.log('WikiPageView |', ...args);
+let logWiki = (...args) => console.log('WikiView |', ...args);
 class WikiPageView extends React.Component {
     constructor(props) {
         super(props);
@@ -66521,22 +66622,20 @@ class WikiPageView extends React.Component {
         };
     }
     _startEditing() {
-        var _a;
+        if (this.props.page === null) {
+            return;
+        }
         this.setState({
             isEditing: true,
-            editedText: ((_a = this.props.es.getItem(this.props.currentPageKey || '')) === null || _a === void 0 ? void 0 : _a.value) || '',
+            editedText: this.props.page.text,
         });
     }
     _save() {
-        if (this.props.currentPageKey === null) {
+        if (this.props.page === null) {
             return;
         }
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: this.props.currentPageKey,
-            value: this.state.editedText,
-        });
-        log('saving success:', ok);
+        let ok = this.props.wikiLayer.setPageText(this.props.page.key, this.state.editedText);
+        logPage('saving success:', ok);
         if (ok) {
             this.setState({
                 isEditing: false,
@@ -66550,53 +66649,46 @@ class WikiPageView extends React.Component {
             editedText: '',
         });
     }
-    _renameAuthor(currentAuthorName) {
-        let newName = window.prompt('Rename author', currentAuthorName);
+    _renameAuthor(oldName) {
+        let newName = window.prompt('Rename author', oldName);
         if (!newName) {
             return;
         }
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: '~' + this.props.keypair.public + '/about/name',
-            value: newName,
-        });
-        log('set new author name success:', ok);
+        this.props.aboutLayer.setMyAuthorName(newName);
     }
     render() {
-        let es = this.props.es;
-        let currentItem = this.props.currentPageKey === null
-            ? null
-            : es.getItem(this.props.currentPageKey) || null;
-        if (currentItem === null) {
-            return React.createElement("div", { className: "small" },
-                React.createElement("i", null, "Pick a page to read."));
+        logPage('render()');
+        if (this.props.page === null) {
+            return React.createElement("i", null, "Choose a page.");
         }
-        let currentAuthorName = es.getValue('~' + currentItem.author + '/about/name') || (currentItem.author.slice(0, 10) + '...');
-        let currentItemTime = new Date(currentItem.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
+        let wiki = this.props.wikiLayer;
+        let page = this.props.page;
         let isEditing = this.state.isEditing;
-        let lastEditedByMe = this.props.keypair.public === currentItem.author;
+        let editedTime = new Date(page.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
+        let wasLastEditedByMe = wiki.keypair.public === page.lastAuthor;
+        let lastAuthorName = this.props.aboutLayer.getAuthorInfo(page.lastAuthor).name;
         return React.createElement("div", null,
             isEditing
                 ? React.createElement("div", null,
                     React.createElement("button", { type: "button", style: { float: 'right', marginLeft: 10 }, onClick: () => this._save() }, "Save"),
                     React.createElement("button", { type: "button", className: "secondary", style: { float: 'right' }, onClick: () => this._cancelEditing() }, "Cancel"))
                 : React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._startEditing() }, "Edit"),
-            React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, decodeURIComponent(currentItem.key.slice(5))),
+            React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, page.title),
             React.createElement("p", { className: "small" },
                 React.createElement("i", null,
                     "updated ",
-                    currentItemTime,
+                    editedTime,
                     React.createElement("br", null),
-                    lastEditedByMe
+                    wasLastEditedByMe
                         ? React.createElement("span", null,
                             "by ",
-                            React.createElement("a", { href: "#", onClick: () => this._renameAuthor(currentAuthorName) }, currentAuthorName))
+                            React.createElement("a", { href: "#", onClick: () => this._renameAuthor(lastAuthorName) }, lastAuthorName))
                         : React.createElement("span", null,
                             "by ",
-                            currentAuthorName))),
+                            lastAuthorName))),
             isEditing
                 ? React.createElement("textarea", { rows: 7, value: this.state.editedText, style: { width: '100%' }, onChange: (e) => this.setState({ editedText: e.target.value }) })
-                : React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, currentItem.value));
+                : React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, page.text));
     }
 }
 exports.WikiPageView = WikiPageView;
@@ -66606,52 +66698,39 @@ class WikiView extends React.Component {
         this.state = { currentPageKey: null };
     }
     componentDidMount() {
-        this.props.es.onChange.subscribe(() => this.forceUpdate());
+        this.props.wikiLayer.es.onChange.subscribe(() => this.forceUpdate());
     }
     _viewPage(key) {
-        log('_viewPage', key);
-        if (!key.startsWith('wiki/')) {
-            console.error('key must start with wiki/', key);
-            return;
-        }
-        this.setState({
-            currentPageKey: key,
-        });
+        this.setState({ currentPageKey: key });
     }
     _newPage() {
         let title = window.prompt('Page title');
         if (!title) {
             return;
         }
-        log('_newPage:', title);
-        title = encodeURIComponent(title);
-        log('_newPage:', title);
-        let key = 'wiki/' + title;
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: key,
-            value: '...',
-        });
-        log('_newPage creation success:', ok);
-        this.setState({
-            currentPageKey: key,
-        });
+        let key = layerWiki_1.WikiLayer.makeKey(title, 'shared'); // TODO: allow making personal pages too, not just shared
+        let ok = this.props.wikiLayer.setPageText(key, '...');
+        if (ok) {
+            this.setState({
+                currentPageKey: key,
+            });
+        }
     }
     render() {
-        log('render()');
-        let es = this.props.es;
-        let wikiItems = es.items({ prefix: 'wiki/' }).filter(item => item.value);
+        logWiki('render()');
+        let pageInfos = this.props.wikiLayer.listPages();
+        let pageDetail = this.state.currentPageKey ? this.props.wikiLayer.getPageDetails(this.state.currentPageKey) : null;
         return React.createElement(layouts_1.FlexRow, null,
             React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0 },
                 React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } },
-                    wikiItems.map(item => React.createElement("div", { key: item.key },
+                    pageInfos.map(pageInfo => React.createElement("div", { key: pageInfo.key },
                         "\uD83D\uDCC4 ",
-                        React.createElement("a", { href: "#", onClick: () => this._viewPage(item.key), style: { fontWeight: item.key == this.state.currentPageKey ? 'bold' : 'normal' } }, decodeURIComponent(item.key.slice(5)) /* remove "wiki/" from title */))),
+                        React.createElement("a", { href: "#", onClick: () => this._viewPage(pageInfo.key), style: { fontWeight: pageInfo.key == this.state.currentPageKey ? 'bold' : 'normal' } }, pageInfo.title))),
                     React.createElement("p", null),
                     React.createElement("button", { type: "button", onClick: () => this._newPage() }, "New page"))),
             React.createElement(layouts_1.FlexItem, { grow: 1 },
                 React.createElement(layouts_1.Box, null,
-                    React.createElement(WikiPageView, { es: this.props.es, keypair: this.props.keypair, currentPageKey: this.state.currentPageKey }))));
+                    React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, page: pageDetail }))));
     }
 }
 exports.WikiView = WikiView;
@@ -66664,4 +66743,4 @@ exports.WikiView = WikiView;
             </datalist>
 */ 
 
-},{"./layouts":248,"react":200}]},{},[245]);
+},{"./layerWiki":249,"./layouts":250,"react":200}]},{},[245]);
