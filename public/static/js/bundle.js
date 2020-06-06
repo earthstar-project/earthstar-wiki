@@ -33156,6 +33156,8 @@ let logApp = (...args : any[]) => console.log('AppView | ', ...args);
 interface AppViewProps {
     es : IStore,
     keypair : Keypair,
+    wikiLayer : WikiLayer,
+    aboutLayer : AboutLayer,
     syncer : Syncer,
 }
 interface AppViewState {
@@ -33183,7 +33185,7 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
                     </FlexItem>
                 </FlexRow>
                 <Card>
-                    <WikiView es={this.props.es} keypair={this.props.keypair} />
+                    <WikiView aboutLayer={this.props.aboutLayer} wikiLayer={this.props.wikiLayer} />
                 </Card>
                 <div style={{height: 60}} />
                 <details>
@@ -33208,39 +33210,22 @@ class AppView extends React.Component<AppViewProps, AppViewState> {
 
 let workspace = 'demo';
 let es = new StoreMemory([ValidatorEs1], workspace);
-// use an old time so we don't keep overwriting stuff with our demo content
-// one year ago
-let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
 // let demoKeypair = Crypto.generateKeypair();
 let demoKeypair = {
     public: "@mVkCjHbAcjEBddaZwxFVSiQdVFuvXSiH3B5K5bH7Hcx",
     secret: "6DxjAHzdJHgMvJBqgD4iUNhmuwQbuMzPuDkntLi1sjjz"
 }
-let demoAuthor = demoKeypair.public;
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: `~${demoAuthor}/about/name`,
-    value: 'Example Wiki Author',
-    timestamp: now,
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/Bumblebee',
-    value: 'Buzz buzz buzz',
-    timestamp: now,
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/Duck',
-    value: 'Quack quack quack 🦆',
-    timestamp: now,
-});
-es.set(demoKeypair, {
-    format: 'es.1',
-    key: 'wiki/' + encodeURIComponent('Fish Of The Deep Sea'),
-    value: '🐟🐠\n           🐙\n    🐡',
-    timestamp: now,
-});
+
+let wikiLayer = new WikiLayer(es, demoKeypair);
+let aboutLayer = new AboutLayer(es, demoKeypair);
+
+// use an old time so we don't keep overwriting stuff with our demo content
+// one year ago
+let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
+aboutLayer.setMyAuthorName('Example Wiki Author', now);
+wikiLayer.setPageText(WikiLayer.makeKey('Bumblebee', 'shared'), 'Buzz buzz buzz', now);
+wikiLayer.setPageText(WikiLayer.makeKey('Duck', 'shared'), 'Quack quack quack', now);
+wikiLayer.setPageText(WikiLayer.makeKey('Fish Of The Deep Sea', 'shared'), '🐟🐠\n           🐙\n    🐡', now);
 
 let syncer = new Syncer(es);
 syncer.addPub('http://localhost:3333/earthstar/');
@@ -33249,8 +33234,9 @@ syncer.addPub('http://167.71.153.73:3333/earthstar/');
 //================================================================================
 // MAIN
 
+// TODO TODO TODO TODO TODO TODO TODO TODO TODO: pass the layers down into the react components
 ReactDOM.render(
-    <AppView es={es} keypair={demoKeypair} syncer={syncer} />,
+    <AppView es={es} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer} />,
     document.getElementById('react-slot')
 );
 

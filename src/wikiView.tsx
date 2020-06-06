@@ -1,28 +1,30 @@
 import * as React from 'react';
+import { AboutLayer } from './layerAbout';
 import {
-    IStore,
-    Keypair,
-    Item,
-} from 'earthstar';
+    WikiLayer,
+    WikiPageDetail,
+    WikiPageInfo
+} from './layerWiki';
 import {
     Box,
     FlexItem,
     FlexRow,
 } from './layouts';
 
-let log = (...args : any[]) => console.log('WikiView |', ...args);
+let logPage = (...args : any[]) => console.log('WikiPageView |', ...args);
+let logWiki = (...args : any[]) => console.log('WikiView |', ...args);
 
-interface WikiPageProps {
-    es : IStore,
-    keypair : Keypair,
-    currentPageKey : string | null,
+interface WikiPageViewProps {
+    aboutLayer : AboutLayer,
+    wikiLayer : WikiLayer,
+    page : WikiPageDetail | null,
 }
-interface WikiPageState {
+interface WikiPageViewState {
     isEditing : boolean;
     editedText : string;
 }
-export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> {
-    constructor(props : WikiPageProps) {
+export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageViewState> {
+    constructor(props : WikiPageViewProps) {
         super(props);
         this.state = {
             isEditing: false,
@@ -30,19 +32,19 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
         };
     }
     _startEditing() {
+        if (this.props.page === null) { return; }
         this.setState({
             isEditing: true,
-            editedText: this.props.es.getItem(this.props.currentPageKey || '')?.value || '',
+            editedText: this.props.page.text,
         });
     }
     _save() {
-        if (this.props.currentPageKey === null) { return; }
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: this.props.currentPageKey,
-            value: this.state.editedText,
-        });
-        log('saving success:', ok);
+        if (this.props.page === null) { return; }
+        let ok = this.props.wikiLayer.setPageText(
+            this.props.page.key,
+            this.state.editedText
+        );
+        logPage('saving success:', ok);
         if (ok) {
             this.setState({
                 isEditing: false,
@@ -56,28 +58,22 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
             editedText: '',
         });
     }
-    _renameAuthor(currentAuthorName : string) {
-        let newName = window.prompt('Rename author', currentAuthorName);
+    _renameAuthor(oldName : string) {
+        let newName = window.prompt('Rename author', oldName);
         if (!newName) { return; }
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: '~' + this.props.keypair.public + '/about/name',
-            value: newName,
-        });
-        log('set new author name success:', ok);
+        this.props.aboutLayer.setMyAuthorName(newName);
     }
     render() {
-        let es = this.props.es;
-        let currentItem : Item | null = this.props.currentPageKey === null
-            ? null
-            : es.getItem(this.props.currentPageKey) || null;
-        if (currentItem === null) {
-            return <div className="small"><i>Pick a page to read.</i></div>;
+        logPage('render()');
+        if (this.props.page === null) {
+            return <i>Choose a page.</i>;
         }
-        let currentAuthorName : string = es.getValue('~' + currentItem.author + '/about/name') || (currentItem.author.slice(0, 10) + '...');
-        let currentItemTime : string = new Date(currentItem.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
+        let wiki = this.props.wikiLayer;
+        let page = this.props.page;
         let isEditing = this.state.isEditing;
-        let lastEditedByMe = this.props.keypair.public === currentItem.author;
+        let editedTime : string = new Date(page.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
+        let wasLastEditedByMe = wiki.keypair.public === page.lastAuthor;
+        let lastAuthorName = this.props.aboutLayer.getAuthorInfo(page.lastAuthor).name;
         return <div>
             {isEditing
                 ? <div>
@@ -87,13 +83,13 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
                 : <button type="button" style={{float: 'right'}} onClick={() => this._startEditing()}>Edit</button>
             }
             <h2 style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
-                {decodeURIComponent(currentItem.key.slice(5))}
+                {page.title}
             </h2>
             <p className="small"><i>
-                updated {currentItemTime}<br/>
-                {lastEditedByMe
-                    ? <span>by <a href="#" onClick={() => this._renameAuthor(currentAuthorName)}>{currentAuthorName}</a></span>
-                    : <span>by {currentAuthorName}</span>
+                updated {editedTime}<br/>
+                {wasLastEditedByMe
+                    ? <span>by <a href="#" onClick={() => this._renameAuthor(lastAuthorName)}>{lastAuthorName}</a></span>
+                    : <span>by {lastAuthorName}</span>
                 }
             </i></p>
             {isEditing
@@ -102,68 +98,55 @@ export class WikiPageView extends React.Component<WikiPageProps, WikiPageState> 
                     style={{width: '100%'}}
                     onChange={(e) => this.setState({editedText: e.target.value})}
                     />
-                : <p style={{whiteSpace: 'pre-wrap'}}>{currentItem.value}</p>
+                : <p style={{whiteSpace: 'pre-wrap'}}>{page.text}</p>
             }
         </div>;
     }
 }
 
-interface WikiProps {
-    es : IStore,
-    keypair : Keypair,
+interface WikiViewProps {
+    aboutLayer : AboutLayer,
+    wikiLayer : WikiLayer,
 }
-interface WikiState {
+interface WikiViewState {
     currentPageKey : string | null,
 }
-export class WikiView extends React.Component<WikiProps, WikiState> {
-    constructor(props : WikiProps) {
+export class WikiView extends React.Component<WikiViewProps, WikiViewState> {
+    constructor(props : WikiViewProps) {
         super(props);
         this.state = { currentPageKey : null };
     }
     componentDidMount() {
-        this.props.es.onChange.subscribe(() => this.forceUpdate());
+        this.props.wikiLayer.es.onChange.subscribe(() => this.forceUpdate());
     }
     _viewPage(key : string) {
-        log('_viewPage', key);
-        if (!key.startsWith('wiki/')) {
-            console.error('key must start with wiki/', key);
-            return;
-        }
-        this.setState({
-            currentPageKey: key,
-        });
+        this.setState({ currentPageKey: key });
     }
     _newPage() {
         let title = window.prompt('Page title');
         if (!title) { return; }
-        log('_newPage:', title);
-        title = encodeURIComponent(title);
-        log('_newPage:', title);
-        let key = 'wiki/' + title;
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: key,
-            value: '...',
-        });
-        log('_newPage creation success:', ok);
-        this.setState({
-            currentPageKey: key,
-        });
+        let key = WikiLayer.makeKey(title, 'shared');  // TODO: allow making personal pages too, not just shared
+        let ok = this.props.wikiLayer.setPageText(key, '...');
+        if (ok) {
+            this.setState({
+                currentPageKey: key,
+            });
+        }
     }
     render() {
-        log('render()');
-        let es = this.props.es;
-        let wikiItems = es.items({ prefix:'wiki/' }).filter(item => item.value);
+        logWiki('render()');
+        let pageInfos : WikiPageInfo[] = this.props.wikiLayer.listPages();
+        let pageDetail : WikiPageDetail | null = this.state.currentPageKey ? this.props.wikiLayer.getPageDetails(this.state.currentPageKey) : null;
         return <FlexRow>
             <FlexItem basis="150px" shrink={0}>
                 <Box style={{borderRight: '2px solid #aaa'}}>
-                    {wikiItems.map(item =>
-                        <div key={item.key}>
+                    {pageInfos.map(pageInfo =>
+                        <div key={pageInfo.key}>
                             📄 <a href="#"
-                                onClick={() => this._viewPage(item.key)}
-                                style={{fontWeight: item.key == this.state.currentPageKey ? 'bold' : 'normal'}}
+                                onClick={() => this._viewPage(pageInfo.key)}
+                                style={{fontWeight: pageInfo.key == this.state.currentPageKey ? 'bold' : 'normal'}}
                                 >
-                                {decodeURIComponent(item.key.slice(5)) /* remove "wiki/" from title */}
+                                {pageInfo.title}
                             </a>
                         </div>
                     )}
@@ -174,9 +157,9 @@ export class WikiView extends React.Component<WikiProps, WikiState> {
             <FlexItem grow={1}>
                 <Box>
                     <WikiPageView
-                        es={this.props.es}
-                        keypair={this.props.keypair}
-                        currentPageKey={this.state.currentPageKey}
+                        aboutLayer={this.props.aboutLayer}
+                        wikiLayer={this.props.wikiLayer}
+                        page={pageDetail}
                         />
                 </Box>
             </FlexItem>
