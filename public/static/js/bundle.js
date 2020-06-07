@@ -66281,12 +66281,14 @@ class WikiLayer {
     }
     static parseKey(key) {
         if (!key.startsWith('wiki/')) {
-            throw 'oops';
+            console.warn('key does not start with "wiki/":', key);
+            return null;
         }
         let ownerTitle = key.slice(5);
         let parts = ownerTitle.split('/');
         if (parts.length !== 2) {
-            throw 'whoa';
+            console.warn('key has wrong number of path segments:', parts);
+            return null;
         }
         let [owner, title] = parts;
         title = decodeURIComponent(title);
@@ -66296,14 +66298,22 @@ class WikiLayer {
         return { key, owner, title };
     }
     listPages() {
-        return this.es.keys({ prefix: 'wiki/' }).map(key => WikiLayer.parseKey(key));
+        let pageInfoOrNulls = this.es.keys({ prefix: 'wiki/' })
+            .map(key => WikiLayer.parseKey(key));
+        let pageInfos = pageInfoOrNulls.filter(pi => pi !== null);
+        return pageInfos;
     }
     getPageDetails(key) {
         let item = this.es.getItem(key);
         if (!item) {
-            throw 'dang';
+            console.warn('missing key:', key);
+            return null;
         }
-        let { owner, title } = WikiLayer.parseKey(key);
+        let pageInfo = WikiLayer.parseKey(key);
+        if (pageInfo === null) {
+            return null;
+        }
+        let { owner, title } = pageInfo;
         return {
             key: key,
             title: title,
