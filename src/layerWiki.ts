@@ -35,23 +35,37 @@ export class WikiLayer {
         if (owner.startsWith('@')) { owner = '~' + owner; }
         return `wiki/${owner}/${encodeURIComponent(title)}`;
     }
-    static parseKey(key : string) : WikiPageInfo {
-        if (!key.startsWith('wiki/')) { throw 'oops'; }
+    static parseKey(key : string) : WikiPageInfo | null {
+        if (!key.startsWith('wiki/')) {
+            console.warn('key does not start with "wiki/":', key);
+            return null;
+        }
         let ownerTitle = key.slice(5);
         let parts = ownerTitle.split('/');
-        if (parts.length !== 2) { throw 'whoa'; }
+        if (parts.length !== 2) {
+            console.warn('key has wrong number of path segments:', parts);
+            return null;
+        }
         let [owner, title] = parts;
         title = decodeURIComponent(title);
         if (owner.startsWith('~')) { owner = owner.slice(1); }
         return { key, owner, title };
     }
     listPages() : WikiPageInfo[] {
-        return this.es.keys({prefix: 'wiki/'}).map(key => WikiLayer.parseKey(key));
+        let pageInfoOrNulls = this.es.keys({prefix: 'wiki/'})
+            .map(key => WikiLayer.parseKey(key));
+        let pageInfos = pageInfoOrNulls.filter(pi => pi !== null) as WikiPageInfo[];
+        return pageInfos;
     }
-    getPageDetails(key : string) : WikiPageDetail {
+    getPageDetails(key : string) : WikiPageDetail | null {
         let item = this.es.getItem(key);
-        if (!item) { throw 'dang'; }
-        let { owner, title } = WikiLayer.parseKey(key);
+        if (!item) {
+            console.warn('missing key:', key);
+            return null;
+        }
+        let pageInfo = WikiLayer.parseKey(key);
+        if (pageInfo === null) { return null; }
+        let { owner, title } = pageInfo;
         return {
             key : key,
             title : title,

@@ -213,12 +213,12 @@ wikiLayer.setPageText(WikiLayer.makeKey('Fish Of The Deep Sea', 'shared'), '🐟
 
 let syncer = new Syncer(es);
 syncer.addPub('http://localhost:3333/earthstar/');
-syncer.addPub('http://167.71.153.73:3333/earthstar/');
+syncer.addPub('http://167.71.153.73:3333/earthstar/');  // this only works when the wiki page is http, not https
+syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me/earthstar/');
 
 //================================================================================
 // MAIN
 
-// TODO TODO TODO TODO TODO TODO TODO TODO TODO: pass the layers down into the react components
 ReactDOM.render(
     <AppView es={es} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer} />,
     document.getElementById('react-slot')
