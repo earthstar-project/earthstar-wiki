@@ -13,7 +13,7 @@ app.use('/static', express.static(staticDir));
 app.get('*', (request, response) => {
     response.sendFile(indexPath);
 });
-let PORT = 8003; // process.env.PORT
+let PORT = 8080; // process.env.PORT
 const listener = app.listen(PORT, function () {
     console.log(`Your app is listening on port ${listener.address().port}`);
 });
