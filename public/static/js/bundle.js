@@ -66022,10 +66022,10 @@ wikiLayer.setPageText(layerWiki_1.WikiLayer.makeKey('Duck', 'shared'), 'Quack qu
 wikiLayer.setPageText(layerWiki_1.WikiLayer.makeKey('Fish Of The Deep Sea', 'shared'), '🐟🐠\n           🐙\n    🐡', now);
 let syncer = new sync_1.Syncer(es);
 syncer.addPub('http://localhost:3333/earthstar/');
-syncer.addPub('http://167.71.153.73:3333/earthstar/');
+syncer.addPub('http://167.71.153.73:3333/earthstar/'); // this only works when the wiki page is http, not https
+syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me/earthstar/');
 //================================================================================
 // MAIN
-// TODO TODO TODO TODO TODO TODO TODO TODO TODO: pass the layers down into the react components
 ReactDOM.render(React.createElement(AppView, { es: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
 },{"./esDebugView":247,"./layerAbout":248,"./layerWiki":249,"./layouts":250,"./sync":251,"./syncButton":252,"./wikiView":254,"earthstar":95,"react":200,"react-dom":197}],246:[function(require,module,exports){
