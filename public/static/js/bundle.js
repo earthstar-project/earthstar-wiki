@@ -70042,6 +70042,7 @@ const layerAbout_1 = require("./layerAbout");
 const layerWiki_1 = require("./layerWiki");
 const sync_1 = require("./sync");
 const layouts_1 = require("./layouts");
+const wikiView_1 = require("./wikiView");
 const oldAppView_1 = require("./oldAppView");
 //================================================================================
 // SET UP DEMO CONTENT
@@ -70068,60 +70069,64 @@ let prepareEarthstar = () => {
     syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me/earthstar/');
     return { es, demoKeypair, syncer, wikiLayer, aboutLayer };
 };
-//================================================================================
-// REACT ROUTER EXAMPLE
-const RouterMenu = (props) => React.createElement(layouts_1.Card, null,
-    React.createElement(layouts_1.Stack, null,
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/" }, "Home")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/login" }, "Login")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/ws/test/about" }, "List of authors")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/ws/test/about/@abc" }, "About one author")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/ws/test/wiki" }, "Wiki frontpage")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/ws/test/wiki/recent" }, "Wiki recent")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/ws/test/wiki/page/Dogs" }, "Wiki: Dogs")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/ws/test/wiki/page/Cats" }, "Wiki: Cats")),
-        React.createElement("div", null,
-            React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/ws/test/wiki/page/Dogs And Cats" }, "Wiki: Dogs And Cats"))));
 const ReactRouterExample = (props) => React.createElement(react_router_dom_1.BrowserRouter, null,
     React.createElement(react_router_dom_1.Switch, null,
         React.createElement(react_router_dom_1.Route, { exact: true, path: '/' },
             React.createElement(oldAppView_1.OldAppView, { es: props.es, keypair: props.keypair, syncer: props.syncer, wikiLayer: props.wikiLayer, aboutLayer: props.aboutLayer })),
-        React.createElement(react_router_dom_1.Route, { exact: true, path: '/login' },
-            React.createElement(RouterMenu, null),
-            React.createElement("hr", null),
-            React.createElement(CardExample, { text: 'login' })),
-        React.createElement(react_router_dom_1.Route, { exact: true, path: '/ws/:workspace/about' },
-            React.createElement(RouterMenu, null),
-            React.createElement("hr", null),
-            React.createElement(AboutFrontpage, null)),
-        React.createElement(react_router_dom_1.Route, { exact: true, path: '/ws/:workspace/about/:author' },
-            React.createElement(RouterMenu, null),
-            React.createElement("hr", null),
-            React.createElement(AboutAuthor, null)),
-        React.createElement(react_router_dom_1.Route, { exact: true, path: '/ws/:workspace/wiki' },
-            React.createElement(RouterMenu, null),
-            React.createElement("hr", null),
-            React.createElement(WikiFrontpage, null)),
-        React.createElement(react_router_dom_1.Route, { exact: true, path: '/ws/:workspace/wiki/recent' },
-            React.createElement(RouterMenu, null),
-            React.createElement("hr", null),
-            React.createElement(WikiRecent, null)),
-        React.createElement(react_router_dom_1.Route, { exact: true, path: '/ws/:workspace/wiki/page/:title' },
-            React.createElement(RouterMenu, null),
-            React.createElement("hr", null),
-            React.createElement(WikiPage, null)),
+        React.createElement(react_router_dom_1.Route, { path: '/storybook/' },
+            React.createElement(Storybook, Object.assign({}, props))),
         React.createElement(react_router_dom_1.Route, { path: '*' },
-            React.createElement(RouterMenu, null),
-            React.createElement("hr", null),
             React.createElement(FourOhFour, null))));
+//  /login
+//  /ws/:workspace/about
+//  /ws/:workspace/about/:author
+//  /ws/:workspace/wiki
+//  /ws/:workspace/wiki/recent
+//  /ws/:workspace/wiki/page/:title
+let logStorybook = (...args) => console.log('Storybook |', ...args);
+const Storybook = (props) => {
+    let pages = props.wikiLayer.listPages();
+    let pageInfo = pages[0];
+    let pageDetail = props.wikiLayer.getPageDetails(pageInfo.key);
+    logStorybook('page key', pageInfo.key);
+    logStorybook('pageInfo', pageInfo);
+    logStorybook('pageDetail', pageDetail);
+    return React.createElement(react_router_dom_1.BrowserRouter, null,
+        React.createElement(layouts_1.Card, null,
+            React.createElement(layouts_1.Stack, null,
+                React.createElement("div", null,
+                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/" }, "(Back to app)")),
+                React.createElement("div", null,
+                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiPageView" }, "WikiPageView")))),
+        React.createElement("hr", null),
+        React.createElement(react_router_dom_1.Switch, null,
+            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/' }),
+            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiPageView' },
+                React.createElement(StoryFrame, { width: 350 },
+                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: null })),
+                React.createElement("br", null),
+                React.createElement(StoryFrame, { width: 350 },
+                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                React.createElement(StoryFrame, { width: 350, height: 350 },
+                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                React.createElement(StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
+                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                React.createElement(StoryFrame, { width: 'calc(100% - 20px' },
+                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail }))),
+            React.createElement(react_router_dom_1.Route, { path: '*' },
+                React.createElement(FourOhFour, null))));
+};
+const StoryFrame = (props) => React.createElement("div", { style: {
+        width: props.width,
+        maxWidth: props.maxWidth,
+        height: props.height,
+        //border: '1px dashed blue',
+        margin: 10,
+        display: 'inline-block',
+        verticalAlign: 'top',
+        background: 'white',
+        boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
+    } }, props.children);
 const FourOhFour = (props) => React.createElement("h3", null, "404");
 const CardExample = (props) => React.createElement(layouts_1.Card, null, props.text);
 const AboutFrontpage = (props) => React.createElement(layouts_1.Card, null,
@@ -70160,7 +70165,7 @@ const WikiPage = (props) => {
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
 ReactDOM.render(React.createElement(ReactRouterExample, { es: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./layerAbout":276,"./layerWiki":277,"./layouts":278,"./oldAppView":279,"./sync":280,"earthstar":96,"react":220,"react-dom":208,"react-router-dom":214}],274:[function(require,module,exports){
+},{"./layerAbout":276,"./layerWiki":277,"./layouts":278,"./oldAppView":279,"./sync":280,"./wikiView":283,"earthstar":96,"react":220,"react-dom":208,"react-router-dom":214}],274:[function(require,module,exports){
 (function (process){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -70821,19 +70826,19 @@ class WikiPageView extends React.Component {
         };
     }
     _startEditing() {
-        if (this.props.page === null) {
+        if (this.props.pageDetail === null) {
             return;
         }
         this.setState({
             isEditing: true,
-            editedText: this.props.page.text,
+            editedText: this.props.pageDetail.text,
         });
     }
     _save() {
-        if (this.props.page === null) {
+        if (this.props.pageDetail === null) {
             return;
         }
-        let ok = this.props.wikiLayer.setPageText(this.props.page.key, this.state.editedText);
+        let ok = this.props.wikiLayer.setPageText(this.props.pageDetail.key, this.state.editedText);
         logPage('saving success:', ok);
         if (ok) {
             this.setState({
@@ -70857,11 +70862,11 @@ class WikiPageView extends React.Component {
     }
     render() {
         logPage('render()');
-        if (this.props.page === null) {
+        if (this.props.pageDetail === null) {
             return React.createElement("i", null, "Choose a page.");
         }
         let wiki = this.props.wikiLayer;
-        let page = this.props.page;
+        let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime = new Date(page.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
         let wasLastEditedByMe = wiki.keypair.public === page.lastAuthor;
@@ -70929,7 +70934,7 @@ class WikiView extends React.Component {
                     React.createElement("button", { type: "button", onClick: () => this._newPage() }, "New page"))),
             React.createElement(layouts_1.FlexItem, { grow: 1 },
                 React.createElement(layouts_1.Box, null,
-                    React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, page: pageDetail }))));
+                    React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, pageDetail: pageDetail }))));
     }
 }
 exports.WikiView = WikiView;

@@ -17,7 +17,7 @@ let logWiki = (...args : any[]) => console.log('WikiView |', ...args);
 interface WikiPageViewProps {
     aboutLayer : AboutLayer,
     wikiLayer : WikiLayer,
-    page : WikiPageDetail | null,
+    pageDetail : WikiPageDetail | null,
 }
 interface WikiPageViewState {
     isEditing : boolean;
@@ -32,16 +32,16 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
         };
     }
     _startEditing() {
-        if (this.props.page === null) { return; }
+        if (this.props.pageDetail === null) { return; }
         this.setState({
             isEditing: true,
-            editedText: this.props.page.text,
+            editedText: this.props.pageDetail.text,
         });
     }
     _save() {
-        if (this.props.page === null) { return; }
+        if (this.props.pageDetail === null) { return; }
         let ok = this.props.wikiLayer.setPageText(
-            this.props.page.key,
+            this.props.pageDetail.key,
             this.state.editedText
         );
         logPage('saving success:', ok);
@@ -65,11 +65,11 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
     }
     render() {
         logPage('render()');
-        if (this.props.page === null) {
+        if (this.props.pageDetail === null) {
             return <i>Choose a page.</i>;
         }
         let wiki = this.props.wikiLayer;
-        let page = this.props.page;
+        let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime : string = new Date(page.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
         let wasLastEditedByMe = wiki.keypair.public === page.lastAuthor;
@@ -159,7 +159,7 @@ export class WikiView extends React.Component<WikiViewProps, WikiViewState> {
                     <WikiPageView
                         aboutLayer={this.props.aboutLayer}
                         wikiLayer={this.props.wikiLayer}
-                        page={pageDetail}
+                        pageDetail={pageDetail}
                         />
                 </Box>
             </FlexItem>

@@ -17,7 +17,7 @@ import {
     Keypair,
 } from 'earthstar';
 import { AboutLayer } from './layerAbout';
-import { WikiLayer } from './layerWiki';
+import { WikiLayer, WikiPageDetail } from './layerWiki';
 import { Syncer } from './sync';
 
 import {
@@ -30,8 +30,9 @@ import {
 } from './layouts';
 import { SyncButton } from './syncButton';
 import { EsDebugView } from './esDebugView';
-import { WikiView } from './wikiView';
+import { WikiView, WikiPageView } from './wikiView';
 import { OldAppView } from './oldAppView';
+import { cCARD_TEXT } from './config';
 
 //================================================================================
 // SET UP DEMO CONTENT
@@ -66,21 +67,6 @@ let prepareEarthstar = () => {
 //================================================================================
 // REACT ROUTER EXAMPLE
 
-const RouterMenu : React.FunctionComponent = (props) =>
-    <Card>
-        <Stack>
-            <div><NavLink exact to="/">Home</NavLink></div>
-            <div><NavLink exact to="/login">Login</NavLink></div>
-            <div><NavLink exact to="/ws/test/about">List of authors</NavLink></div>
-            <div><NavLink exact to="/ws/test/about/@abc">About one author</NavLink></div>
-            <div><NavLink exact to="/ws/test/wiki">Wiki frontpage</NavLink></div>
-            <div><NavLink exact to="/ws/test/wiki/recent">Wiki recent</NavLink></div>
-            <div><NavLink exact to="/ws/test/wiki/page/Dogs">Wiki: Dogs</NavLink></div>
-            <div><NavLink exact to="/ws/test/wiki/page/Cats">Wiki: Cats</NavLink></div>
-            <div><NavLink exact to="/ws/test/wiki/page/Dogs And Cats">Wiki: Dogs And Cats</NavLink></div>
-        </Stack>
-    </Card>
-
 interface RouterProps {
     es : IStore,
     keypair : Keypair,
@@ -94,36 +80,85 @@ const ReactRouterExample : React.FunctionComponent<RouterProps> = (props : Route
             <Route exact path='/'>
                 <OldAppView es={props.es} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
             </Route>
-            <Route exact path='/login'>
-                <RouterMenu /><hr />
-                <CardExample text={'login'} />
-            </Route>
-            <Route exact path='/ws/:workspace/about'>
-                <RouterMenu /><hr />
-                <AboutFrontpage />
-            </Route>
-            <Route exact path='/ws/:workspace/about/:author'>
-                <RouterMenu /><hr />
-                <AboutAuthor />
-            </Route>
-            <Route exact path='/ws/:workspace/wiki'>
-                <RouterMenu /><hr />
-                <WikiFrontpage />
-            </Route>
-            <Route exact path='/ws/:workspace/wiki/recent'>
-                <RouterMenu /><hr />
-                <WikiRecent />
-            </Route>
-            <Route exact path='/ws/:workspace/wiki/page/:title'>
-                <RouterMenu /><hr />
-                <WikiPage />
+            <Route path='/storybook/'>
+                <Storybook {...props}/>
             </Route>
             <Route path='*'>
-                <RouterMenu /><hr />
                 <FourOhFour />
             </Route>
         </Switch>
     </Router>
+
+//  /login
+//  /ws/:workspace/about
+//  /ws/:workspace/about/:author
+//  /ws/:workspace/wiki
+//  /ws/:workspace/wiki/recent
+//  /ws/:workspace/wiki/page/:title
+
+let logStorybook = (...args : any[]) => console.log('Storybook |', ...args);
+const Storybook : React.FunctionComponent<RouterProps> = (props) => {
+    let pages = props.wikiLayer.listPages();
+    let pageInfo = pages[0];
+    let pageDetail = props.wikiLayer.getPageDetails(pageInfo.key);
+    logStorybook('page key', pageInfo.key);
+    logStorybook('pageInfo', pageInfo);
+    logStorybook('pageDetail', pageDetail);
+    return <Router>
+        <Card>
+            <Stack>
+                <div><NavLink exact to="/">(Back to app)</NavLink></div>
+                <div><NavLink exact to="/storybook/wikiPageView">WikiPageView</NavLink></div>
+            </Stack>
+        </Card>
+        <hr />
+
+        <Switch>
+            <Route exact path='/storybook/'/>
+            <Route exact path='/storybook/wikiPageView'>
+                <StoryFrame width={350}>
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={null} />
+                </StoryFrame>
+                <br />
+                <StoryFrame width={350}>
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                </StoryFrame>
+                <StoryFrame width={350} height={350}>
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                </StoryFrame>
+                <StoryFrame width={'calc(min(70ch, 100% - 20px))'}>
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                </StoryFrame>
+                <StoryFrame width={'calc(100% - 20px'}>
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                </StoryFrame>
+            </Route>
+            <Route path='*'>
+                <FourOhFour />
+            </Route>
+        </Switch>
+    </Router>
+};
+
+interface StoryFrameProps {
+    width?: string | number,
+    maxWidth?: string | number,
+    height?: string | number,
+}
+const StoryFrame : React.FunctionComponent<StoryFrameProps> = (props) =>
+    <div style={{
+        width: props.width,
+        maxWidth: props.maxWidth,
+        height: props.height,
+        //border: '1px dashed blue',
+        margin: 10,
+        display: 'inline-block',
+        verticalAlign: 'top',
+        background: 'white',
+        boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
+    }}>
+        {props.children}
+    </div>
 
 const FourOhFour : React.FunctionComponent = (props) =>
     <h3>404</h3>
