@@ -106,6 +106,7 @@ input[type='text']:focus {
 /*================================================================================*/
 
 .center {
+    border: var(--test-border-width) solid #f90;
     max-width: 70ch;
     box-sizing: content-box;
     margin-left: auto;
@@ -115,50 +116,53 @@ input[type='text']:focus {
 }
 
 .stack {
-    border: 0px solid red;
-    border-width: var(--test-border-width);
+    border: var(--test-border-width) solid red;
 }
 .stack > * + * {
     margin-top: var(--s0);
 }
 
 .box {
-    padding: var(--s0);
+    border: var(--test-border-width) solid #03f;
 
-    border: 0px solid green;
-    border-width: var(--test-border-width);
+    padding: var(--s0);
 }
 .card {
+    border: var(--test-border-width) solid #0a0;
+
     padding: var(--s0);
     background: var(--cCardBg);
     border-radius: var(--round);;
-
-    border: 0px solid blue;
-    border-width: var(--test-border-width);
 }
 
 .cluster {
+    border: var(--test-border-width) dashed purple;
+
     --space: var(--s-1);
     overflow: hidden;
-
-    border: 0px solid #f0f;
-    border-width: var(--test-border-width);
 }
 .cluster > * {
+    border: var(--test-border-width) solid magenta;
+
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;  /* horizontal alignment */
     align-items: center;  /* vertical alignment */
     margin: calc(var(--space) / 2 * -1);
-
-    border: 0px solid #a0a;
-    border-width: var(--test-border-width);
 }
 .cluster > * > * {
-    margin: calc(var(--space) / 2);
+    border: var(--test-border-width) solid #f0a;
 
-    border: 0px solid #505;
-    border-width: var(--test-border-width);
+    margin: calc(var(--space) / 2);
+}
+
+.flexRow {
+    border: var(--test-border-width) dashed #880;
+
+    display: flex;
+}
+.flexItem {
+    border: var(--test-border-width) solid #880;
 }
 
 /*================================================================================*/

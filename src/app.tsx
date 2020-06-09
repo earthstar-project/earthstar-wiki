@@ -107,8 +107,9 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
     return <Router>
         <Card>
             <Stack>
-                <div><NavLink exact to="/">(Back to app)</NavLink></div>
+                <div><a href="/">(Back to app)</a></div>
                 <div><NavLink exact to="/storybook/wikiPageView">WikiPageView</NavLink></div>
+                <div><NavLink exact to="/storybook/wikiView">WikiView</NavLink></div>
             </Stack>
         </Card>
         <hr />
@@ -116,21 +117,36 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
         <Switch>
             <Route exact path='/storybook/'/>
             <Route exact path='/storybook/wikiPageView'>
+                <StoryFrameDivider title="no page chosen" />
                 <StoryFrame width={350}>
                     <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={null} />
                 </StoryFrame>
-                <br />
-                <StoryFrame width={350}>
-                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
-                </StoryFrame>
-                <StoryFrame width={350} height={350}>
-                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
-                </StoryFrame>
+                <StoryFrameDivider title="regular page" />
                 <StoryFrame width={'calc(min(70ch, 100% - 20px))'}>
                     <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
                 </StoryFrame>
                 <StoryFrame width={'calc(100% - 20px'}>
                     <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                </StoryFrame>
+                <StoryFrame width={250}>
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                </StoryFrame>
+                <StoryFrame width={350} minHeight={350}>
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                </StoryFrame>
+            </Route>
+            <Route exact path='/storybook/wikiView'>
+                <StoryFrame width={'calc(min(70ch, 100% - 20px))'}>
+                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
+                </StoryFrame>
+                <StoryFrame width={'calc(100% - 20px'}>
+                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
+                </StoryFrame>
+                <StoryFrame width={250}>
+                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
+                </StoryFrame>
+                <StoryFrame width={350} minHeight={350}>
+                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
                 </StoryFrame>
             </Route>
             <Route path='*'>
@@ -140,24 +156,50 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
     </Router>
 };
 
+const StoryFrameDivider : React.FunctionComponent<{title? : string}> = (props) =>
+    <div style={{
+        color: 'rgb(194, 45, 20)',
+        fontSize: '120%',
+        fontWeight: 'bold',
+        padding: 10,
+        marginTop: 50,
+        //borderTop: '2px solid #c22d14',
+    }}>{props.title || " "}</div>
+
 interface StoryFrameProps {
     width?: string | number,
     maxWidth?: string | number,
     height?: string | number,
+    minHeight?: string | number,
+    title?: string,
 }
 const StoryFrame : React.FunctionComponent<StoryFrameProps> = (props) =>
     <div style={{
-        width: props.width,
-        maxWidth: props.maxWidth,
-        height: props.height,
-        //border: '1px dashed blue',
-        margin: 10,
-        display: 'inline-block',
-        verticalAlign: 'top',
-        background: 'white',
-        boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
-    }}>
-        {props.children}
+            width: props.width,
+            maxWidth: props.maxWidth,
+            display: 'inline-block',
+            verticalAlign: 'top',
+            margin: 10,
+        }}>
+        <div style={{
+            fontSize: '80%',
+            fontWeight: 'bold',
+            padding: '5px 0px',
+            //color: '#444',
+            color: 'rgb(194, 45, 20)',
+            //textAlign: 'center',
+        }}>
+            {props.title || " "}
+        </div>
+        <div style={{
+            //border: '1px dashed blue',
+            background: 'white',
+            boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
+            height: props.height,
+            minHeight: props.minHeight,
+        }}>
+            {props.children}
+        </div>
     </div>
 
 const FourOhFour : React.FunctionComponent = (props) =>

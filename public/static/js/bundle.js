@@ -70095,38 +70095,67 @@ const Storybook = (props) => {
         React.createElement(layouts_1.Card, null,
             React.createElement(layouts_1.Stack, null,
                 React.createElement("div", null,
-                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/" }, "(Back to app)")),
+                    React.createElement("a", { href: "/" }, "(Back to app)")),
                 React.createElement("div", null,
-                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiPageView" }, "WikiPageView")))),
+                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiPageView" }, "WikiPageView")),
+                React.createElement("div", null,
+                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiView" }, "WikiView")))),
         React.createElement("hr", null),
         React.createElement(react_router_dom_1.Switch, null,
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/' }),
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiPageView' },
+                React.createElement(StoryFrameDivider, { title: "no page chosen" }),
                 React.createElement(StoryFrame, { width: 350 },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: null })),
-                React.createElement("br", null),
-                React.createElement(StoryFrame, { width: 350 },
-                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
-                React.createElement(StoryFrame, { width: 350, height: 350 },
-                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                React.createElement(StoryFrameDivider, { title: "regular page" }),
                 React.createElement(StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
                 React.createElement(StoryFrame, { width: 'calc(100% - 20px' },
+                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                React.createElement(StoryFrame, { width: 250 },
+                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                React.createElement(StoryFrame, { width: 350, minHeight: 350 },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail }))),
+            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiView' },
+                React.createElement(StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
+                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
+                React.createElement(StoryFrame, { width: 'calc(100% - 20px' },
+                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
+                React.createElement(StoryFrame, { width: 250 },
+                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
+                React.createElement(StoryFrame, { width: 350, minHeight: 350 },
+                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer }))),
             React.createElement(react_router_dom_1.Route, { path: '*' },
                 React.createElement(FourOhFour, null))));
 };
+const StoryFrameDivider = (props) => React.createElement("div", { style: {
+        color: 'rgb(194, 45, 20)',
+        fontSize: '120%',
+        fontWeight: 'bold',
+        padding: 10,
+        marginTop: 50,
+    } }, props.title || " ");
 const StoryFrame = (props) => React.createElement("div", { style: {
         width: props.width,
         maxWidth: props.maxWidth,
-        height: props.height,
-        //border: '1px dashed blue',
-        margin: 10,
         display: 'inline-block',
         verticalAlign: 'top',
-        background: 'white',
-        boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
-    } }, props.children);
+        margin: 10,
+    } },
+    React.createElement("div", { style: {
+            fontSize: '80%',
+            fontWeight: 'bold',
+            padding: '5px 0px',
+            //color: '#444',
+            color: 'rgb(194, 45, 20)',
+        } }, props.title || " "),
+    React.createElement("div", { style: {
+            //border: '1px dashed blue',
+            background: 'white',
+            boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
+            height: props.height,
+            minHeight: props.minHeight,
+        } }, props.children));
 const FourOhFour = (props) => React.createElement("h3", null, "404");
 const CardExample = (props) => React.createElement(layouts_1.Card, null, props.text);
 const AboutFrontpage = (props) => React.createElement(layouts_1.Card, null,
@@ -70509,9 +70538,9 @@ exports.Pill = (props) => React.createElement("div", { className: "pill" }, prop
 ;
 exports.Tag = ({ text }) => React.createElement(exports.Pill, null,
     React.createElement("a", { href: "#" }, text));
-exports.FlexRow = (props) => React.createElement("div", { style: Object.assign({ display: 'flex' }, props.style) }, props.children);
+exports.FlexRow = (props) => React.createElement("div", { className: "flexRow", style: props.style }, props.children);
 ;
-exports.FlexItem = (props) => React.createElement("div", { style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
+exports.FlexItem = (props) => React.createElement("div", { className: "flexItem", style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
 
 },{"react":220}],279:[function(require,module,exports){
 "use strict";
@@ -70925,16 +70954,14 @@ class WikiView extends React.Component {
         let pageInfos = this.props.wikiLayer.listPages();
         let pageDetail = this.state.currentPageKey ? this.props.wikiLayer.getPageDetails(this.state.currentPageKey) : null;
         return React.createElement(layouts_1.FlexRow, null,
-            React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0 },
-                React.createElement(layouts_1.Box, { style: { borderRight: '2px solid #aaa' } },
-                    pageInfos.map(pageInfo => React.createElement("div", { key: pageInfo.key },
-                        "\uD83D\uDCC4 ",
-                        React.createElement("a", { href: "#", onClick: () => this._viewPage(pageInfo.key), style: { fontWeight: pageInfo.key == this.state.currentPageKey ? 'bold' : 'normal' } }, pageInfo.title))),
-                    React.createElement("p", null),
-                    React.createElement("button", { type: "button", onClick: () => this._newPage() }, "New page"))),
-            React.createElement(layouts_1.FlexItem, { grow: 1 },
-                React.createElement(layouts_1.Box, null,
-                    React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, pageDetail: pageDetail }))));
+            React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0, style: { borderRight: '2px solid #888' } },
+                pageInfos.map(pageInfo => React.createElement("div", { key: pageInfo.key },
+                    "\uD83D\uDCC4 ",
+                    React.createElement("a", { href: "#", onClick: () => this._viewPage(pageInfo.key), style: { fontWeight: pageInfo.key == this.state.currentPageKey ? 'bold' : 'normal' } }, pageInfo.title))),
+                React.createElement("p", null),
+                React.createElement("button", { type: "button", onClick: () => this._newPage() }, "New page")),
+            React.createElement(layouts_1.FlexItem, { grow: 1, style: { marginLeft: 'var(--s0)' } },
+                React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, pageDetail: pageDetail })));
     }
 }
 exports.WikiView = WikiView;

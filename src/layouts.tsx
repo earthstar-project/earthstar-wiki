@@ -36,7 +36,7 @@ export const Tag : React.FunctionComponent<TagProps> = ({text}) =>
     </Pill>
 
 export const FlexRow : React.FunctionComponent<StyleProps> = (props) =>
-    <div style={{display: 'flex', ...props.style}}>
+    <div className="flexRow" style={props.style}>
         {props.children}
     </div>;
 
@@ -47,7 +47,7 @@ interface FlexItemProps {
     style? : any;
 };
 export const FlexItem : React.FunctionComponent<FlexItemProps> = (props) =>
-    <div style={{
+    <div className="flexItem" style={{
         flexGrow: props.grow,
         flexShrink: props.shrink,
         flexBasis: props.basis,

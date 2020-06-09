@@ -138,30 +138,26 @@ export class WikiView extends React.Component<WikiViewProps, WikiViewState> {
         let pageInfos : WikiPageInfo[] = this.props.wikiLayer.listPages();
         let pageDetail : WikiPageDetail | null = this.state.currentPageKey ? this.props.wikiLayer.getPageDetails(this.state.currentPageKey) : null;
         return <FlexRow>
-            <FlexItem basis="150px" shrink={0}>
-                <Box style={{borderRight: '2px solid #aaa'}}>
-                    {pageInfos.map(pageInfo =>
-                        <div key={pageInfo.key}>
-                            📄 <a href="#"
-                                onClick={() => this._viewPage(pageInfo.key)}
-                                style={{fontWeight: pageInfo.key == this.state.currentPageKey ? 'bold' : 'normal'}}
-                                >
-                                {pageInfo.title}
-                            </a>
-                        </div>
-                    )}
-                    <p></p>
-                    <button type="button" onClick={() => this._newPage()}>New page</button>
-                </Box>
+            <FlexItem basis="150px" shrink={0} style={{borderRight: '2px solid #888'}}>
+                {pageInfos.map(pageInfo =>
+                    <div key={pageInfo.key}>
+                        📄 <a href="#"
+                            onClick={() => this._viewPage(pageInfo.key)}
+                            style={{fontWeight: pageInfo.key == this.state.currentPageKey ? 'bold' : 'normal'}}
+                            >
+                            {pageInfo.title}
+                        </a>
+                    </div>
+                )}
+                <p></p>
+                <button type="button" onClick={() => this._newPage()}>New page</button>
             </FlexItem>
-            <FlexItem grow={1}>
-                <Box>
-                    <WikiPageView
-                        aboutLayer={this.props.aboutLayer}
-                        wikiLayer={this.props.wikiLayer}
-                        pageDetail={pageDetail}
-                        />
-                </Box>
+            <FlexItem grow={1} style={{marginLeft: 'var(--s0)'}}>
+                <WikiPageView
+                    aboutLayer={this.props.aboutLayer}
+                    wikiLayer={this.props.wikiLayer}
+                    pageDetail={pageDetail}
+                    />
             </FlexItem>
         </FlexRow>;
     }
