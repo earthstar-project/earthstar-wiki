@@ -70042,8 +70042,10 @@ const layerAbout_1 = require("./earthstar/layerAbout");
 const layerWiki_1 = require("./earthstar/layerWiki");
 const sync_1 = require("./earthstar/sync");
 const layouts_1 = require("./views/layouts");
+const storybook_1 = require("./views/storybook");
 const wikiView_1 = require("./views/wikiView");
 const oldAppView_1 = require("./views/oldAppView");
+const loginFlow_1 = require("./views/loginFlow");
 //================================================================================
 // SET UP DEMO CONTENT
 let prepareEarthstar = () => {
@@ -70076,7 +70078,7 @@ const ReactRouterExample = (props) => React.createElement(react_router_dom_1.Bro
         React.createElement(react_router_dom_1.Route, { path: '/storybook/' },
             React.createElement(Storybook, Object.assign({}, props))),
         React.createElement(react_router_dom_1.Route, { path: '*' },
-            React.createElement(FourOhFour, null))));
+            React.createElement("h3", null, "404"))));
 //  /login
 //  /ws/:workspace/about
 //  /ws/:workspace/about/:author
@@ -70092,109 +70094,68 @@ const Storybook = (props) => {
     logStorybook('pageInfo', pageInfo);
     logStorybook('pageDetail', pageDetail);
     return React.createElement(react_router_dom_1.BrowserRouter, null,
-        React.createElement(layouts_1.Card, null,
-            React.createElement(layouts_1.Stack, null,
-                React.createElement("div", null,
-                    React.createElement("a", { href: "/" }, "(Back to app)")),
-                React.createElement("div", null,
-                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiPageView" }, "WikiPageView")),
-                React.createElement("div", null,
-                    React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiView" }, "WikiView")))),
+        React.createElement(layouts_1.Center, null,
+            React.createElement(layouts_1.Card, null,
+                React.createElement(layouts_1.Stack, null,
+                    React.createElement("div", null,
+                        React.createElement("a", { href: "/" }, "(Back to app)")),
+                    React.createElement("div", null,
+                        React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiPageView" }, "WikiPageView")),
+                    React.createElement("div", null,
+                        React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/wikiView" }, "WikiView")),
+                    React.createElement("div", null,
+                        React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/loginFlow" }, "LoginFlow")),
+                    React.createElement("div", null,
+                        React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/loginLandingView" }, "LoginLandingView"))))),
         React.createElement("hr", null),
         React.createElement(react_router_dom_1.Switch, null,
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/' }),
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiPageView' },
-                React.createElement(StoryFrameDivider, { title: "no page chosen" }),
-                React.createElement(StoryFrame, { width: 350 },
+                React.createElement(storybook_1.StoryFrameDivider, { title: "no page chosen" }),
+                React.createElement(storybook_1.StoryFrame, { width: 350 },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: null })),
-                React.createElement(StoryFrameDivider, { title: "regular page" }),
-                React.createElement(StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
+                React.createElement(storybook_1.StoryFrameDivider, { title: "regular page" }),
+                React.createElement(storybook_1.StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
-                React.createElement(StoryFrame, { width: 'calc(100% - 20px' },
+                React.createElement(storybook_1.StoryFrame, { width: 'calc(100% - 20px' },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
-                React.createElement(StoryFrame, { width: 250 },
+                React.createElement(storybook_1.StoryFrame, { width: 250 },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
-                React.createElement(StoryFrame, { width: 350, minHeight: 350 },
+                React.createElement(storybook_1.StoryFrame, { width: 350, minHeight: 350 },
                     React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail }))),
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiView' },
-                React.createElement(StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
+                React.createElement(storybook_1.StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
                     React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
-                React.createElement(StoryFrame, { width: 'calc(100% - 20px' },
+                React.createElement(storybook_1.StoryFrame, { width: 'calc(100% - 20px' },
                     React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
-                React.createElement(StoryFrame, { width: 250 },
+                React.createElement(storybook_1.StoryFrame, { width: 250 },
                     React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
-                React.createElement(StoryFrame, { width: 350, minHeight: 350 },
+                React.createElement(storybook_1.StoryFrame, { width: 350, minHeight: 350 },
                     React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer }))),
+            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/loginFlow' },
+                React.createElement(storybook_1.StoryFrameDivider, { title: "centered" }),
+                React.createElement(layouts_1.Center, null,
+                    React.createElement(layouts_1.Card, null,
+                        React.createElement(loginFlow_1.LoginFlow, null))),
+                React.createElement(storybook_1.StoryFrameDivider, { title: "small" }),
+                React.createElement(storybook_1.StoryFrame, { width: 400, minHeight: 600 },
+                    React.createElement(loginFlow_1.LoginFlow, null))),
+            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/loginLandingView' },
+                React.createElement(storybook_1.StoryFrame, { title: "landing", width: 400, minHeight: 600 },
+                    React.createElement(loginFlow_1.LoginLandingView, { api: null })),
+                React.createElement(storybook_1.StoryFrame, { title: "start workspace", width: 400, minHeight: 600 },
+                    React.createElement(loginFlow_1.LoginStartWorkspace, { api: null })),
+                React.createElement(storybook_1.StoryFrame, { title: "create user", width: 400, minHeight: 600 },
+                    React.createElement(loginFlow_1.LoginCreateUser, { api: null }))),
             React.createElement(react_router_dom_1.Route, { path: '*' },
-                React.createElement(FourOhFour, null))));
-};
-const StoryFrameDivider = (props) => React.createElement("div", { style: {
-        color: 'rgb(194, 45, 20)',
-        fontSize: '120%',
-        fontWeight: 'bold',
-        padding: 10,
-        marginTop: 50,
-    } }, props.title || " ");
-const StoryFrame = (props) => React.createElement("div", { style: {
-        width: props.width,
-        maxWidth: props.maxWidth,
-        display: 'inline-block',
-        verticalAlign: 'top',
-        margin: 10,
-    } },
-    React.createElement("div", { style: {
-            fontSize: '80%',
-            fontWeight: 'bold',
-            padding: '5px 0px',
-            //color: '#444',
-            color: 'rgb(194, 45, 20)',
-        } }, props.title || " "),
-    React.createElement("div", { style: {
-            //border: '1px dashed blue',
-            background: 'white',
-            boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
-            height: props.height,
-            minHeight: props.minHeight,
-        } }, props.children));
-const FourOhFour = (props) => React.createElement("h3", null, "404");
-const CardExample = (props) => React.createElement(layouts_1.Card, null, props.text);
-const AboutFrontpage = (props) => React.createElement(layouts_1.Card, null,
-    React.createElement("h3", null, "List of authors"));
-const AboutAuthor = (props) => {
-    let { author } = react_router_dom_1.useParams();
-    return React.createElement(layouts_1.Card, null,
-        React.createElement("h3", null, author));
-};
-const WikiFrontpage = (props) => {
-    let { workspace, title } = react_router_dom_1.useParams();
-    let pages = ['Dogs', 'Cats', 'Dogs And Cats'];
-    return React.createElement(layouts_1.Card, null,
-        React.createElement("p", null,
-            React.createElement("i", null,
-                "Workspace: ",
-                React.createElement("code", null, workspace))),
-        React.createElement("h3", null, "List of pages"),
-        pages.map(page => React.createElement("p", { key: page },
-            React.createElement(react_router_dom_1.Link, { to: `/ws/${workspace}/wiki/page/${page}` }, page))));
-};
-const WikiRecent = (props) => React.createElement(layouts_1.Card, null,
-    React.createElement("h3", null, "Recent wiki pages"));
-const WikiPage = (props) => {
-    let { workspace, title } = react_router_dom_1.useParams();
-    return React.createElement(layouts_1.Card, null,
-        React.createElement("p", null,
-            React.createElement("i", null,
-                "Workspace: ",
-                React.createElement("code", null, workspace))),
-        React.createElement("h3", null, title),
-        React.createElement("p", null, "blah blah"));
+                React.createElement("h3", null, "404"))));
 };
 //================================================================================
 // MAIN
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
 ReactDOM.render(React.createElement(ReactRouterExample, { es: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./earthstar/layerAbout":274,"./earthstar/layerWiki":275,"./earthstar/sync":276,"./views/layouts":280,"./views/oldAppView":281,"./views/wikiView":283,"earthstar":96,"react":220,"react-dom":208,"react-router-dom":214}],274:[function(require,module,exports){
+},{"./earthstar/layerAbout":274,"./earthstar/layerWiki":275,"./earthstar/sync":276,"./views/layouts":280,"./views/loginFlow":281,"./views/oldAppView":282,"./views/storybook":283,"./views/wikiView":285,"earthstar":96,"react":220,"react-dom":208,"react-router-dom":214}],274:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AboutLayer = void 0;
@@ -70677,7 +70638,7 @@ class EsDebugView extends React.Component {
 }
 exports.EsDebugView = EsDebugView;
 
-},{"./layouts":280,"./syncButton":282,"react":220}],280:[function(require,module,exports){
+},{"./layouts":280,"./syncButton":284,"react":220}],280:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70741,6 +70702,99 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LoginCreateUser = exports.LoginStartWorkspace = exports.LoginLandingView = exports.LoginFlow = void 0;
+const React = __importStar(require("react"));
+const layouts_1 = require("./layouts");
+class LoginFlow extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            page: 'LANDING',
+        };
+    }
+    goto(page) {
+        this.setState({ page: page });
+    }
+    render() {
+        if (this.state.page === 'LANDING') {
+            return React.createElement(exports.LoginLandingView, { api: this });
+        }
+        else if (this.state.page === 'START_WORKSPACE') {
+            return React.createElement(exports.LoginStartWorkspace, { api: this });
+        }
+        else if (this.state.page === 'CREATE_USER') {
+            return React.createElement(exports.LoginCreateUser, { api: this });
+        }
+        else {
+            throw 'unknown login page: ' + this.state.page;
+        }
+    }
+}
+exports.LoginFlow = LoginFlow;
+exports.LoginLandingView = (props) => React.createElement(layouts_1.Stack, null,
+    React.createElement("div", null,
+        React.createElement("img", { src: "/static/img/earthstar-pal-transparent.png", style: { width: 100 } })),
+    React.createElement("h2", null, "Earthstar Wiki"),
+    React.createElement("div", null,
+        React.createElement("button", { type: "button", onClick: () => props.api.goto('START_WORKSPACE') }, "Start a new workspace")),
+    React.createElement("div", null,
+        React.createElement("button", { type: "button", disabled: true }, "Join a workspace")),
+    React.createElement("p", null,
+        "A ",
+        React.createElement("b", null, "workspace"),
+        " is a collection of documents and people."));
+exports.LoginStartWorkspace = (props) => React.createElement(layouts_1.Stack, null,
+    React.createElement("div", null,
+        React.createElement("a", { href: "#", onClick: () => props.api.goto('LANDING') }, "\u2190")),
+    React.createElement("h2", null, "Start a new workspace"),
+    React.createElement("h3", null, "Choose a workspace name"),
+    React.createElement("p", null, "Up to 15 characters long.  Only letters, numbers, and dashes."),
+    React.createElement("input", { type: "text", value: "garden-club" }),
+    React.createElement("p", null, "A random number is added to the end to make it harder to guess. The full workspace name will be:"),
+    React.createElement("pre", null, "//garden-club.qp49fjq04f9qj04f9jq04f9jq0f9fj"),
+    React.createElement("div", null,
+        React.createElement("a", { href: "#" }, "Change the random number")),
+    React.createElement("div", null,
+        React.createElement("button", { type: "button", onClick: () => props.api.goto('CREATE_USER') }, "Create workspace")));
+exports.LoginCreateUser = (props) => React.createElement(layouts_1.Stack, null,
+    React.createElement("div", null,
+        React.createElement("a", { href: "#", onClick: () => props.api.goto('START_WORKSPACE') }, "\u2190")),
+    React.createElement("h2", null, "Create a new user"),
+    React.createElement("h3", null, "Display name"),
+    React.createElement("p", null, "Spaces, emojis, anything you want"),
+    React.createElement("input", { type: "text", value: "Squirrel Friend" }),
+    React.createElement("h3", null, "Abbreviation"),
+    React.createElement("p", null, "Four letters or numbers"),
+    React.createElement("input", { type: "text", value: "sqrl" }),
+    React.createElement("p", null, "Your full username will be:"),
+    React.createElement("pre", null, "@sqrl.FHqQxk3J7Ls5fBbQpvk71DALYFGnoeNDGtiJqhLnUpJr"),
+    React.createElement("div", null,
+        React.createElement("a", { href: "#" }, "Change the random number")),
+    React.createElement("div", null,
+        React.createElement("button", { type: "button", disabled: true }, "Create user")));
+
+},{"./layouts":280,"react":220}],282:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.OldAppView = void 0;
 const React = __importStar(require("react"));
 const layouts_1 = require("./layouts");
@@ -70776,7 +70830,60 @@ class OldAppView extends React.Component {
 }
 exports.OldAppView = OldAppView;
 
-},{"./esDebugView":279,"./layouts":280,"./syncButton":282,"./wikiView":283,"react":220}],282:[function(require,module,exports){
+},{"./esDebugView":279,"./layouts":280,"./syncButton":284,"./wikiView":285,"react":220}],283:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.StoryFrame = exports.StoryFrameDivider = void 0;
+const React = __importStar(require("react"));
+exports.StoryFrameDivider = (props) => React.createElement("div", { style: {
+        color: 'rgb(194, 45, 20)',
+        fontSize: '120%',
+        fontWeight: 'bold',
+        padding: 10,
+        marginTop: 50,
+    } }, props.title || " ");
+exports.StoryFrame = (props) => React.createElement("div", { style: {
+        width: props.width,
+        maxWidth: props.maxWidth,
+        display: 'inline-block',
+        verticalAlign: 'top',
+        margin: 10,
+    } },
+    React.createElement("div", { style: {
+            fontSize: '80%',
+            fontWeight: 'bold',
+            padding: '5px 0px',
+            //color: '#444',
+            color: 'rgb(194, 45, 20)',
+        } }, props.title || " "),
+    React.createElement("div", { style: {
+            //border: '1px dashed blue',
+            background: 'white',
+            boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
+            height: props.height,
+            minHeight: props.minHeight,
+        } }, props.children));
+
+},{"react":220}],284:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70818,7 +70925,7 @@ class SyncButton extends React.Component {
 }
 exports.SyncButton = SyncButton;
 
-},{"react":220}],283:[function(require,module,exports){
+},{"react":220}],285:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;

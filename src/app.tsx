@@ -21,10 +21,22 @@ import { Syncer } from './earthstar/sync';
 
 import {
     Card,
+    Center,
     Stack,
 } from './views/layouts';
+import {
+    StoryFrame,
+    StoryFrameDivider,
+} from './views/storybook';
+
 import { WikiView, WikiPageView } from './views/wikiView';
 import { OldAppView } from './views/oldAppView';
+import {
+    LoginFlow,
+    LoginLandingView,
+    LoginStartWorkspace,
+    LoginCreateUser,
+} from './views/loginFlow';
 
 //================================================================================
 // SET UP DEMO CONTENT
@@ -76,7 +88,7 @@ const ReactRouterExample : React.FunctionComponent<RouterProps> = (props : Route
                 <Storybook {...props}/>
             </Route>
             <Route path='*'>
-                <FourOhFour />
+                <h3>404</h3>
             </Route>
         </Switch>
     </Router>
@@ -97,15 +109,18 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
     logStorybook('pageInfo', pageInfo);
     logStorybook('pageDetail', pageDetail);
     return <Router>
-        <Card>
-            <Stack>
-                <div><a href="/">(Back to app)</a></div>
-                <div><NavLink exact to="/storybook/wikiPageView">WikiPageView</NavLink></div>
-                <div><NavLink exact to="/storybook/wikiView">WikiView</NavLink></div>
-            </Stack>
-        </Card>
+        <Center>
+            <Card>
+                <Stack>
+                    <div><a href="/">(Back to app)</a></div>
+                    <div><NavLink exact to="/storybook/wikiPageView">WikiPageView</NavLink></div>
+                    <div><NavLink exact to="/storybook/wikiView">WikiView</NavLink></div>
+                    <div><NavLink exact to="/storybook/loginFlow">LoginFlow</NavLink></div>
+                    <div><NavLink exact to="/storybook/loginLandingView">LoginLandingView</NavLink></div>
+                </Stack>
+            </Card>
+        </Center>
         <hr />
-
         <Switch>
             <Route exact path='/storybook/'/>
             <Route exact path='/storybook/wikiPageView'>
@@ -141,102 +156,37 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
                     <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
                 </StoryFrame>
             </Route>
+            <Route exact path='/storybook/loginFlow'>
+                <StoryFrameDivider title="centered" />
+                <Center>
+                    <Card>
+                        <LoginFlow />
+                    </Card>
+                </Center>
+                <StoryFrameDivider title="small" />
+                <StoryFrame width={400} minHeight={600}>
+                    <LoginFlow />
+                </StoryFrame>
+            </Route>
+            <Route exact path='/storybook/loginLandingView'>
+                <StoryFrame title="landing" width={400} minHeight={600}>
+                    <LoginLandingView api={null as any} />
+                </StoryFrame>
+                <StoryFrame title="start workspace" width={400} minHeight={600}>
+                    <LoginStartWorkspace api={null as any} />
+                </StoryFrame>
+                <StoryFrame title="create user" width={400} minHeight={600}>
+                    <LoginCreateUser api={null as any} />
+                </StoryFrame>
+            </Route>
             <Route path='*'>
-                <FourOhFour />
+                <h3>404</h3>
             </Route>
         </Switch>
     </Router>
 };
 
-const StoryFrameDivider : React.FunctionComponent<{title? : string}> = (props) =>
-    <div style={{
-        color: 'rgb(194, 45, 20)',
-        fontSize: '120%',
-        fontWeight: 'bold',
-        padding: 10,
-        marginTop: 50,
-        //borderTop: '2px solid #c22d14',
-    }}>{props.title || " "}</div>
 
-interface StoryFrameProps {
-    width?: string | number,
-    maxWidth?: string | number,
-    height?: string | number,
-    minHeight?: string | number,
-    title?: string,
-}
-const StoryFrame : React.FunctionComponent<StoryFrameProps> = (props) =>
-    <div style={{
-            width: props.width,
-            maxWidth: props.maxWidth,
-            display: 'inline-block',
-            verticalAlign: 'top',
-            margin: 10,
-        }}>
-        <div style={{
-            fontSize: '80%',
-            fontWeight: 'bold',
-            padding: '5px 0px',
-            //color: '#444',
-            color: 'rgb(194, 45, 20)',
-            //textAlign: 'center',
-        }}>
-            {props.title || " "}
-        </div>
-        <div style={{
-            //border: '1px dashed blue',
-            background: 'white',
-            boxShadow: 'rgba(0,0,0,0.3) 0px 5px 10px 0px',
-            height: props.height,
-            minHeight: props.minHeight,
-        }}>
-            {props.children}
-        </div>
-    </div>
-
-const FourOhFour : React.FunctionComponent = (props) =>
-    <h3>404</h3>
-
-const CardExample : React.FunctionComponent<{ text : string }> = (props) =>
-    <Card>{props.text}</Card>;
-
-const AboutFrontpage : React.FunctionComponent = (props) =>
-    <Card>
-        <h3>List of authors</h3>
-    </Card>;
-
-const AboutAuthor : React.FunctionComponent = (props) => {
-    let { author } = useParams();
-    return <Card>
-        <h3>{author}</h3>
-    </Card>;
-}
-
-const WikiFrontpage : React.FunctionComponent = (props) => {
-    let { workspace, title } = useParams();
-    let pages = ['Dogs', 'Cats', 'Dogs And Cats'];
-    return <Card>
-        <p><i>Workspace: <code>{workspace}</code></i></p>
-        <h3>List of pages</h3>
-        {pages.map(page =>
-            <p key={page}><Link to={`/ws/${workspace}/wiki/page/${page}`}>{page}</Link></p>
-        )}
-    </Card>;
-}
-
-const WikiRecent : React.FunctionComponent = (props) =>
-    <Card>
-        <h3>Recent wiki pages</h3>
-    </Card>;
-
-const WikiPage : React.FunctionComponent = (props) => {
-    let { workspace, title } = useParams();
-    return <Card>
-        <p><i>Workspace: <code>{workspace}</code></i></p>
-        <h3>{title}</h3>
-        <p>blah blah</p>
-    </Card>;
-}
 //================================================================================
 // MAIN
 
