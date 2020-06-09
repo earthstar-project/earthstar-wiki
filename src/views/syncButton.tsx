@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Syncer } from './sync';
+import { Syncer } from '../earthstar/sync';
 
 let log = (...args : any[]) => console.log('SyncButton |', ...args);
 

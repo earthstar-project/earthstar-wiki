@@ -70038,12 +70038,12 @@ const React = __importStar(require("react"));
 const ReactDOM = __importStar(require("react-dom"));
 const react_router_dom_1 = require("react-router-dom");
 const earthstar_1 = require("earthstar");
-const layerAbout_1 = require("./layerAbout");
-const layerWiki_1 = require("./layerWiki");
-const sync_1 = require("./sync");
-const layouts_1 = require("./layouts");
-const wikiView_1 = require("./wikiView");
-const oldAppView_1 = require("./oldAppView");
+const layerAbout_1 = require("./earthstar/layerAbout");
+const layerWiki_1 = require("./earthstar/layerWiki");
+const sync_1 = require("./earthstar/sync");
+const layouts_1 = require("./views/layouts");
+const wikiView_1 = require("./views/wikiView");
+const oldAppView_1 = require("./views/oldAppView");
 //================================================================================
 // SET UP DEMO CONTENT
 let prepareEarthstar = () => {
@@ -70194,188 +70194,7 @@ const WikiPage = (props) => {
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
 ReactDOM.render(React.createElement(ReactRouterExample, { es: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./layerAbout":276,"./layerWiki":277,"./layouts":278,"./oldAppView":279,"./sync":280,"./wikiView":283,"earthstar":96,"react":220,"react-dom":208,"react-router-dom":214}],274:[function(require,module,exports){
-(function (process){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Atom = void 0;
-class Atom {
-    //callbacksBlockingAsync : ((val : T)=>Promise<void>)[];
-    constructor(val) {
-        this.val = val;
-        this.callbacksSync = [];
-        this.callbacksNextTick = [];
-        //this.callbacksBlockingAsync = [];
-    }
-    subscribeSync(cb) {
-        this.callbacksSync.push(cb);
-        let unsub = () => {
-            this.callbacksSync = this.callbacksSync.filter(c => c != cb);
-        };
-        return unsub;
-    }
-    subscribeNextTick(cb) {
-        this.callbacksNextTick.push(cb);
-        let unsub = () => {
-            this.callbacksNextTick = this.callbacksNextTick.filter(c => c != cb);
-        };
-        return unsub;
-    }
-    //subscribeBlockingAsync(cb : (val : T) => Promise<void>) : () => void {
-    //    let unsub = () => {
-    //        this.callbacksBlockingAsync = this.callbacksBlockingAsync.filter(c => c != cb);
-    //    };
-    //    return unsub;
-    //}
-    setAndNotify(val) {
-        this.val = val;
-        this.notify();
-    }
-    setQuietly(val) {
-        this.val = val;
-    }
-    notify() {
-        for (let cb of this.callbacksSync) {
-            cb(this.val);
-        }
-        for (let cb of this.callbacksNextTick) {
-            process.nextTick(() => cb(this.val));
-        }
-        //for (let cb of this.callbacksBlockingAsync) {
-        //    await cb(val);
-        //}
-    }
-    get() {
-        return this.val;
-    }
-}
-exports.Atom = Atom;
-
-}).call(this,require('_process'))
-},{"_process":191}],275:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.EsDebugView = void 0;
-const React = __importStar(require("react"));
-const layouts_1 = require("./layouts");
-const syncButton_1 = require("./syncButton");
-let log = (...args) => console.log('EsDebugView |', ...args);
-class EsDebugView extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            newKey: '',
-            newValue: '',
-        };
-    }
-    componentDidMount() {
-        // update on changes to the earthstar contents...
-        this.props.es.onChange.subscribe(() => this.forceUpdate());
-        // and the syncer details
-        this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
-    }
-    _setKeyValue() {
-        if (this.state.newKey === '') {
-            return;
-        }
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: this.state.newKey,
-            value: this.state.newValue,
-        });
-        if (!ok) {
-            log('set failed');
-            return;
-        }
-        this.setState({ newKey: '', newValue: '' });
-    }
-    render() {
-        log('render()');
-        let es = this.props.es;
-        return React.createElement(layouts_1.Stack, null,
-            React.createElement("div", null,
-                React.createElement("b", null, "Workspace:"),
-                " ",
-                React.createElement("code", { className: 'cWorkspace' }, es.workspace)),
-            React.createElement("hr", null),
-            React.createElement("div", null,
-                React.createElement("b", null, "Demo author:"),
-                " ",
-                React.createElement("code", { className: 'cAuthor' }, this.props.keypair.public.slice(0, 10) + '...')),
-            React.createElement("hr", null),
-            React.createElement("div", null,
-                React.createElement("b", null, "Networking: Pubs")),
-            this.props.syncer.state.pubs.map(pub => {
-                let lastSynced = pub.lastSync === 0
-                    ? 'never'
-                    : new Date(pub.lastSync)
-                        .toString()
-                        .split(' ').slice(0, 5).join(' ');
-                return React.createElement("div", { key: pub.url },
-                    React.createElement("div", null,
-                        "\uD83D\uDDC3 ",
-                        React.createElement("b", null,
-                            React.createElement("a", { href: pub.url }, pub.url))),
-                    React.createElement("div", { style: { paddingLeft: 50 } },
-                        "last synced: ",
-                        lastSynced),
-                    React.createElement("div", { style: { paddingLeft: 50 } },
-                        "state: ",
-                        React.createElement("b", null, pub.syncState)));
-            }),
-            React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }),
-            React.createElement("hr", null),
-            React.createElement("div", { id: "es-editor" },
-                React.createElement("b", null, "Editor:")),
-            React.createElement("div", null,
-                React.createElement("div", null,
-                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newKey, placeholder: "new or existing key", onChange: e => this.setState({ newKey: e.target.value }) })),
-                React.createElement("div", { style: { paddingLeft: 50 } },
-                    React.createElement("textarea", { rows: 4, style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
-                    React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Save"),
-                    "(Delete items by saving an empty value)")),
-            React.createElement("hr", null),
-            React.createElement("div", null,
-                React.createElement("b", null, "Keys and values:"),
-                " (Click to load into the edit box)"),
-            es.items().map(item => React.createElement("div", { key: item.key, onClick: () => {
-                    var _a;
-                    // load this item into the editor
-                    this.setState({ newKey: item.key, newValue: item.value });
-                    (_a = document.getElementById('es-editor')) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } },
-                React.createElement("div", null,
-                    React.createElement("code", { className: 'cKey' }, item.key)),
-                React.createElement("div", { style: { paddingLeft: 50 } },
-                    "= ",
-                    React.createElement("pre", { className: 'cValue' }, item.value)),
-                React.createElement("div", { style: { paddingLeft: 50 } },
-                    "by ",
-                    React.createElement("code", { className: 'cAuthor' }, item.author.slice(0, 10) + '...')))));
-    }
-}
-exports.EsDebugView = EsDebugView;
-
-},{"./layouts":278,"./syncButton":281,"react":220}],276:[function(require,module,exports){
+},{"./earthstar/layerAbout":274,"./earthstar/layerWiki":275,"./earthstar/sync":276,"./views/layouts":280,"./views/oldAppView":281,"./views/wikiView":283,"earthstar":96,"react":220,"react-dom":208,"react-router-dom":214}],274:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AboutLayer = void 0;
@@ -70424,7 +70243,7 @@ class AboutLayer {
 }
 exports.AboutLayer = AboutLayer;
 
-},{}],277:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WikiLayer = void 0;
@@ -70500,106 +70319,7 @@ class WikiLayer {
 }
 exports.WikiLayer = WikiLayer;
 
-},{}],278:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FlexItem = exports.FlexRow = exports.Tag = exports.Pill = exports.Cluster = exports.Card = exports.Box = exports.Stack = exports.Center = exports.Navbar = void 0;
-const React = __importStar(require("react"));
-;
-exports.Navbar = (props) => React.createElement("div", { className: "navbar box" }, props.children);
-exports.Center = (props) => React.createElement("div", { className: "center" }, props.children);
-exports.Stack = (props) => React.createElement("div", { className: "stack" }, props.children);
-exports.Box = (props) => React.createElement("div", { className: "box", style: props.style }, props.children);
-exports.Card = (props) => React.createElement("div", { className: "card", style: props.style }, props.children);
-exports.Cluster = (props) => 
-// note: extra div is needed
-React.createElement("div", { className: "cluster" },
-    React.createElement("div", null, props.children));
-exports.Pill = (props) => React.createElement("div", { className: "pill" }, props.children);
-;
-exports.Tag = ({ text }) => React.createElement(exports.Pill, null,
-    React.createElement("a", { href: "#" }, text));
-exports.FlexRow = (props) => React.createElement("div", { className: "flexRow", style: props.style }, props.children);
-;
-exports.FlexItem = (props) => React.createElement("div", { className: "flexItem", style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
-
-},{"react":220}],279:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OldAppView = void 0;
-const React = __importStar(require("react"));
-const layouts_1 = require("./layouts");
-const syncButton_1 = require("./syncButton");
-const esDebugView_1 = require("./esDebugView");
-const wikiView_1 = require("./wikiView");
-let logApp = (...args) => console.log('OldAppView | ', ...args);
-class OldAppView extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    render() {
-        logApp('render()');
-        return React.createElement(layouts_1.Center, null,
-            React.createElement(layouts_1.Stack, null,
-                React.createElement(layouts_1.FlexRow, { style: { alignItems: 'center' } },
-                    React.createElement(layouts_1.FlexItem, { grow: 1, shrink: 1 },
-                        React.createElement("h2", null,
-                            React.createElement("img", { src: "/static/img/earthstar-pal-transparent.png", style: { width: 50, verticalAlign: 'middle' } }),
-                            "Earthstar Wiki")),
-                    React.createElement(layouts_1.FlexItem, { grow: 0, shrink: 0 },
-                        React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }))),
-                React.createElement(layouts_1.Card, null,
-                    React.createElement(wikiView_1.WikiView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer })),
-                React.createElement("div", { style: { height: 60 } }),
-                React.createElement("details", null,
-                    React.createElement("summary", null,
-                        React.createElement("h3", { style: { opacity: 1.0 } }, "Debug View")),
-                    React.createElement(layouts_1.Card, { style: { opacity: 1.0 } },
-                        React.createElement(esDebugView_1.EsDebugView, { es: this.props.es, keypair: this.props.keypair, syncer: this.props.syncer })))));
-    }
-}
-exports.OldAppView = OldAppView;
-
-},{"./esDebugView":275,"./layouts":278,"./syncButton":281,"./wikiView":283,"react":220}],280:[function(require,module,exports){
+},{}],276:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -70616,8 +70336,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.syncLocalAndHttp = exports.Syncer = void 0;
 const isomorphic_fetch_1 = __importDefault(require("isomorphic-fetch"));
-const atom_1 = require("./atom");
-const util_1 = require("./util");
+const atom_1 = require("../helpers/atom");
+const util_1 = require("../helpers/util");
 let normalizePubUrl = (url) => {
     if (!url.endsWith('/')) {
         url += '/';
@@ -70757,7 +70477,306 @@ exports.syncLocalAndHttp = (store, url) => __awaiter(void 0, void 0, void 0, fun
     return resultStats;
 });
 
-},{"./atom":274,"./util":282,"isomorphic-fetch":161}],281:[function(require,module,exports){
+},{"../helpers/atom":277,"../helpers/util":278,"isomorphic-fetch":161}],277:[function(require,module,exports){
+(function (process){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Atom = void 0;
+class Atom {
+    //callbacksBlockingAsync : ((val : T)=>Promise<void>)[];
+    constructor(val) {
+        this.val = val;
+        this.callbacksSync = [];
+        this.callbacksNextTick = [];
+        //this.callbacksBlockingAsync = [];
+    }
+    subscribeSync(cb) {
+        this.callbacksSync.push(cb);
+        let unsub = () => {
+            this.callbacksSync = this.callbacksSync.filter(c => c != cb);
+        };
+        return unsub;
+    }
+    subscribeNextTick(cb) {
+        this.callbacksNextTick.push(cb);
+        let unsub = () => {
+            this.callbacksNextTick = this.callbacksNextTick.filter(c => c != cb);
+        };
+        return unsub;
+    }
+    //subscribeBlockingAsync(cb : (val : T) => Promise<void>) : () => void {
+    //    let unsub = () => {
+    //        this.callbacksBlockingAsync = this.callbacksBlockingAsync.filter(c => c != cb);
+    //    };
+    //    return unsub;
+    //}
+    setAndNotify(val) {
+        this.val = val;
+        this.notify();
+    }
+    setQuietly(val) {
+        this.val = val;
+    }
+    notify() {
+        for (let cb of this.callbacksSync) {
+            cb(this.val);
+        }
+        for (let cb of this.callbacksNextTick) {
+            process.nextTick(() => cb(this.val));
+        }
+        //for (let cb of this.callbacksBlockingAsync) {
+        //    await cb(val);
+        //}
+    }
+    get() {
+        return this.val;
+    }
+}
+exports.Atom = Atom;
+
+}).call(this,require('_process'))
+},{"_process":191}],278:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sleep = void 0;
+exports.sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, ms);
+    });
+});
+
+},{}],279:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EsDebugView = void 0;
+const React = __importStar(require("react"));
+const layouts_1 = require("./layouts");
+const syncButton_1 = require("./syncButton");
+let log = (...args) => console.log('EsDebugView |', ...args);
+class EsDebugView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            newKey: '',
+            newValue: '',
+        };
+    }
+    componentDidMount() {
+        // update on changes to the earthstar contents...
+        this.props.es.onChange.subscribe(() => this.forceUpdate());
+        // and the syncer details
+        this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
+    }
+    _setKeyValue() {
+        if (this.state.newKey === '') {
+            return;
+        }
+        let ok = this.props.es.set(this.props.keypair, {
+            format: 'es.1',
+            key: this.state.newKey,
+            value: this.state.newValue,
+        });
+        if (!ok) {
+            log('set failed');
+            return;
+        }
+        this.setState({ newKey: '', newValue: '' });
+    }
+    render() {
+        log('render()');
+        let es = this.props.es;
+        return React.createElement(layouts_1.Stack, null,
+            React.createElement("div", null,
+                React.createElement("b", null, "Workspace:"),
+                " ",
+                React.createElement("code", { className: 'cWorkspace' }, es.workspace)),
+            React.createElement("hr", null),
+            React.createElement("div", null,
+                React.createElement("b", null, "Demo author:"),
+                " ",
+                React.createElement("code", { className: 'cAuthor' }, this.props.keypair.public.slice(0, 10) + '...')),
+            React.createElement("hr", null),
+            React.createElement("div", null,
+                React.createElement("b", null, "Networking: Pubs")),
+            this.props.syncer.state.pubs.map(pub => {
+                let lastSynced = pub.lastSync === 0
+                    ? 'never'
+                    : new Date(pub.lastSync)
+                        .toString()
+                        .split(' ').slice(0, 5).join(' ');
+                return React.createElement("div", { key: pub.url },
+                    React.createElement("div", null,
+                        "\uD83D\uDDC3 ",
+                        React.createElement("b", null,
+                            React.createElement("a", { href: pub.url }, pub.url))),
+                    React.createElement("div", { style: { paddingLeft: 50 } },
+                        "last synced: ",
+                        lastSynced),
+                    React.createElement("div", { style: { paddingLeft: 50 } },
+                        "state: ",
+                        React.createElement("b", null, pub.syncState)));
+            }),
+            React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }),
+            React.createElement("hr", null),
+            React.createElement("div", { id: "es-editor" },
+                React.createElement("b", null, "Editor:")),
+            React.createElement("div", null,
+                React.createElement("div", null,
+                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newKey, placeholder: "new or existing key", onChange: e => this.setState({ newKey: e.target.value }) })),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    React.createElement("textarea", { rows: 4, style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
+                    React.createElement("button", { type: "button", onClick: () => this._setKeyValue() }, "Save"),
+                    "(Delete items by saving an empty value)")),
+            React.createElement("hr", null),
+            React.createElement("div", null,
+                React.createElement("b", null, "Keys and values:"),
+                " (Click to load into the edit box)"),
+            es.items().map(item => React.createElement("div", { key: item.key, onClick: () => {
+                    var _a;
+                    // load this item into the editor
+                    this.setState({ newKey: item.key, newValue: item.value });
+                    (_a = document.getElementById('es-editor')) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } },
+                React.createElement("div", null,
+                    React.createElement("code", { className: 'cKey' }, item.key)),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    "= ",
+                    React.createElement("pre", { className: 'cValue' }, item.value)),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    "by ",
+                    React.createElement("code", { className: 'cAuthor' }, item.author.slice(0, 10) + '...')))));
+    }
+}
+exports.EsDebugView = EsDebugView;
+
+},{"./layouts":280,"./syncButton":282,"react":220}],280:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FlexItem = exports.FlexRow = exports.Tag = exports.Pill = exports.Cluster = exports.Card = exports.Box = exports.Stack = exports.Center = exports.Navbar = void 0;
+const React = __importStar(require("react"));
+;
+exports.Navbar = (props) => React.createElement("div", { className: "navbar box" }, props.children);
+exports.Center = (props) => React.createElement("div", { className: "center" }, props.children);
+exports.Stack = (props) => React.createElement("div", { className: "stack" }, props.children);
+exports.Box = (props) => React.createElement("div", { className: "box", style: props.style }, props.children);
+exports.Card = (props) => React.createElement("div", { className: "card", style: props.style }, props.children);
+exports.Cluster = (props) => 
+// note: extra div is needed
+React.createElement("div", { className: "cluster" },
+    React.createElement("div", null, props.children));
+exports.Pill = (props) => React.createElement("div", { className: "pill" }, props.children);
+;
+exports.Tag = ({ text }) => React.createElement(exports.Pill, null,
+    React.createElement("a", { href: "#" }, text));
+exports.FlexRow = (props) => React.createElement("div", { className: "flexRow", style: props.style }, props.children);
+;
+exports.FlexItem = (props) => React.createElement("div", { className: "flexItem", style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
+
+},{"react":220}],281:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OldAppView = void 0;
+const React = __importStar(require("react"));
+const layouts_1 = require("./layouts");
+const syncButton_1 = require("./syncButton");
+const esDebugView_1 = require("./esDebugView");
+const wikiView_1 = require("./wikiView");
+let logApp = (...args) => console.log('OldAppView | ', ...args);
+class OldAppView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    render() {
+        logApp('render()');
+        return React.createElement(layouts_1.Center, null,
+            React.createElement(layouts_1.Stack, null,
+                React.createElement(layouts_1.FlexRow, { style: { alignItems: 'center' } },
+                    React.createElement(layouts_1.FlexItem, { grow: 1, shrink: 1 },
+                        React.createElement("h2", null,
+                            React.createElement("img", { src: "/static/img/earthstar-pal-transparent.png", style: { width: 50, verticalAlign: 'middle' } }),
+                            "Earthstar Wiki")),
+                    React.createElement(layouts_1.FlexItem, { grow: 0, shrink: 0 },
+                        React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }))),
+                React.createElement(layouts_1.Card, null,
+                    React.createElement(wikiView_1.WikiView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer })),
+                React.createElement("div", { style: { height: 60 } }),
+                React.createElement("details", null,
+                    React.createElement("summary", null,
+                        React.createElement("h3", { style: { opacity: 1.0 } }, "Debug View")),
+                    React.createElement(layouts_1.Card, { style: { opacity: 1.0 } },
+                        React.createElement(esDebugView_1.EsDebugView, { es: this.props.es, keypair: this.props.keypair, syncer: this.props.syncer })))));
+    }
+}
+exports.OldAppView = OldAppView;
+
+},{"./esDebugView":279,"./layouts":280,"./syncButton":282,"./wikiView":283,"react":220}],282:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70799,26 +70818,7 @@ class SyncButton extends React.Component {
 }
 exports.SyncButton = SyncButton;
 
-},{"react":220}],282:[function(require,module,exports){
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sleep = void 0;
-exports.sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
-    return new Promise((resolve, reject) => {
-        setTimeout(resolve, ms);
-    });
-});
-
-},{}],283:[function(require,module,exports){
+},{"react":220}],283:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70842,7 +70842,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WikiView = exports.WikiPageView = void 0;
 const React = __importStar(require("react"));
-const layerWiki_1 = require("./layerWiki");
+const layerWiki_1 = require("../earthstar/layerWiki");
 const layouts_1 = require("./layouts");
 let logPage = (...args) => console.log('WikiPageView |', ...args);
 let logWiki = (...args) => console.log('WikiView |', ...args);
@@ -70974,4 +70974,4 @@ exports.WikiView = WikiView;
             </datalist>
 */ 
 
-},{"./layerWiki":277,"./layouts":278,"react":220}]},{},[273]);
+},{"../earthstar/layerWiki":275,"./layouts":280,"react":220}]},{},[273]);

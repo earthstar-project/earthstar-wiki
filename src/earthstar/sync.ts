@@ -2,8 +2,8 @@ import fetch from 'isomorphic-fetch';
 import {
     IStore,
 } from 'earthstar';
-import { Atom } from './atom';
-import { sleep } from './util';
+import { Atom } from '../helpers/atom';
+import { sleep } from '../helpers/util';
 
 interface Pub {
     url : string;

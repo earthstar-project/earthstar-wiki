@@ -10,9 +10,9 @@ import {
     FlexRow,
     FlexItem,
 } from './layouts';
-import { AboutLayer } from './layerAbout';
-import { WikiLayer } from './layerWiki';
-import { Syncer } from './sync';
+import { AboutLayer } from '../earthstar/layerAbout';
+import { WikiLayer } from '../earthstar/layerWiki';
+import { Syncer } from '../earthstar/sync';
 import { SyncButton } from './syncButton';
 import { EsDebugView } from './esDebugView';
 import { WikiView } from './wikiView';

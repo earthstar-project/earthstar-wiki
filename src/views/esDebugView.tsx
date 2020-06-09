@@ -7,7 +7,7 @@ import {
     Stack,
 } from './layouts';
 import { SyncButton } from './syncButton';
-import { Syncer } from './sync';
+import { Syncer } from '../earthstar/sync';
 
 let log = (...args : any[]) => console.log('EsDebugView |', ...args);
 

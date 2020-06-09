@@ -13,26 +13,18 @@ import {
     StoreMemory,
     IStore,
     ValidatorEs1,
-    Crypto,
     Keypair,
 } from 'earthstar';
-import { AboutLayer } from './layerAbout';
-import { WikiLayer, WikiPageDetail } from './layerWiki';
-import { Syncer } from './sync';
+import { AboutLayer } from './earthstar/layerAbout';
+import { WikiLayer } from './earthstar/layerWiki';
+import { Syncer } from './earthstar/sync';
 
 import {
     Card,
-    Center,
-    Cluster,
     Stack,
-    FlexRow,
-    FlexItem,
-} from './layouts';
-import { SyncButton } from './syncButton';
-import { EsDebugView } from './esDebugView';
-import { WikiView, WikiPageView } from './wikiView';
-import { OldAppView } from './oldAppView';
-import { cCARD_TEXT } from './config';
+} from './views/layouts';
+import { WikiView, WikiPageView } from './views/wikiView';
+import { OldAppView } from './views/oldAppView';
 
 //================================================================================
 // SET UP DEMO CONTENT

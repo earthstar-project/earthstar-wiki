@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { AboutLayer } from './layerAbout';
+import { AboutLayer } from '../earthstar/layerAbout';
 import {
     WikiLayer,
     WikiPageDetail,
     WikiPageInfo
-} from './layerWiki';
+} from '../earthstar/layerWiki';
 import {
     Box,
     FlexItem,
