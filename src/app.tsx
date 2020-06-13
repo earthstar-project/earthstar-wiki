@@ -64,7 +64,7 @@ let prepareEarthstar = () => {
     let syncer = new Syncer(es);
     syncer.addPub('http://localhost:3333');
     //syncer.addPub('http://167.71.153.73:3333');  // this only works when the wiki page is http, not https
-    //syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
+    syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
     return {es, demoKeypair, syncer, wikiLayer, aboutLayer};
 }
 
