@@ -70419,7 +70419,7 @@ const Storybook = (props) => {
                     React.createElement("div", null,
                         React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/loginFlow" }, "LoginFlow")),
                     React.createElement("div", null,
-                        React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/loginLandingView" }, "LoginLandingView"))))),
+                        React.createElement(react_router_dom_1.NavLink, { exact: true, to: "/storybook/loginComponents" }, "individual login components"))))),
         React.createElement("hr", null),
         React.createElement(react_router_dom_1.Switch, null,
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/' }),
@@ -70446,18 +70446,22 @@ const Storybook = (props) => {
                 React.createElement(storybook_1.StoryFrame, { width: 350, minHeight: 350 },
                     React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer }))),
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/loginFlow' },
-                React.createElement(storybook_1.StoryFrameDivider, { title: "centered" }),
+                React.createElement(storybook_1.StoryFrameDivider, { title: "centered in a card" }),
                 React.createElement(layouts_1.Center, null,
                     React.createElement(layouts_1.Card, null,
                         React.createElement(loginFlow_1.LoginFlow, null))),
                 React.createElement(storybook_1.StoryFrameDivider, { title: "small" }),
                 React.createElement(storybook_1.StoryFrame, { width: 400, minHeight: 600 },
                     React.createElement(loginFlow_1.LoginFlow, null))),
-            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/loginLandingView' },
+            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/loginComponents' },
                 React.createElement(storybook_1.StoryFrame, { title: "landing", width: 400, minHeight: 600 },
                     React.createElement(loginFlow_1.LoginLandingView, { api: null })),
                 React.createElement(storybook_1.StoryFrame, { title: "start workspace", width: 400, minHeight: 600 },
                     React.createElement(loginFlow_1.LoginStartWorkspace, { api: null })),
+                React.createElement(storybook_1.StoryFrame, { title: "join workspace", width: 400, minHeight: 600 },
+                    React.createElement(loginFlow_1.LoginJoinWorkspace, { api: null })),
+                React.createElement(storybook_1.StoryFrame, { title: "create or login user", width: 400, minHeight: 600 },
+                    React.createElement(loginFlow_1.LoginCreateOrLoginUser, { api: null })),
                 React.createElement(storybook_1.StoryFrame, { title: "create user", width: 400, minHeight: 600 },
                     React.createElement(loginFlow_1.LoginCreateUser, { api: null }))),
             React.createElement(react_router_dom_1.Route, { path: '*' },
@@ -70655,18 +70659,37 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginCreateUser = exports.LoginStartWorkspace = exports.LoginLandingView = exports.LoginFlow = void 0;
+exports.LoginCreateUser = exports.LoginCreateOrLoginUser = exports.LoginJoinWorkspace = exports.LoginStartWorkspace = exports.LoginLandingView = exports.LoginFlow = void 0;
 const React = __importStar(require("react"));
 const layouts_1 = require("./layouts");
+let logLogin = (...args) => console.log('Login |', ...args);
 class LoginFlow extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             page: 'LANDING',
+            history: [],
         };
     }
     goto(page) {
-        this.setState({ page: page });
+        logLogin('goto ' + page);
+        if (this.state.page === page) {
+            return;
+        }
+        this.setState({
+            page: page,
+            history: [...this.state.history, this.state.page],
+        });
+    }
+    back() {
+        if (this.state.history.length === 0) {
+            return;
+        }
+        logLogin('back to ' + this.state.history[this.state.history.length - 1]);
+        this.setState({
+            page: this.state.history[this.state.history.length - 1],
+            history: this.state.history.slice(0, -1),
+        });
     }
     render() {
         if (this.state.page === 'LANDING') {
@@ -70675,11 +70698,23 @@ class LoginFlow extends React.Component {
         else if (this.state.page === 'START_WORKSPACE') {
             return React.createElement(exports.LoginStartWorkspace, { api: this });
         }
+        else if (this.state.page === 'JOIN_WORKSPACE') {
+            return React.createElement(exports.LoginJoinWorkspace, { api: this });
+        }
+        else if (this.state.page === 'CREATE_OR_LOGIN_USER') {
+            return React.createElement(exports.LoginCreateOrLoginUser, { api: this });
+        }
         else if (this.state.page === 'CREATE_USER') {
             return React.createElement(exports.LoginCreateUser, { api: this });
         }
         else {
-            throw 'unknown login page: ' + this.state.page;
+            return React.createElement("div", null,
+                React.createElement("h3", null, "ERROR"),
+                React.createElement("p", null,
+                    "unknown login page: ",
+                    React.createElement("code", null, this.state.page)),
+                React.createElement("p", null,
+                    React.createElement("a", { href: "#", onClick: () => this.back() }, "go back")));
         }
     }
 }
@@ -70691,38 +70726,60 @@ exports.LoginLandingView = (props) => React.createElement(layouts_1.Stack, null,
     React.createElement("div", null,
         React.createElement("button", { type: "button", onClick: () => props.api.goto('START_WORKSPACE') }, "Start a new workspace")),
     React.createElement("div", null,
-        React.createElement("button", { type: "button", disabled: true }, "Join a workspace")),
+        React.createElement("button", { type: "button", onClick: () => props.api.goto('JOIN_WORKSPACE') }, "Join a workspace")),
     React.createElement("p", null,
         "A ",
         React.createElement("b", null, "workspace"),
-        " is a collection of documents and people."));
+        " is a collection of documents.  It can be accessed by anyone who knows the workspace name."));
 exports.LoginStartWorkspace = (props) => React.createElement(layouts_1.Stack, null,
     React.createElement("div", null,
-        React.createElement("a", { href: "#", onClick: () => props.api.goto('LANDING') }, "\u2190")),
+        React.createElement("a", { href: "#", onClick: () => props.api.back() }, "\u2190")),
     React.createElement("h2", null, "Start a new workspace"),
-    React.createElement("h3", null, "Choose a workspace name"),
-    React.createElement("p", null, "Up to 15 characters long.  Only letters, numbers, and dashes."),
-    React.createElement("input", { type: "text", value: "garden-club" }),
-    React.createElement("p", null, "A random number is added to the end to make it harder to guess. The full workspace name will be:"),
-    React.createElement("pre", null, "//garden-club.qp49fjq04f9qj04f9jq04f9jq0f9fj"),
-    React.createElement("div", null,
-        React.createElement("a", { href: "#" }, "Change the random number")),
+    React.createElement("h3", null, "Workspace name"),
+    React.createElement("p", null, "Choose a name up to 15 characters long.  Only letters, numbers, and dashes."),
+    React.createElement("input", { type: "text", defaultValue: "garden-club" }),
+    React.createElement("p", null,
+        "A random number is added to the end to make it harder to guess. Now's your chance to ",
+        React.createElement("a", { href: "" }, "change the random number"),
+        " if you don't like it."),
+    React.createElement("p", null, "The full workspace name will be:"),
+    React.createElement("pre", null, "//garden-club.xxxxxxxxxxxxxxxxxxxx"),
     React.createElement("div", null,
         React.createElement("button", { type: "button", onClick: () => props.api.goto('CREATE_USER') }, "Create workspace")));
+exports.LoginJoinWorkspace = (props) => React.createElement(layouts_1.Stack, null,
+    React.createElement("div", null,
+        React.createElement("a", { href: "#", onClick: () => props.api.back() }, "\u2190")),
+    React.createElement("h2", null, "Join a workspace"),
+    React.createElement("h3", null, "Workspace name"),
+    React.createElement("p", null, "Paste the full workspace name here including the random number."),
+    React.createElement("input", { type: "text", defaultValue: "//garden-club.xxxxxxxxxxxxxxxxxxxx" }),
+    React.createElement("div", null,
+        React.createElement("button", { type: "button", onClick: () => props.api.goto('CREATE_OR_LOGIN_USER') }, "Join")));
+exports.LoginCreateOrLoginUser = (props) => React.createElement(layouts_1.Stack, null,
+    React.createElement("div", null,
+        React.createElement("a", { href: "#", onClick: () => props.api.back() }, "\u2190")),
+    React.createElement("p", null, "Welcome to"),
+    React.createElement("h2", null, "//garden-club.xxxxxxxxxxxxxxxxxxxx"),
+    React.createElement("div", null,
+        React.createElement("button", { type: "button", onClick: () => props.api.goto('CREATE_USER') }, "Create a new user account")),
+    React.createElement("div", null,
+        React.createElement("button", { type: "button", disabled: true }, "Log into user account")));
 exports.LoginCreateUser = (props) => React.createElement(layouts_1.Stack, null,
     React.createElement("div", null,
-        React.createElement("a", { href: "#", onClick: () => props.api.goto('START_WORKSPACE') }, "\u2190")),
-    React.createElement("h2", null, "Create a new user"),
-    React.createElement("h3", null, "Display name"),
-    React.createElement("p", null, "Spaces, emojis, anything you want"),
-    React.createElement("input", { type: "text", value: "Squirrel Friend" }),
-    React.createElement("h3", null, "Abbreviation"),
-    React.createElement("p", null, "Four letters or numbers"),
-    React.createElement("input", { type: "text", value: "sqrl" }),
+        React.createElement("a", { href: "#", onClick: () => props.api.back() }, "\u2190")),
+    React.createElement("h2", null, "Create a new user account"),
+    React.createElement("h3", null, "Display Name"),
+    React.createElement("p", null, "Can include spaces, emojis, anything you want.  You can change this later."),
+    React.createElement("input", { type: "text", defaultValue: "Squirrel Friend" }),
+    React.createElement("h3", null, "Username"),
+    React.createElement("p", null, "Exactly four letters.  This can never be changed."),
+    React.createElement("input", { type: "text", defaultValue: "sqrl" }),
+    React.createElement("p", null,
+        "Your full username will include a random number. Now's your chance to ",
+        React.createElement("a", { href: "" }, "change the random number"),
+        " if you don't like it."),
     React.createElement("p", null, "Your full username will be:"),
     React.createElement("pre", null, "@sqrl.FHqQxk3J7Ls5fBbQpvk71DALYFGnoeNDGtiJqhLnUpJr"),
-    React.createElement("div", null,
-        React.createElement("a", { href: "#" }, "Change the random number")),
     React.createElement("div", null,
         React.createElement("button", { type: "button", disabled: true }, "Create user")));
 

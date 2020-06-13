@@ -36,6 +36,8 @@ import {
     LoginLandingView,
     LoginStartWorkspace,
     LoginCreateUser,
+    LoginJoinWorkspace,
+    LoginCreateOrLoginUser,
 } from './views/loginFlow';
 
 //================================================================================
@@ -116,7 +118,7 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
                     <div><NavLink exact to="/storybook/wikiPageView">WikiPageView</NavLink></div>
                     <div><NavLink exact to="/storybook/wikiView">WikiView</NavLink></div>
                     <div><NavLink exact to="/storybook/loginFlow">LoginFlow</NavLink></div>
-                    <div><NavLink exact to="/storybook/loginLandingView">LoginLandingView</NavLink></div>
+                    <div><NavLink exact to="/storybook/loginComponents">individual login components</NavLink></div>
                 </Stack>
             </Card>
         </Center>
@@ -157,7 +159,7 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
                 </StoryFrame>
             </Route>
             <Route exact path='/storybook/loginFlow'>
-                <StoryFrameDivider title="centered" />
+                <StoryFrameDivider title="centered in a card" />
                 <Center>
                     <Card>
                         <LoginFlow />
@@ -168,12 +170,18 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
                     <LoginFlow />
                 </StoryFrame>
             </Route>
-            <Route exact path='/storybook/loginLandingView'>
+            <Route exact path='/storybook/loginComponents'>
                 <StoryFrame title="landing" width={400} minHeight={600}>
                     <LoginLandingView api={null as any} />
                 </StoryFrame>
                 <StoryFrame title="start workspace" width={400} minHeight={600}>
                     <LoginStartWorkspace api={null as any} />
+                </StoryFrame>
+                <StoryFrame title="join workspace" width={400} minHeight={600}>
+                    <LoginJoinWorkspace api={null as any} />
+                </StoryFrame>
+                <StoryFrame title="create or login user" width={400} minHeight={600}>
+                    <LoginCreateOrLoginUser api={null as any} />
                 </StoryFrame>
                 <StoryFrame title="create user" width={400} minHeight={600}>
                     <LoginCreateUser api={null as any} />
