@@ -1,7 +1,10 @@
 import * as React from 'react';
 import {
-    IStore,
-    Keypair,
+    IStorage,
+    AuthorKeypair,
+    AboutLayer,
+    WikiLayer,
+    Syncer,
 } from 'earthstar';
 import {
     Card,
@@ -10,9 +13,6 @@ import {
     FlexRow,
     FlexItem,
 } from './layouts';
-import { AboutLayer } from '../earthstar/layerAbout';
-import { WikiLayer } from '../earthstar/layerWiki';
-import { Syncer } from '../earthstar/sync';
 import { SyncButton } from './syncButton';
 import { EsDebugView } from './esDebugView';
 import { WikiView } from './wikiView';
@@ -20,8 +20,8 @@ import { WikiView } from './wikiView';
 let logApp = (...args : any[]) => console.log('OldAppView | ', ...args);
 
 export interface OldAppViewProps {
-    es : IStore,
-    keypair : Keypair,
+    storage : IStorage,
+    keypair : AuthorKeypair,
     wikiLayer : WikiLayer,
     aboutLayer : AboutLayer,
     syncer : Syncer,
@@ -60,7 +60,7 @@ export class OldAppView extends React.Component<OldAppViewProps, OldAppViewState
                     </summary>
                     <Card style={{opacity: 1.0}}>
                         <EsDebugView
-                            es={this.props.es}
+                            storage={this.props.storage}
                             keypair={this.props.keypair}
                             syncer={this.props.syncer}
                             />

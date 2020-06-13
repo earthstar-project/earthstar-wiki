@@ -10,14 +10,14 @@ import {
 } from "react-router-dom";
 
 import {
-    StoreMemory,
-    IStore,
-    ValidatorEs1,
-    Keypair,
+    StorageMemory,
+    IStorage,
+    ValidatorEs2,
+    AuthorKeypair,
+    AboutLayer,
+    WikiLayer,
+    Syncer,
 } from 'earthstar';
-import { AboutLayer } from './earthstar/layerAbout';
-import { WikiLayer } from './earthstar/layerWiki';
-import { Syncer } from './earthstar/sync';
 
 import {
     Card,
@@ -42,12 +42,12 @@ import {
 // SET UP DEMO CONTENT
 
 let prepareEarthstar = () => {
-    let workspace = 'demo';
-    let es = new StoreMemory([ValidatorEs1], workspace);
+    let workspace = '//demo.xxxxxxxxxxxxxxxxxxxx';
+    let es = new StorageMemory([ValidatorEs2], workspace);
     // let demoKeypair = Crypto.generateKeypair();
     let demoKeypair = {
-        public: "@mVkCjHbAcjEBddaZwxFVSiQdVFuvXSiH3B5K5bH7Hcx",
-        secret: "6DxjAHzdJHgMvJBqgD4iUNhmuwQbuMzPuDkntLi1sjjz"
+        address: "@demo.E4JHZTPXfc939fnLrpPDzRwjDEiTBFJHadFH32CN97yc",
+        secret: "5DokVzbQ8f6DHBJQvGXvN96uSYj7V152McYruLhBXR2a"
     }
 
     let wikiLayer = new WikiLayer(es, demoKeypair);
@@ -56,15 +56,15 @@ let prepareEarthstar = () => {
     // use an old time so we don't keep overwriting stuff with our demo content
     // one year ago
     let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
-    aboutLayer.setMyAuthorName('Example Wiki Author', now);
-    wikiLayer.setPageText(WikiLayer.makeKey('Bumblebee', 'shared'), 'Buzz buzz buzz', now);
-    wikiLayer.setPageText(WikiLayer.makeKey('Duck', 'shared'), 'Quack quack quack', now);
-    wikiLayer.setPageText(WikiLayer.makeKey('Fish Of The Deep Sea', 'shared'), '🐟🐠\n           🐙\n    🐡', now);
+    aboutLayer.setMyAuthorLongname('Example Wiki Author', now);
+    wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Bumblebee'), 'Buzz buzz buzz', now);
+    wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Duck'), 'Quack quack quack', now);
+    wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Fish Of The Deep Sea'), '🐟🐠\n           🐙\n    🐡', now);
 
     let syncer = new Syncer(es);
-    syncer.addPub('http://localhost:3333/earthstar/');
-    syncer.addPub('http://167.71.153.73:3333/earthstar/');  // this only works when the wiki page is http, not https
-    syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me/earthstar/');
+    syncer.addPub('http://localhost:3333');
+    //syncer.addPub('http://167.71.153.73:3333');  // this only works when the wiki page is http, not https
+    //syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
     return {es, demoKeypair, syncer, wikiLayer, aboutLayer};
 }
 
@@ -72,8 +72,8 @@ let prepareEarthstar = () => {
 // REACT ROUTER EXAMPLE
 
 interface RouterProps {
-    es : IStore,
-    keypair : Keypair,
+    storage : IStorage,
+    keypair : AuthorKeypair,
     wikiLayer : WikiLayer,
     aboutLayer : AboutLayer,
     syncer : Syncer,
@@ -82,7 +82,7 @@ const ReactRouterExample : React.FunctionComponent<RouterProps> = (props : Route
     <Router>
         <Switch>
             <Route exact path='/'>
-                <OldAppView es={props.es} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
+                <OldAppView storage={props.storage} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
             </Route>
             <Route path='/storybook/'>
                 <Storybook {...props}/>
@@ -102,10 +102,10 @@ const ReactRouterExample : React.FunctionComponent<RouterProps> = (props : Route
 
 let logStorybook = (...args : any[]) => console.log('Storybook |', ...args);
 const Storybook : React.FunctionComponent<RouterProps> = (props) => {
-    let pages = props.wikiLayer.listPages();
-    let pageInfo = pages[0];
-    let pageDetail = props.wikiLayer.getPageDetails(pageInfo.key);
-    logStorybook('page key', pageInfo.key);
+    let pageInfos = props.wikiLayer.listPageInfos();
+    let pageInfo = pageInfos[0];
+    let pageDetail = props.wikiLayer.getPageDetails(pageInfo.path);
+    logStorybook('page key', pageInfo.path);
     logStorybook('pageInfo', pageInfo);
     logStorybook('pageDetail', pageDetail);
     return <Router>
@@ -193,7 +193,7 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
 let {es, demoKeypair, syncer, wikiLayer, aboutLayer} = prepareEarthstar();
 ReactDOM.render(
     <ReactRouterExample 
-        es={es} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer}
+        storage={es} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer}
         />,
     document.getElementById('react-slot')
 );

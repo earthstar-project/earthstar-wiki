@@ -1,11 +1,14 @@
 import deepEqual = require('fast-deep-equal');
 
-import { Keypair } from 'earthstar';
+import {
+    AuthorKeypair,
+    WorkspaceAddress,
+} from 'earthstar';
 import { Emitter } from '../helpers/emitter';
 
 export interface Account {
-    workspace : string;
-    user : Keypair;
+    workspace : WorkspaceAddress;
+    user : AuthorKeypair;
 }
 
 export class AccountStore {
@@ -24,8 +27,8 @@ export class AccountStore {
         this.accounts.sort((a : Account, b : Account) => {
             if (a.workspace < b.workspace) { return -1; }
             if (a.workspace > b.workspace) { return 1; }
-            if (a.user.public < b.user.public) { return -1; }
-            if (a.user.public > b.user.public) { return 1; }
+            if (a.user.address < b.user.address) { return -1; }
+            if (a.user.address > b.user.address) { return 1; }
             if (a.user.secret < b.user.secret) { return -1; }
             if (a.user.secret > b.user.secret) { return 1; }
             return 0;

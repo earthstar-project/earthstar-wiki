@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { Syncer } from '../earthstar/sync';
+import {
+    Syncer
+} from 'earthstar';
 
 let log = (...args : any[]) => console.log('SyncButton |', ...args);
 
@@ -14,17 +16,16 @@ export class SyncButton extends React.Component<SyncButtonProps, SyncButtonState
         this.state = {};
     }
     componentDidMount() {
-        this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
+        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
     }
     render() {
         log('render()');
+        let isSyncing = this.props.syncer.state.syncState === 'syncing';
         return <button type="button"
             onClick={() => this.props.syncer.sync()}
-            disabled={this.props.syncer.state.syncState === 'syncing'}
+            disabled={isSyncing}
             >
-            {this.props.syncer.state.syncState === 'idle'
-                ? "Sync now"
-                : "Syncing..."}
+            {isSyncing ? "Syncing..." : "Sync now"}
         </button>
     }
 }

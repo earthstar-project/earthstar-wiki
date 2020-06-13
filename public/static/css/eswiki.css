@@ -6,13 +6,13 @@ html {
 }
 
 :root {
-    --cKey: #ffe2b8;
+    --cPath: #ffe2b8;
     --cValue: #c9fcb7;
     --cWorkspace: #c5e8ff;
     --cAuthor: #f6cdff;
 }
 
-.cKey { background: var(--cKey); }
+.cPath { background: var(--cPath); }
 .cValue { background: var(--cValue); }
 .cWorkspace { background: var(--cWorkspace); }
 .cAuthor { background: var(--cAuthor); }

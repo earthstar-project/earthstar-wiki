@@ -1,59 +1,61 @@
 import * as React from 'react';
 import {
-    IStore,
-    Keypair,
+    IStorage,
+    AuthorKeypair,
+    Syncer,
 } from 'earthstar';
 import {
     Stack,
 } from './layouts';
-import { SyncButton } from './syncButton';
-import { Syncer } from '../earthstar/sync';
+import {
+    SyncButton
+} from './syncButton';
 
 let log = (...args : any[]) => console.log('EsDebugView |', ...args);
 
 interface EsDebugProps {
-    es : IStore,
-    keypair : Keypair,
+    storage : IStorage,
+    keypair : AuthorKeypair,
     syncer : Syncer,
 }
 interface EsDebugState {
-    newKey : string,
+    newPath : string,
     newValue : string,
 }
 export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
     constructor(props : EsDebugProps) {
         super(props);
         this.state = {
-            newKey: '',
+            newPath: '',
             newValue: '',
         };
     }
     componentDidMount() {
         // update on changes to the earthstar contents...
-        this.props.es.onChange.subscribe(() => this.forceUpdate());
+        this.props.storage.onChange.subscribe(() => this.forceUpdate());
         // and the syncer details
-        this.props.syncer.atom.subscribeSync(() => this.forceUpdate());
+        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
     }
-    _setKeyValue() {
-        if (this.state.newKey === '') { return; }
-        let ok = this.props.es.set(this.props.keypair, {
-            format: 'es.1',
-            key: this.state.newKey,
+    _setPath() {
+        if (this.state.newPath === '') { return; }
+        let ok = this.props.storage.set(this.props.keypair, {
+            format: 'es.2',
+            path: this.state.newPath,
             value: this.state.newValue,
         });
         if (!ok) {
             log('set failed');
             return;
         }
-        this.setState({ newKey: '', newValue: '' });
+        this.setState({ newPath: '', newValue: '' });
     }
     render() {
         log('render()');
-        let es = this.props.es;
+        let storage = this.props.storage;
         return <Stack>
-            <div><b>Workspace:</b> <code className='cWorkspace'>{es.workspace}</code></div>
+            <div><b>Workspace:</b> <code className='cWorkspace'>{storage.workspace}</code></div>
             <hr/>
-            <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.public.slice(0,10)+'...'}</code></div>
+            <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.address.slice(0,10)+'...'}</code></div>
             <hr/>
             <div><b>Networking: Pubs</b></div>
             {this.props.syncer.state.pubs.map(pub => {
@@ -62,8 +64,8 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     : new Date(pub.lastSync)
                         .toString()
                         .split(' ').slice(0, 5).join(' ');
-                return <div key={pub.url}>
-                    <div>🗃 <b><a href={pub.url}>{pub.url}</a></b></div>
+                return <div key={pub.domain}>
+                    <div>🗃 <b><a href={pub.domain}>{pub.domain}</a></b></div>
                     <div style={{paddingLeft: 50}}>last synced: {lastSynced}</div>
                     <div style={{paddingLeft: 50}}>state: <b>{pub.syncState}</b></div>
                 </div>
@@ -75,9 +77,9 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                 <div>
                     <input type="text"
                         style={{width: '100%'}}
-                        value={this.state.newKey}
-                        placeholder="new or existing key"
-                        onChange={e => this.setState({newKey: e.target.value})}
+                        value={this.state.newPath}
+                        placeholder="new or existing path"
+                        onChange={e => this.setState({newPath: e.target.value})}
                         />
                 </div>
                 <div style={{paddingLeft: 50}}>
@@ -89,26 +91,26 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                         onChange={e => this.setState({newValue: e.target.value})}
                         />
                     <button type="button"
-                        onClick={() => this._setKeyValue()}
+                        onClick={() => this._setPath()}
                         >
                         Save
                     </button>
-                    (Delete items by saving an empty value)
+                    (Delete documents by saving an empty value)
                 </div>
             </div>
             <hr/>
-            <div><b>Keys and values:</b> (Click to load into the edit box)</div>
-            {es.items().map(item =>
-                <div key={item.key}
+            <div><b>Paths and document values:</b> (Click to load into the edit box)</div>
+            {storage.documents().map(doc =>
+                <div key={doc.path}
                     onClick={() => {
-                        // load this item into the editor
-                        this.setState({newKey: item.key, newValue: item.value})
+                        // load this doc into the editor
+                        this.setState({newPath: doc.path, newValue: doc.value})
                         document.getElementById('es-editor')?.scrollIntoView({behavior: 'smooth', block: 'nearest'});
                     }}
                     >
-                    <div><code className='cKey'>{item.key}</code></div>
-                    <div style={{paddingLeft: 50}}>= <pre className='cValue'>{item.value}</pre></div>
-                    <div style={{paddingLeft: 50}}>by <code className='cAuthor'>{item.author.slice(0,10)+'...'}</code></div>
+                    <div><code className='cPath'>{doc.path}</code></div>
+                    <div style={{paddingLeft: 50}}>= <pre className='cValue'>{doc.value}</pre></div>
+                    <div style={{paddingLeft: 50}}>by <code className='cAuthor'>{doc.author.slice(0,10)+'...'}</code></div>
                 </div>
             )}
         </Stack>
