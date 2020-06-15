@@ -31,6 +31,7 @@ import {
 
 import { WikiView, WikiPageView } from './views/wikiView';
 import { OldAppView } from './views/oldAppView';
+import { WikiNavbar } from './views/navbar';
 import {
     LoginFlow,
     LoginLandingView,
@@ -44,11 +45,11 @@ import {
 // SET UP DEMO CONTENT
 
 let prepareEarthstar = () => {
-    let workspace = '//demo.xxxxxxxxxxxxxxxxxxxx';
+    let workspace = '//gardening.xxxxxxxxxxxxxxxxxxxx';
     let es = new StorageMemory([ValidatorEs2], workspace);
     // let demoKeypair = Crypto.generateKeypair();
     let demoKeypair = {
-        address: "@demo.E4JHZTPXfc939fnLrpPDzRwjDEiTBFJHadFH32CN97yc",
+        address: "@suzy.E4JHZTPXfc939fnLrpPDzRwjDEiTBFJHadFH32CN97yc",
         secret: "5DokVzbQ8f6DHBJQvGXvN96uSYj7V152McYruLhBXR2a"
     }
 
@@ -58,7 +59,7 @@ let prepareEarthstar = () => {
     // use an old time so we don't keep overwriting stuff with our demo content
     // one year ago
     let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
-    aboutLayer.setMyAuthorLongname('Example Wiki Author', now);
+    aboutLayer.setMyAuthorLongname('Suzy The Example Wiki Author', now);
     wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Bumblebee'), 'Buzz buzz buzz', now);
     wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Duck'), 'Quack quack quack', now);
     wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Fish Of The Deep Sea'), '🐟🐠\n           🐙\n    🐡', now);
@@ -117,6 +118,7 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
                     <div><a href="/">(Back to app)</a></div>
                     <div><NavLink exact to="/storybook/wikiPageView">WikiPageView</NavLink></div>
                     <div><NavLink exact to="/storybook/wikiView">WikiView</NavLink></div>
+                    <div><NavLink exact to="/storybook/wikiNavbar">WikiNavbar</NavLink></div>
                     <div><NavLink exact to="/storybook/loginFlow">LoginFlow</NavLink></div>
                     <div><NavLink exact to="/storybook/loginComponents">individual login components</NavLink></div>
                 </Stack>
@@ -156,6 +158,20 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
                 </StoryFrame>
                 <StoryFrame width={350} minHeight={350}>
                     <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
+                </StoryFrame>
+            </Route>
+            <Route exact path='/storybook/wikiNavbar'>
+                <StoryFrame width={'calc(min(70ch, 100% - 20px))'}>
+                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
+                </StoryFrame>
+                <StoryFrame width={'calc(100% - 20px'}>
+                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
+                </StoryFrame>
+                <StoryFrame width={250}>
+                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
+                </StoryFrame>
+                <StoryFrame width={350} minHeight={350}>
+                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
                 </StoryFrame>
             </Route>
             <Route exact path='/storybook/loginFlow'>

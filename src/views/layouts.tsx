@@ -20,9 +20,9 @@ export const Box : React.FunctionComponent<StyleProps> = (props) =>
 export const Card : React.FunctionComponent<StyleProps> = (props) =>
     <div className="card" style={props.style}>{props.children}</div>;
 
-export const Cluster : React.FunctionComponent = (props) =>
+export const Cluster : React.FunctionComponent<StyleProps> = (props) =>
     // note: extra div is needed
-    <div className="cluster"><div>{props.children}</div></div>;
+    <div className="cluster" style={props.style}><div>{props.children}</div></div>;
 
 export const Pill : React.FunctionComponent = (props) =>
     <div className="pill">{props.children}</div>;

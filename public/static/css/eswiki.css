@@ -6,6 +6,7 @@ html {
 }
 
 :root {
+    /* colors for earthstar debug view */
     --cPath: #ffe2b8;
     --cValue: #c9fcb7;
     --cWorkspace: #c5e8ff;
@@ -37,7 +38,7 @@ pre {
 }
 
 a {
-    text-decoration: underline !important;
+    text-decoration: underline;
 }
 a.active {
     font-weight: bold;
