@@ -31,8 +31,7 @@ import {
 
 import { Urls } from './urls';
 
-import { WikiView, WikiPageView } from './views/wikiView';
-import { OldAppView } from './views/oldAppView';
+import { RoutedWikiPageView, WikiPageView } from './views/wikiPageView';
 import { WikiNavbar } from './views/navbar';
 import {
     LoginFlow,
@@ -42,6 +41,7 @@ import {
     LoginJoinWorkspace,
     LoginCreateOrLoginUser,
 } from './views/loginFlow';
+import { EsDebugView } from './views/esDebugView';
 
 //================================================================================
 // SET UP DEMO CONTENT
@@ -74,59 +74,96 @@ let prepareEarthstar = () => {
 }
 
 //================================================================================
-// REACT ROUTER EXAMPLE
 
-interface RouterProps {
+interface BasicProps {
     storage : IStorage,
     keypair : AuthorKeypair,
     wikiLayer : WikiLayer,
     aboutLayer : AboutLayer,
     syncer : Syncer,
 }
+
+//================================================================================
+
+let logMainLayout = (...args : any[]) => console.log('MainLayout |', ...args);
+const MainLayout : React.FunctionComponent<BasicProps> = (props) =>
+    <Center>
+        {logMainLayout('render()')}
+        <Stack>
+            <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
+            <Card>
+                {props.children}
+            </Card>
+            <div style={{height: 60}} />
+            <details>
+                <summary><h3>Debug View</h3></summary>
+                <Card>
+                    <EsDebugView storage={props.storage} keypair={props.keypair} syncer={props.syncer} />
+                </Card>
+            </details>
+        </Stack>
+    </Center>;
+
+//================================================================================
+
 // <OldAppView storage={props.storage} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
-const ReactRouterExample : React.FunctionComponent<RouterProps> = (props : RouterProps) =>
+
+let logRouter = (...args : any[]) => console.log('RouterView |', ...args);
+const RouterView : React.FunctionComponent<BasicProps> = (props) =>
     <Router>
+        {logRouter('render()')}
         <Switch>
+            <Route exact path='/navbar'>
+                {/* hack */}
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
+            </Route>
+            <Route path='/storybook'>
+                <StorybookRouterView {...props}/>
+            </Route>
+
             <Route exact path='/'>
                 <LoginFlow />
             </Route>
             <Route exact path={Urls.loginTemplate}>
-                <h3>TODO: login</h3>
+                <LoginFlow />
             </Route>
+
             <Route exact path={Urls.authorListTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
                 <h3>TODO: author list</h3>
             </Route>
             <Route exact path={Urls.authorTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
                 <h3>TODO: one author's page</h3>
             </Route>
             <Route exact path={Urls.wikiTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
-                <h3>TODO: wiki page</h3>
+                <MainLayout {...props}>
+                    <RoutedWikiPageView {...props} />
+                </MainLayout>
             </Route>
             <Route exact path={Urls.recentFeedTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
                 <h3>TODO: recent wiki pages</h3>
             </Route>
             <Route exact path={Urls.searchTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
                 <h3>TODO: search</h3>
             </Route>
-            <Route path='/storybook'>
-                <Storybook {...props}/>
-            </Route>
+
             <Route path='*'>
                 <h3>404 from root</h3>
             </Route>
         </Switch>
     </Router>
 
+//================================================================================
+
 let logStorybook = (...args : any[]) => console.log('Storybook |', ...args);
-const Storybook : React.FunctionComponent<RouterProps> = (props) => {
+const StorybookRouterView : React.FunctionComponent<BasicProps> = (props) => {
     let pageInfos = props.wikiLayer.listPageInfos();
     let pageInfo = pageInfos[0];
     let pageDetail = props.wikiLayer.getPageDetails(pageInfo.path);
+    let lastAuthorProfile = pageDetail === null ? null : props.aboutLayer.getAuthorProfile(pageDetail.lastAuthor);
     logStorybook('page key', pageInfo.path);
     logStorybook('pageInfo', pageInfo);
     logStorybook('pageDetail', pageDetail);
@@ -149,48 +186,31 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
             <Route exact path='/storybook/wikiPageView'>
                 <StoryFrameDivider title="no page chosen" />
                 <StoryFrame width={350}>
-                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={null} />
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={null} lastAuthorProfile={null} />
                 </StoryFrame>
                 <StoryFrameDivider title="regular page" />
                 <StoryFrame width={'calc(min(70ch, 100% - 20px))'}>
-                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} lastAuthorProfile={lastAuthorProfile} />
                 </StoryFrame>
                 <StoryFrame width={'calc(100% - 20px'}>
-                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} lastAuthorProfile={lastAuthorProfile} />
                 </StoryFrame>
                 <StoryFrame width={250}>
-                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} lastAuthorProfile={lastAuthorProfile} />
                 </StoryFrame>
                 <StoryFrame width={350} minHeight={350}>
-                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} />
-                </StoryFrame>
-            </Route>
-            <Route exact path='/storybook/wikiView'>
-                <StoryFrame width={'calc(min(70ch, 100% - 20px))'}>
-                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
-                </StoryFrame>
-                <StoryFrame width={'calc(100% - 20px'}>
-                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
-                </StoryFrame>
-                <StoryFrame width={250}>
-                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
-                </StoryFrame>
-                <StoryFrame width={350} minHeight={350}>
-                    <WikiView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} />
+                    <WikiPageView aboutLayer={props.aboutLayer} wikiLayer={props.wikiLayer} pageDetail={pageDetail} lastAuthorProfile={lastAuthorProfile} />
                 </StoryFrame>
             </Route>
             <Route exact path='/storybook/wikiNavbar'>
                 <StoryFrame width={'calc(min(70ch, 100% - 20px))'}>
-                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
+                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
                 </StoryFrame>
                 <StoryFrame width={'calc(100% - 20px'}>
-                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
+                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
                 </StoryFrame>
                 <StoryFrame width={250}>
-                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
-                </StoryFrame>
-                <StoryFrame width={350} minHeight={350}>
-                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} />
+                    <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
                 </StoryFrame>
             </Route>
             <Route exact path='/storybook/loginFlow'>
@@ -234,10 +254,9 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
 // MAIN
 
 let {es, demoKeypair, syncer, wikiLayer, aboutLayer} = prepareEarthstar();
+
 ReactDOM.render(
-    <ReactRouterExample 
-        storage={es} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer}
-        />,
+    <RouterView storage={es} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer} />,
     document.getElementById('react-slot')
 );
 

@@ -2,7 +2,7 @@ html {
     line-height: 21px;
     font-size: 16px;
     font-family: sans-serif;
-    padding: var(--s0);
+    /* padding: var(--s0); */
 }
 
 :root {

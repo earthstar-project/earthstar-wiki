@@ -6,6 +6,7 @@ import {
     WorkspaceAddress,
     parseAuthorAddress,
     parseWorkspaceAddress,
+    Syncer,
 } from 'earthstar';
 import {
     Link,
@@ -19,12 +20,14 @@ import {
     FlexRow,   
 } from './layouts';
 import { Urls } from '../urls';
+import { SyncButton } from './syncButton';
 
 let log = (...args : any[]) => console.log('WikiNavbar |', ...args);
 
 interface WikiNavbarProps {
     author : AuthorAddress,
     workspace : WorkspaceAddress,
+    syncer : Syncer,
 }
 interface WikiNavbarState {
 }
@@ -50,6 +53,7 @@ export class WikiNavbar extends React.Component<WikiNavbarProps, WikiNavbarState
                 <Link to={Urls.recentFeed(this.props.workspace)} style={sNavbarLink}>Pages</Link>
                 <Link to={Urls.authorList(this.props.workspace)} style={sNavbarLink}>People</Link>
                 <Link to={Urls.search(this.props.workspace)} style={sNavbarLink}>Search</Link>
+                <SyncButton syncer={this.props.syncer} />
             </Cluster>
         </Box>;
     }

@@ -18,11 +18,10 @@ export let Urls = class {
     }
 
     // a wiki path is like "/wiki/shared/Dogs"
-    static wikiTemplate = '/ws/:workspace/wiki/:rest_of_path';
+    static wikiTemplate = '/ws/:workspace/wiki/:owner/:title';
     static wiki(workspace : WorkspaceAddress, path : string) {
         if (!path.startsWith('/wiki/')) { throw "bad wiki path should start with '/wiki/': " + path; }
-        let restOfPath = path.slice(6);
-        return `/ws/${workspace.slice(2)}/wiki/${restOfPath}`;
+        return `/ws/${workspace.slice(2)}/${path.slice(1)}`;
     }
 
     static recentFeedTemplate = '/ws/:workspace/recent';

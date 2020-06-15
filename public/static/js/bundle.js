@@ -70362,9 +70362,10 @@ const earthstar_1 = require("earthstar");
 const layouts_1 = require("./views/layouts");
 const storybook_1 = require("./views/storybook");
 const urls_1 = require("./urls");
-const wikiView_1 = require("./views/wikiView");
+const wikiPageView_1 = require("./views/wikiPageView");
 const navbar_1 = require("./views/navbar");
 const loginFlow_1 = require("./views/loginFlow");
+const esDebugView_1 = require("./views/esDebugView");
 //================================================================================
 // SET UP DEMO CONTENT
 let prepareEarthstar = () => {
@@ -70390,37 +70391,57 @@ let prepareEarthstar = () => {
     syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
     return { es, demoKeypair, syncer, wikiLayer, aboutLayer };
 };
+//================================================================================
+let logMainLayout = (...args) => console.log('MainLayout |', ...args);
+const MainLayout = (props) => React.createElement(layouts_1.Center, null,
+    logMainLayout('render()'),
+    React.createElement(layouts_1.Stack, null,
+        React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
+        React.createElement(layouts_1.Card, null, props.children),
+        React.createElement("div", { style: { height: 60 } }),
+        React.createElement("details", null,
+            React.createElement("summary", null,
+                React.createElement("h3", null, "Debug View")),
+            React.createElement(layouts_1.Card, null,
+                React.createElement(esDebugView_1.EsDebugView, { storage: props.storage, keypair: props.keypair, syncer: props.syncer })))));
+//================================================================================
 // <OldAppView storage={props.storage} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
-const ReactRouterExample = (props) => React.createElement(react_router_dom_1.BrowserRouter, null,
+let logRouter = (...args) => console.log('RouterView |', ...args);
+const RouterView = (props) => React.createElement(react_router_dom_1.BrowserRouter, null,
+    logRouter('render()'),
     React.createElement(react_router_dom_1.Switch, null,
+        React.createElement(react_router_dom_1.Route, { exact: true, path: '/navbar' },
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer })),
+        React.createElement(react_router_dom_1.Route, { path: '/storybook' },
+            React.createElement(StorybookRouterView, Object.assign({}, props))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: '/' },
             React.createElement(loginFlow_1.LoginFlow, null)),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.loginTemplate },
-            React.createElement("h3", null, "TODO: login")),
+            React.createElement(loginFlow_1.LoginFlow, null)),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorListTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
             React.createElement("h3", null, "TODO: author list")),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
             React.createElement("h3", null, "TODO: one author's page")),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.wikiTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
-            React.createElement("h3", null, "TODO: wiki page")),
+            React.createElement(MainLayout, Object.assign({}, props),
+                React.createElement(wikiPageView_1.RoutedWikiPageView, Object.assign({}, props)))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.recentFeedTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
             React.createElement("h3", null, "TODO: recent wiki pages")),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.searchTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
             React.createElement("h3", null, "TODO: search")),
-        React.createElement(react_router_dom_1.Route, { path: '/storybook' },
-            React.createElement(Storybook, Object.assign({}, props))),
         React.createElement(react_router_dom_1.Route, { path: '*' },
             React.createElement("h3", null, "404 from root"))));
+//================================================================================
 let logStorybook = (...args) => console.log('Storybook |', ...args);
-const Storybook = (props) => {
+const StorybookRouterView = (props) => {
     let pageInfos = props.wikiLayer.listPageInfos();
     let pageInfo = pageInfos[0];
     let pageDetail = props.wikiLayer.getPageDetails(pageInfo.path);
+    let lastAuthorProfile = pageDetail === null ? null : props.aboutLayer.getAuthorProfile(pageDetail.lastAuthor);
     logStorybook('page key', pageInfo.path);
     logStorybook('pageInfo', pageInfo);
     logStorybook('pageDetail', pageDetail);
@@ -70446,34 +70467,23 @@ const Storybook = (props) => {
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiPageView' },
                 React.createElement(storybook_1.StoryFrameDivider, { title: "no page chosen" }),
                 React.createElement(storybook_1.StoryFrame, { width: 350 },
-                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: null })),
+                    React.createElement(wikiPageView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: null, lastAuthorProfile: null })),
                 React.createElement(storybook_1.StoryFrameDivider, { title: "regular page" }),
                 React.createElement(storybook_1.StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
-                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                    React.createElement(wikiPageView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail, lastAuthorProfile: lastAuthorProfile })),
                 React.createElement(storybook_1.StoryFrame, { width: 'calc(100% - 20px' },
-                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                    React.createElement(wikiPageView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail, lastAuthorProfile: lastAuthorProfile })),
                 React.createElement(storybook_1.StoryFrame, { width: 250 },
-                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail })),
+                    React.createElement(wikiPageView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail, lastAuthorProfile: lastAuthorProfile })),
                 React.createElement(storybook_1.StoryFrame, { width: 350, minHeight: 350 },
-                    React.createElement(wikiView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail }))),
-            React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiView' },
-                React.createElement(storybook_1.StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
-                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
-                React.createElement(storybook_1.StoryFrame, { width: 'calc(100% - 20px' },
-                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
-                React.createElement(storybook_1.StoryFrame, { width: 250 },
-                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer })),
-                React.createElement(storybook_1.StoryFrame, { width: 350, minHeight: 350 },
-                    React.createElement(wikiView_1.WikiView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer }))),
+                    React.createElement(wikiPageView_1.WikiPageView, { aboutLayer: props.aboutLayer, wikiLayer: props.wikiLayer, pageDetail: pageDetail, lastAuthorProfile: lastAuthorProfile }))),
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/wikiNavbar' },
                 React.createElement(storybook_1.StoryFrame, { width: 'calc(min(70ch, 100% - 20px))' },
-                    React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace })),
+                    React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer })),
                 React.createElement(storybook_1.StoryFrame, { width: 'calc(100% - 20px' },
-                    React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace })),
+                    React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer })),
                 React.createElement(storybook_1.StoryFrame, { width: 250 },
-                    React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace })),
-                React.createElement(storybook_1.StoryFrame, { width: 350, minHeight: 350 },
-                    React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }))),
+                    React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }))),
             React.createElement(react_router_dom_1.Route, { exact: true, path: '/storybook/loginFlow' },
                 React.createElement(storybook_1.StoryFrameDivider, { title: "centered in a card" }),
                 React.createElement(layouts_1.Center, null,
@@ -70499,9 +70509,9 @@ const Storybook = (props) => {
 //================================================================================
 // MAIN
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
-ReactDOM.render(React.createElement(ReactRouterExample, { storage: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
+ReactDOM.render(React.createElement(RouterView, { storage: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./urls":279,"./views/layouts":280,"./views/loginFlow":281,"./views/navbar":282,"./views/storybook":283,"./views/wikiView":284,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
+},{"./urls":279,"./views/esDebugView":280,"./views/layouts":281,"./views/loginFlow":282,"./views/navbar":283,"./views/storybook":284,"./views/wikiPageView":286,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -70518,8 +70528,7 @@ exports.Urls = (_a = class {
             if (!path.startsWith('/wiki/')) {
                 throw "bad wiki path should start with '/wiki/': " + path;
             }
-            let restOfPath = path.slice(6);
-            return `/ws/${workspace.slice(2)}/wiki/${restOfPath}`;
+            return `/ws/${workspace.slice(2)}/${path.slice(1)}`;
         }
         static recentFeed(workspace) {
             return `/ws/${workspace.slice(2)}/recent`;
@@ -70536,12 +70545,143 @@ exports.Urls = (_a = class {
     _a.authorListTemplate = '/ws/:workspace/authors',
     _a.authorTemplate = '/ws/:workspace/author/:author',
     // a wiki path is like "/wiki/shared/Dogs"
-    _a.wikiTemplate = '/ws/:workspace/wiki/:rest_of_path',
+    _a.wikiTemplate = '/ws/:workspace/wiki/:owner/:title',
     _a.recentFeedTemplate = '/ws/:workspace/recent',
     _a.searchTemplate = '/ws/:workspace/search',
     _a);
 
 },{}],280:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EsDebugView = void 0;
+const React = __importStar(require("react"));
+const layouts_1 = require("./layouts");
+const syncButton_1 = require("./syncButton");
+let log = (...args) => console.log('EsDebugView |', ...args);
+class EsDebugView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            newPath: '',
+            newValue: '',
+        };
+    }
+    componentDidMount() {
+        // update on changes to the earthstar contents...
+        log('subscribing to storage onChange');
+        this.props.storage.onChange.subscribe(() => {
+            log('onChange =============');
+            this.forceUpdate();
+        });
+        // and the syncer details
+        log('subscribing to syncer onChange');
+        this.props.syncer.onChange.subscribe(() => {
+            log('onChange (syncer) >>>>>>>>');
+            this.forceUpdate();
+        });
+    }
+    _setPath() {
+        if (this.state.newPath === '') {
+            return;
+        }
+        let ok = this.props.storage.set(this.props.keypair, {
+            format: 'es.2',
+            path: this.state.newPath,
+            value: this.state.newValue,
+        });
+        if (!ok) {
+            log('set failed');
+            return;
+        }
+        this.setState({ newPath: '', newValue: '' });
+    }
+    render() {
+        log('render()');
+        let storage = this.props.storage;
+        return React.createElement(layouts_1.Stack, null,
+            React.createElement("div", null,
+                React.createElement("b", null, "Workspace:"),
+                " ",
+                React.createElement("code", { className: 'cWorkspace' }, storage.workspace)),
+            React.createElement("hr", null),
+            React.createElement("div", null,
+                React.createElement("b", null, "Demo author:"),
+                " ",
+                React.createElement("code", { className: 'cAuthor' }, this.props.keypair.address.slice(0, 10) + '...')),
+            React.createElement("hr", null),
+            React.createElement("div", null,
+                React.createElement("b", null, "Networking: Pubs")),
+            this.props.syncer.state.pubs.map(pub => {
+                let lastSynced = pub.lastSync === 0
+                    ? 'never'
+                    : new Date(pub.lastSync)
+                        .toString()
+                        .split(' ').slice(0, 5).join(' ');
+                return React.createElement("div", { key: pub.domain },
+                    React.createElement("div", null,
+                        "\uD83D\uDDC3 ",
+                        React.createElement("b", null,
+                            React.createElement("a", { href: pub.domain }, pub.domain))),
+                    React.createElement("div", { style: { paddingLeft: 50 } },
+                        "last synced: ",
+                        lastSynced),
+                    React.createElement("div", { style: { paddingLeft: 50 } },
+                        "state: ",
+                        React.createElement("b", null, pub.syncState)));
+            }),
+            React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }),
+            React.createElement("hr", null),
+            React.createElement("div", { id: "es-editor" },
+                React.createElement("b", null, "Editor:")),
+            React.createElement("div", null,
+                React.createElement("div", null,
+                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newPath, placeholder: "new or existing path", onChange: e => this.setState({ newPath: e.target.value }) })),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    React.createElement("textarea", { rows: 4, style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
+                    React.createElement("button", { type: "button", onClick: () => this._setPath() }, "Save"),
+                    "(Delete documents by saving an empty value)")),
+            React.createElement("hr", null),
+            React.createElement("div", null,
+                React.createElement("b", null, "Paths and document values:"),
+                " (Click to load into the edit box)"),
+            storage.documents().map(doc => React.createElement("div", { key: doc.path, onClick: () => {
+                    var _a;
+                    // load this doc into the editor
+                    this.setState({ newPath: doc.path, newValue: doc.value });
+                    (_a = document.getElementById('es-editor')) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } },
+                React.createElement("div", null,
+                    React.createElement("code", { className: 'cPath' }, doc.path)),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    "= ",
+                    React.createElement("pre", { className: 'cValue' }, doc.value)),
+                React.createElement("div", { style: { paddingLeft: 50 } },
+                    "by ",
+                    React.createElement("code", { className: 'cAuthor' }, doc.author.slice(0, 10) + '...')))));
+    }
+}
+exports.EsDebugView = EsDebugView;
+
+},{"./layouts":281,"./syncButton":285,"react":225}],281:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70583,7 +70723,7 @@ exports.FlexRow = (props) => React.createElement("div", { className: "flexRow", 
 ;
 exports.FlexItem = (props) => React.createElement("div", { className: "flexItem", style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
 
-},{"react":225}],281:[function(require,module,exports){
+},{"react":225}],282:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70729,7 +70869,7 @@ exports.LoginCreateUser = (props) => React.createElement(layouts_1.Stack, null,
     React.createElement("div", null,
         React.createElement("button", { type: "button", disabled: true }, "Create user")));
 
-},{"./layouts":280,"react":225}],282:[function(require,module,exports){
+},{"./layouts":281,"react":225}],283:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70757,6 +70897,7 @@ const earthstar_1 = require("earthstar");
 const react_router_dom_1 = require("react-router-dom");
 const layouts_1 = require("./layouts");
 const urls_1 = require("../urls");
+const syncButton_1 = require("./syncButton");
 let log = (...args) => console.log('WikiNavbar |', ...args);
 let sNavbarLink = {
     textDecoration: 'none',
@@ -70780,12 +70921,13 @@ class WikiNavbar extends React.Component {
                 React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.author(this.props.workspace, this.props.author), style: sNavbarLink }, authorText),
                 React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.recentFeed(this.props.workspace), style: sNavbarLink }, "Pages"),
                 React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorList(this.props.workspace), style: sNavbarLink }, "People"),
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.search(this.props.workspace), style: sNavbarLink }, "Search")));
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.search(this.props.workspace), style: sNavbarLink }, "Search"),
+                React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer })));
     }
 }
 exports.WikiNavbar = WikiNavbar;
 
-},{"../urls":279,"./layouts":280,"earthstar":96,"react":225,"react-router-dom":219}],283:[function(require,module,exports){
+},{"../urls":279,"./layouts":281,"./syncButton":285,"earthstar":96,"react":225,"react-router-dom":219}],284:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70838,7 +70980,7 @@ exports.StoryFrame = (props) => React.createElement("div", { style: {
             minHeight: props.minHeight,
         } }, props.children));
 
-},{"react":225}],284:[function(require,module,exports){
+},{"react":225}],285:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70860,12 +71002,85 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WikiView = exports.WikiPageView = void 0;
+exports.SyncButton = void 0;
 const React = __importStar(require("react"));
-const earthstar_1 = require("earthstar");
-const layouts_1 = require("./layouts");
-let logPage = (...args) => console.log('WikiPageView |', ...args);
-let logWiki = (...args) => console.log('WikiView |', ...args);
+let log = (...args) => console.log('SyncButton |', ...args);
+class SyncButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    componentDidMount() {
+        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
+    }
+    render() {
+        log('render()');
+        let isSyncing = this.props.syncer.state.syncState === 'syncing';
+        return React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: isSyncing }, isSyncing ? "Syncing..." : "Sync now");
+    }
+}
+exports.SyncButton = SyncButton;
+
+},{"react":225}],286:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WikiPageView = exports.WikiPageFetch = exports.RoutedWikiPageView = void 0;
+const React = __importStar(require("react"));
+const react_router_dom_1 = require("react-router-dom");
+let logRoutedPage = (...args) => console.log('RoutedWikiPageView |', ...args);
+let logFetchPage = (...args) => console.log('WikiPageViewFetch |', ...args);
+let logDisplayPage = (...args) => console.log('WikiPageView |', ...args);
+// url params:
+// :workspace
+// :rest_of_path
+exports.RoutedWikiPageView = (props) => {
+    let { workspace, owner, title } = react_router_dom_1.useParams();
+    workspace = '//' + workspace;
+    // reactRouter removes percent-encoding for us,
+    // but we actually want to keep it, so we have to do it again
+    let path = `/wiki/${owner}/${encodeURIComponent(title)}`;
+    logRoutedPage('render', workspace, path);
+    return React.createElement(WikiPageFetch, Object.assign({ workspace: workspace, path: path }, props));
+};
+class WikiPageFetch extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    componentDidMount() {
+        logDisplayPage('subscribing to storage onChange');
+        this.props.storage.onChange.subscribe(() => {
+            logDisplayPage('onChange =============');
+            this.forceUpdate();
+        });
+    }
+    render() {
+        // do all the data loading here.  WikiPageView is just a display component. 
+        logDisplayPage('render()');
+        let pageDetail = this.props.wikiLayer.getPageDetails(this.props.path);
+        let lastAuthorProfile = pageDetail === null ? null : this.props.aboutLayer.getAuthorProfile(pageDetail.lastAuthor);
+        return React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, pageDetail: pageDetail, lastAuthorProfile: lastAuthorProfile });
+    }
+}
+exports.WikiPageFetch = WikiPageFetch;
 class WikiPageView extends React.Component {
     constructor(props) {
         super(props);
@@ -70888,7 +71103,7 @@ class WikiPageView extends React.Component {
             return;
         }
         let ok = this.props.wikiLayer.setPageText(this.props.pageDetail.path, this.state.editedText);
-        logPage('saving success:', ok);
+        logDisplayPage('saving success:', ok);
         if (ok) {
             this.setState({
                 isEditing: false,
@@ -70910,23 +71125,26 @@ class WikiPageView extends React.Component {
         this.props.aboutLayer.setMyAuthorLongname(newName);
     }
     render() {
-        logPage('render()');
+        var _a, _b;
+        logDisplayPage('render()');
         if (this.props.pageDetail === null) {
-            return React.createElement("i", null, "Choose a page.");
+            return React.createElement("i", null, "No such page.");
         }
         let wiki = this.props.wikiLayer;
         let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime = new Date(page.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
         let wasLastEditedByMe = wiki.keypair.address === page.lastAuthor;
-        let lastAuthorProfile = this.props.aboutLayer.getAuthorProfile(page.lastAuthor);
-        let lastAuthorName = (lastAuthorProfile === null || lastAuthorProfile === void 0 ? void 0 : lastAuthorProfile.longname) || ((lastAuthorProfile === null || lastAuthorProfile === void 0 ? void 0 : lastAuthorProfile.address.slice(0, 10)) + '...');
+        let lastAuthorName = ((_a = this.props.lastAuthorProfile) === null || _a === void 0 ? void 0 : _a.longname) || (((_b = this.props.lastAuthorProfile) === null || _b === void 0 ? void 0 : _b.address.slice(0, 10)) + '...');
         return React.createElement("div", null,
             isEditing
                 ? React.createElement("div", null,
                     React.createElement("button", { type: "button", style: { float: 'right', marginLeft: 10 }, onClick: () => this._save() }, "Save"),
                     React.createElement("button", { type: "button", className: "secondary", style: { float: 'right' }, onClick: () => this._cancelEditing() }, "Cancel"))
                 : React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._startEditing() }, "Edit"),
+            React.createElement("p", { className: "small" }, page.owner === 'shared'
+                ? 'shared wiki'
+                : `${page.owner}'s wiki`),
             React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, page.title),
             React.createElement("p", { className: "small" },
                 React.createElement("i", null,
@@ -70946,53 +71164,5 @@ class WikiPageView extends React.Component {
     }
 }
 exports.WikiPageView = WikiPageView;
-class WikiView extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { currentPagePath: null };
-    }
-    componentDidMount() {
-        this.props.wikiLayer.storage.onChange.subscribe(() => this.forceUpdate());
-    }
-    _viewPage(path) {
-        this.setState({ currentPagePath: path });
-    }
-    _newPage() {
-        let title = window.prompt('Page title');
-        if (!title) {
-            return;
-        }
-        let path = earthstar_1.WikiLayer.makePagePath('shared', title); // TODO: allow making personal pages too, not just shared
-        let ok = this.props.wikiLayer.setPageText(path, '...');
-        if (ok) {
-            this.setState({
-                currentPagePath: path,
-            });
-        }
-    }
-    render() {
-        logWiki('render()');
-        let pageInfos = this.props.wikiLayer.listPageInfos();
-        let pageDetail = this.state.currentPagePath ? this.props.wikiLayer.getPageDetails(this.state.currentPagePath) : null;
-        return React.createElement(layouts_1.FlexRow, null,
-            React.createElement(layouts_1.FlexItem, { basis: "150px", shrink: 0, style: { borderRight: '2px solid #888' } },
-                pageInfos.map(pageInfo => React.createElement("div", { key: pageInfo.path },
-                    "\uD83D\uDCC4 ",
-                    React.createElement("a", { href: "#", onClick: () => this._viewPage(pageInfo.path), style: { fontWeight: pageInfo.path == this.state.currentPagePath ? 'bold' : 'normal' } }, pageInfo.title))),
-                React.createElement("p", null),
-                React.createElement("button", { type: "button", onClick: () => this._newPage() }, "New page")),
-            React.createElement(layouts_1.FlexItem, { grow: 1, style: { marginLeft: 'var(--s0)' } },
-                React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, pageDetail: pageDetail })));
-    }
-}
-exports.WikiView = WikiView;
-/*
-            <input list="wikipages" />
-            <datalist id="wikipages">
-                {docs.map(doc =>
-                    <option key={doc.path} value={doc.value} />
-                )}
-            </datalist>
-*/ 
 
-},{"./layouts":280,"earthstar":96,"react":225}]},{},[278]);
+},{"react":225,"react-router-dom":219}]},{},[278]);

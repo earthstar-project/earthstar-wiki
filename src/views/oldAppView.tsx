@@ -15,7 +15,7 @@ import {
 } from './layouts';
 import { SyncButton } from './syncButton';
 import { EsDebugView } from './esDebugView';
-import { WikiView } from './wikiView';
+import { WikiView } from './oldWikiView';
 
 let logApp = (...args : any[]) => console.log('OldAppView | ', ...args);
 

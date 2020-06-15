@@ -11,7 +11,6 @@ import {
     SyncButton
 } from './syncButton';
 
-let log = (...args : any[]) => console.log('EsDebugView |', ...args);
 
 interface EsDebugProps {
     storage : IStorage,
@@ -22,6 +21,7 @@ interface EsDebugState {
     newPath : string,
     newValue : string,
 }
+let log = (...args : any[]) => console.log('EsDebugView |', ...args);
 export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
     constructor(props : EsDebugProps) {
         super(props);
@@ -32,9 +32,17 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
     }
     componentDidMount() {
         // update on changes to the earthstar contents...
-        this.props.storage.onChange.subscribe(() => this.forceUpdate());
+        log('subscribing to storage onChange');
+        this.props.storage.onChange.subscribe(() => {
+            log('onChange =============');
+            this.forceUpdate()
+        });
         // and the syncer details
-        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
+        log('subscribing to syncer onChange');
+        this.props.syncer.onChange.subscribe(() => {
+            log('onChange (syncer) >>>>>>>>');
+            this.forceUpdate()
+        });
     }
     _setPath() {
         if (this.state.newPath === '') { return; }
