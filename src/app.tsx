@@ -29,6 +29,8 @@ import {
     StoryFrameDivider,
 } from './views/storybook';
 
+import { Urls } from './urls';
+
 import { WikiView, WikiPageView } from './views/wikiView';
 import { OldAppView } from './views/oldAppView';
 import { WikiNavbar } from './views/navbar';
@@ -81,27 +83,44 @@ interface RouterProps {
     aboutLayer : AboutLayer,
     syncer : Syncer,
 }
+// <OldAppView storage={props.storage} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
 const ReactRouterExample : React.FunctionComponent<RouterProps> = (props : RouterProps) =>
     <Router>
         <Switch>
             <Route exact path='/'>
-                <OldAppView storage={props.storage} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
+                <LoginFlow />
             </Route>
-            <Route path='/storybook/'>
+            <Route exact path={Urls.loginTemplate}>
+                <h3>TODO: login</h3>
+            </Route>
+            <Route exact path={Urls.authorListTemplate}>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <h3>TODO: author list</h3>
+            </Route>
+            <Route exact path={Urls.authorTemplate}>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <h3>TODO: one author's page</h3>
+            </Route>
+            <Route exact path={Urls.wikiTemplate}>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <h3>TODO: wiki page</h3>
+            </Route>
+            <Route exact path={Urls.recentFeedTemplate}>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <h3>TODO: recent wiki pages</h3>
+            </Route>
+            <Route exact path={Urls.searchTemplate}>
+                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace}/>
+                <h3>TODO: search</h3>
+            </Route>
+            <Route path='/storybook'>
                 <Storybook {...props}/>
             </Route>
             <Route path='*'>
-                <h3>404</h3>
+                <h3>404 from root</h3>
             </Route>
         </Switch>
     </Router>
-
-//  /login
-//  /ws/:workspace/about
-//  /ws/:workspace/about/:author
-//  /ws/:workspace/wiki
-//  /ws/:workspace/wiki/recent
-//  /ws/:workspace/wiki/page/:title
 
 let logStorybook = (...args : any[]) => console.log('Storybook |', ...args);
 const Storybook : React.FunctionComponent<RouterProps> = (props) => {
@@ -204,7 +223,7 @@ const Storybook : React.FunctionComponent<RouterProps> = (props) => {
                 </StoryFrame>
             </Route>
             <Route path='*'>
-                <h3>404</h3>
+                <h3>404 from storybook</h3>
             </Route>
         </Switch>
     </Router>

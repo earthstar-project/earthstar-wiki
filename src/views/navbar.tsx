@@ -8,11 +8,17 @@ import {
     parseWorkspaceAddress,
 } from 'earthstar';
 import {
+    Link,
+    NavLink,
+    useParams,
+} from "react-router-dom";
+import {
     Box,
     Cluster,
     FlexItem,
     FlexRow,   
 } from './layouts';
+import { Urls } from '../urls';
 
 let log = (...args : any[]) => console.log('WikiNavbar |', ...args);
 
@@ -37,13 +43,13 @@ export class WikiNavbar extends React.Component<WikiNavbarProps, WikiNavbarState
         let { workspaceParsed, err: err2 } = parseWorkspaceAddress(this.props.workspace);
         let authorText = authorParsed === null ? '@?' : '@' + authorParsed.shortname;
         let workspaceText = workspaceParsed === null ? '//?' : '//' + workspaceParsed.name;
-        return <Box style={{background: 'var(--cAccentLight)'}}>
+        return <Box style={{background: 'var(--cAccentDark)'}}>
             <Cluster>
-                <a href="#" style={sNavbarLink}><b>{workspaceText}</b></a>
-                <a href="#" style={sNavbarLink}>{authorText}</a>
-                <a href="#" style={sNavbarLink}>Pages</a>
-                <a href="#" style={sNavbarLink}>People</a>
-                <a href="#" style={sNavbarLink}>Search</a>
+                <Link to={Urls.recentFeed(this.props.workspace)} style={sNavbarLink}><b>{workspaceText}</b></Link>
+                <Link to={Urls.author(this.props.workspace, this.props.author)} style={sNavbarLink}>{authorText}</Link>
+                <Link to={Urls.recentFeed(this.props.workspace)} style={sNavbarLink}>Pages</Link>
+                <Link to={Urls.authorList(this.props.workspace)} style={sNavbarLink}>People</Link>
+                <Link to={Urls.search(this.props.workspace)} style={sNavbarLink}>Search</Link>
             </Cluster>
         </Box>;
     }

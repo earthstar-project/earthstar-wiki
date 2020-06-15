@@ -70361,8 +70361,8 @@ const react_router_dom_1 = require("react-router-dom");
 const earthstar_1 = require("earthstar");
 const layouts_1 = require("./views/layouts");
 const storybook_1 = require("./views/storybook");
+const urls_1 = require("./urls");
 const wikiView_1 = require("./views/wikiView");
-const oldAppView_1 = require("./views/oldAppView");
 const navbar_1 = require("./views/navbar");
 const loginFlow_1 = require("./views/loginFlow");
 //================================================================================
@@ -70390,20 +70390,32 @@ let prepareEarthstar = () => {
     syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
     return { es, demoKeypair, syncer, wikiLayer, aboutLayer };
 };
+// <OldAppView storage={props.storage} keypair={props.keypair} syncer={props.syncer} wikiLayer={props.wikiLayer} aboutLayer={props.aboutLayer} />
 const ReactRouterExample = (props) => React.createElement(react_router_dom_1.BrowserRouter, null,
     React.createElement(react_router_dom_1.Switch, null,
         React.createElement(react_router_dom_1.Route, { exact: true, path: '/' },
-            React.createElement(oldAppView_1.OldAppView, { storage: props.storage, keypair: props.keypair, syncer: props.syncer, wikiLayer: props.wikiLayer, aboutLayer: props.aboutLayer })),
-        React.createElement(react_router_dom_1.Route, { path: '/storybook/' },
+            React.createElement(loginFlow_1.LoginFlow, null)),
+        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.loginTemplate },
+            React.createElement("h3", null, "TODO: login")),
+        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorListTemplate },
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement("h3", null, "TODO: author list")),
+        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorTemplate },
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement("h3", null, "TODO: one author's page")),
+        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.wikiTemplate },
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement("h3", null, "TODO: wiki page")),
+        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.recentFeedTemplate },
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement("h3", null, "TODO: recent wiki pages")),
+        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.searchTemplate },
+            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace }),
+            React.createElement("h3", null, "TODO: search")),
+        React.createElement(react_router_dom_1.Route, { path: '/storybook' },
             React.createElement(Storybook, Object.assign({}, props))),
         React.createElement(react_router_dom_1.Route, { path: '*' },
-            React.createElement("h3", null, "404"))));
-//  /login
-//  /ws/:workspace/about
-//  /ws/:workspace/about/:author
-//  /ws/:workspace/wiki
-//  /ws/:workspace/wiki/recent
-//  /ws/:workspace/wiki/page/:title
+            React.createElement("h3", null, "404 from root"))));
 let logStorybook = (...args) => console.log('Storybook |', ...args);
 const Storybook = (props) => {
     let pageInfos = props.wikiLayer.listPageInfos();
@@ -70482,137 +70494,54 @@ const Storybook = (props) => {
                 React.createElement(storybook_1.StoryFrame, { title: "create user", width: 400, minHeight: 600 },
                     React.createElement(loginFlow_1.LoginCreateUser, { api: null }))),
             React.createElement(react_router_dom_1.Route, { path: '*' },
-                React.createElement("h3", null, "404"))));
+                React.createElement("h3", null, "404 from storybook"))));
 };
 //================================================================================
 // MAIN
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
 ReactDOM.render(React.createElement(ReactRouterExample, { storage: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./views/layouts":280,"./views/loginFlow":281,"./views/navbar":282,"./views/oldAppView":283,"./views/storybook":284,"./views/wikiView":286,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
+},{"./urls":279,"./views/layouts":280,"./views/loginFlow":281,"./views/navbar":282,"./views/storybook":283,"./views/wikiView":284,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EsDebugView = void 0;
-const React = __importStar(require("react"));
-const layouts_1 = require("./layouts");
-const syncButton_1 = require("./syncButton");
-let log = (...args) => console.log('EsDebugView |', ...args);
-class EsDebugView extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            newPath: '',
-            newValue: '',
-        };
-    }
-    componentDidMount() {
-        // update on changes to the earthstar contents...
-        this.props.storage.onChange.subscribe(() => this.forceUpdate());
-        // and the syncer details
-        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
-    }
-    _setPath() {
-        if (this.state.newPath === '') {
-            return;
+exports.Urls = void 0;
+exports.Urls = (_a = class {
+        static login() { return exports.Urls.loginTemplate; }
+        static authorList(workspace) {
+            return `/ws/${workspace.slice(2)}/authors`;
         }
-        let ok = this.props.storage.set(this.props.keypair, {
-            format: 'es.2',
-            path: this.state.newPath,
-            value: this.state.newValue,
-        });
-        if (!ok) {
-            log('set failed');
-            return;
+        static author(workspace, author) {
+            return `/ws/${workspace.slice(2)}/author/${author}`;
         }
-        this.setState({ newPath: '', newValue: '' });
-    }
-    render() {
-        log('render()');
-        let storage = this.props.storage;
-        return React.createElement(layouts_1.Stack, null,
-            React.createElement("div", null,
-                React.createElement("b", null, "Workspace:"),
-                " ",
-                React.createElement("code", { className: 'cWorkspace' }, storage.workspace)),
-            React.createElement("hr", null),
-            React.createElement("div", null,
-                React.createElement("b", null, "Demo author:"),
-                " ",
-                React.createElement("code", { className: 'cAuthor' }, this.props.keypair.address.slice(0, 10) + '...')),
-            React.createElement("hr", null),
-            React.createElement("div", null,
-                React.createElement("b", null, "Networking: Pubs")),
-            this.props.syncer.state.pubs.map(pub => {
-                let lastSynced = pub.lastSync === 0
-                    ? 'never'
-                    : new Date(pub.lastSync)
-                        .toString()
-                        .split(' ').slice(0, 5).join(' ');
-                return React.createElement("div", { key: pub.domain },
-                    React.createElement("div", null,
-                        "\uD83D\uDDC3 ",
-                        React.createElement("b", null,
-                            React.createElement("a", { href: pub.domain }, pub.domain))),
-                    React.createElement("div", { style: { paddingLeft: 50 } },
-                        "last synced: ",
-                        lastSynced),
-                    React.createElement("div", { style: { paddingLeft: 50 } },
-                        "state: ",
-                        React.createElement("b", null, pub.syncState)));
-            }),
-            React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }),
-            React.createElement("hr", null),
-            React.createElement("div", { id: "es-editor" },
-                React.createElement("b", null, "Editor:")),
-            React.createElement("div", null,
-                React.createElement("div", null,
-                    React.createElement("input", { type: "text", style: { width: '100%' }, value: this.state.newPath, placeholder: "new or existing path", onChange: e => this.setState({ newPath: e.target.value }) })),
-                React.createElement("div", { style: { paddingLeft: 50 } },
-                    React.createElement("textarea", { rows: 4, style: { width: '100%' }, value: this.state.newValue, placeholder: "value", onChange: e => this.setState({ newValue: e.target.value }) }),
-                    React.createElement("button", { type: "button", onClick: () => this._setPath() }, "Save"),
-                    "(Delete documents by saving an empty value)")),
-            React.createElement("hr", null),
-            React.createElement("div", null,
-                React.createElement("b", null, "Paths and document values:"),
-                " (Click to load into the edit box)"),
-            storage.documents().map(doc => React.createElement("div", { key: doc.path, onClick: () => {
-                    var _a;
-                    // load this doc into the editor
-                    this.setState({ newPath: doc.path, newValue: doc.value });
-                    (_a = document.getElementById('es-editor')) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } },
-                React.createElement("div", null,
-                    React.createElement("code", { className: 'cPath' }, doc.path)),
-                React.createElement("div", { style: { paddingLeft: 50 } },
-                    "= ",
-                    React.createElement("pre", { className: 'cValue' }, doc.value)),
-                React.createElement("div", { style: { paddingLeft: 50 } },
-                    "by ",
-                    React.createElement("code", { className: 'cAuthor' }, doc.author.slice(0, 10) + '...')))));
-    }
-}
-exports.EsDebugView = EsDebugView;
+        static wiki(workspace, path) {
+            if (!path.startsWith('/wiki/')) {
+                throw "bad wiki path should start with '/wiki/': " + path;
+            }
+            let restOfPath = path.slice(6);
+            return `/ws/${workspace.slice(2)}/wiki/${restOfPath}`;
+        }
+        static recentFeed(workspace) {
+            return `/ws/${workspace.slice(2)}/recent`;
+        }
+        static search(workspace, text) {
+            let result = `/ws/${workspace.slice(2)}/search`;
+            if (text) {
+                result += '?q=' + encodeURIComponent(text);
+            }
+            return result;
+        }
+    },
+    _a.loginTemplate = '/login',
+    _a.authorListTemplate = '/ws/:workspace/authors',
+    _a.authorTemplate = '/ws/:workspace/author/:author',
+    // a wiki path is like "/wiki/shared/Dogs"
+    _a.wikiTemplate = '/ws/:workspace/wiki/:rest_of_path',
+    _a.recentFeedTemplate = '/ws/:workspace/recent',
+    _a.searchTemplate = '/ws/:workspace/search',
+    _a);
 
-},{"./layouts":280,"./syncButton":285,"react":225}],280:[function(require,module,exports){
+},{}],280:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70825,7 +70754,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WikiNavbar = void 0;
 const React = __importStar(require("react"));
 const earthstar_1 = require("earthstar");
+const react_router_dom_1 = require("react-router-dom");
 const layouts_1 = require("./layouts");
+const urls_1 = require("../urls");
 let log = (...args) => console.log('WikiNavbar |', ...args);
 let sNavbarLink = {
     textDecoration: 'none',
@@ -70842,76 +70773,19 @@ class WikiNavbar extends React.Component {
         let { workspaceParsed, err: err2 } = earthstar_1.parseWorkspaceAddress(this.props.workspace);
         let authorText = authorParsed === null ? '@?' : '@' + authorParsed.shortname;
         let workspaceText = workspaceParsed === null ? '//?' : '//' + workspaceParsed.name;
-        return React.createElement(layouts_1.Box, { style: { background: 'var(--cAccentLight)' } },
+        return React.createElement(layouts_1.Box, { style: { background: 'var(--cAccentDark)' } },
             React.createElement(layouts_1.Cluster, null,
-                React.createElement("a", { href: "#", style: sNavbarLink },
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.recentFeed(this.props.workspace), style: sNavbarLink },
                     React.createElement("b", null, workspaceText)),
-                React.createElement("a", { href: "#", style: sNavbarLink }, authorText),
-                React.createElement("a", { href: "#", style: sNavbarLink }, "Pages"),
-                React.createElement("a", { href: "#", style: sNavbarLink }, "People"),
-                React.createElement("a", { href: "#", style: sNavbarLink }, "Search")));
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.author(this.props.workspace, this.props.author), style: sNavbarLink }, authorText),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.recentFeed(this.props.workspace), style: sNavbarLink }, "Pages"),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorList(this.props.workspace), style: sNavbarLink }, "People"),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.search(this.props.workspace), style: sNavbarLink }, "Search")));
     }
 }
 exports.WikiNavbar = WikiNavbar;
 
-},{"./layouts":280,"earthstar":96,"react":225}],283:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OldAppView = void 0;
-const React = __importStar(require("react"));
-const layouts_1 = require("./layouts");
-const syncButton_1 = require("./syncButton");
-const esDebugView_1 = require("./esDebugView");
-const wikiView_1 = require("./wikiView");
-let logApp = (...args) => console.log('OldAppView | ', ...args);
-class OldAppView extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    render() {
-        logApp('render()');
-        return React.createElement(layouts_1.Center, null,
-            React.createElement(layouts_1.Stack, null,
-                React.createElement(layouts_1.FlexRow, { style: { alignItems: 'center' } },
-                    React.createElement(layouts_1.FlexItem, { grow: 1, shrink: 1 },
-                        React.createElement("h2", null,
-                            React.createElement("img", { src: "/static/img/earthstar-pal-transparent.png", style: { width: 50, verticalAlign: 'middle' } }),
-                            "Earthstar Wiki")),
-                    React.createElement(layouts_1.FlexItem, { grow: 0, shrink: 0 },
-                        React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer }))),
-                React.createElement(layouts_1.Card, null,
-                    React.createElement(wikiView_1.WikiView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer })),
-                React.createElement("div", { style: { height: 60 } }),
-                React.createElement("details", null,
-                    React.createElement("summary", null,
-                        React.createElement("h3", { style: { opacity: 1.0 } }, "Debug View")),
-                    React.createElement(layouts_1.Card, { style: { opacity: 1.0 } },
-                        React.createElement(esDebugView_1.EsDebugView, { storage: this.props.storage, keypair: this.props.keypair, syncer: this.props.syncer })))));
-    }
-}
-exports.OldAppView = OldAppView;
-
-},{"./esDebugView":279,"./layouts":280,"./syncButton":285,"./wikiView":286,"react":225}],284:[function(require,module,exports){
+},{"../urls":279,"./layouts":280,"earthstar":96,"react":225,"react-router-dom":219}],283:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70964,48 +70838,7 @@ exports.StoryFrame = (props) => React.createElement("div", { style: {
             minHeight: props.minHeight,
         } }, props.children));
 
-},{"react":225}],285:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SyncButton = void 0;
-const React = __importStar(require("react"));
-let log = (...args) => console.log('SyncButton |', ...args);
-class SyncButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    componentDidMount() {
-        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
-    }
-    render() {
-        log('render()');
-        let isSyncing = this.props.syncer.state.syncState === 'syncing';
-        return React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: isSyncing }, isSyncing ? "Syncing..." : "Sync now");
-    }
-}
-exports.SyncButton = SyncButton;
-
-},{"react":225}],286:[function(require,module,exports){
+},{"react":225}],284:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
