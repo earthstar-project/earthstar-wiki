@@ -48,11 +48,11 @@ export class WikiNavbar extends React.Component<WikiNavbarProps, WikiNavbarState
         let workspaceText = workspaceParsed === null ? '//?' : '//' + workspaceParsed.name;
         return <Box style={{background: 'var(--cAccentDark)'}}>
             <Cluster>
-                <Link to={Urls.recentFeed(this.props.workspace)} style={sNavbarLink}><b>{workspaceText}</b></Link>
-                <Link to={Urls.author(this.props.workspace, this.props.author)} style={sNavbarLink}>{authorText}</Link>
-                <Link to={Urls.recentFeed(this.props.workspace)} style={sNavbarLink}>Pages</Link>
-                <Link to={Urls.authorList(this.props.workspace)} style={sNavbarLink}>People</Link>
-                <Link to={Urls.search(this.props.workspace)} style={sNavbarLink}>Search</Link>
+                <Link to={Urls.allPages(this.props.workspace)} style={sNavbarLink}><b>📂 {workspaceText}</b></Link>
+                <Link to={Urls.author(this.props.workspace, this.props.author)} style={sNavbarLink}>🐱 {authorText}</Link>
+                <Link to={Urls.allPages(this.props.workspace)} style={sNavbarLink}>📄 Pages</Link>
+                <Link to={Urls.authorList(this.props.workspace)} style={sNavbarLink}>👭 People</Link>
+                <Link to={Urls.search(this.props.workspace)} style={sNavbarLink}>🔍 Search</Link>
                 <SyncButton syncer={this.props.syncer} />
             </Cluster>
         </Box>;

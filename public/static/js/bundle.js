@@ -70363,6 +70363,7 @@ const layouts_1 = require("./views/layouts");
 const storybook_1 = require("./views/storybook");
 const urls_1 = require("./urls");
 const wikiPageView_1 = require("./views/wikiPageView");
+const wikiPageList_1 = require("./views/wikiPageList");
 const navbar_1 = require("./views/navbar");
 const loginFlow_1 = require("./views/loginFlow");
 const esDebugView_1 = require("./views/esDebugView");
@@ -70427,9 +70428,9 @@ const RouterView = (props) => React.createElement(react_router_dom_1.BrowserRout
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.wikiTemplate },
             React.createElement(MainLayout, Object.assign({}, props),
                 React.createElement(wikiPageView_1.RoutedWikiPageView, Object.assign({}, props)))),
-        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.recentFeedTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
-            React.createElement("h3", null, "TODO: recent wiki pages")),
+        React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.allPagesTemplate },
+            React.createElement(MainLayout, Object.assign({}, props),
+                React.createElement(wikiPageList_1.RoutedWikiPageList, Object.assign({}, props)))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.searchTemplate },
             React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
             React.createElement("h3", null, "TODO: search")),
@@ -70511,7 +70512,7 @@ const StorybookRouterView = (props) => {
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
 ReactDOM.render(React.createElement(RouterView, { storage: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./urls":279,"./views/esDebugView":280,"./views/layouts":281,"./views/loginFlow":282,"./views/navbar":283,"./views/storybook":284,"./views/wikiPageView":286,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
+},{"./urls":279,"./views/esDebugView":280,"./views/layouts":281,"./views/loginFlow":282,"./views/navbar":283,"./views/storybook":284,"./views/wikiPageList":286,"./views/wikiPageView":287,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -70530,8 +70531,8 @@ exports.Urls = (_a = class {
             }
             return `/ws/${workspace.slice(2)}/${path.slice(1)}`;
         }
-        static recentFeed(workspace) {
-            return `/ws/${workspace.slice(2)}/recent`;
+        static allPages(workspace) {
+            return `/ws/${workspace.slice(2)}/pages`;
         }
         static search(workspace, text) {
             let result = `/ws/${workspace.slice(2)}/search`;
@@ -70546,7 +70547,7 @@ exports.Urls = (_a = class {
     _a.authorTemplate = '/ws/:workspace/author/:author',
     // a wiki path is like "/wiki/shared/Dogs"
     _a.wikiTemplate = '/ws/:workspace/wiki/:owner/:title',
-    _a.recentFeedTemplate = '/ws/:workspace/recent',
+    _a.allPagesTemplate = '/ws/:workspace/pages',
     _a.searchTemplate = '/ws/:workspace/search',
     _a);
 
@@ -70916,12 +70917,16 @@ class WikiNavbar extends React.Component {
         let workspaceText = workspaceParsed === null ? '//?' : '//' + workspaceParsed.name;
         return React.createElement(layouts_1.Box, { style: { background: 'var(--cAccentDark)' } },
             React.createElement(layouts_1.Cluster, null,
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.recentFeed(this.props.workspace), style: sNavbarLink },
-                    React.createElement("b", null, workspaceText)),
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.author(this.props.workspace, this.props.author), style: sNavbarLink }, authorText),
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.recentFeed(this.props.workspace), style: sNavbarLink }, "Pages"),
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorList(this.props.workspace), style: sNavbarLink }, "People"),
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.search(this.props.workspace), style: sNavbarLink }, "Search"),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.allPages(this.props.workspace), style: sNavbarLink },
+                    React.createElement("b", null,
+                        "\uD83D\uDCC2 ",
+                        workspaceText)),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.author(this.props.workspace, this.props.author), style: sNavbarLink },
+                    "\uD83D\uDC31 ",
+                    authorText),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.allPages(this.props.workspace), style: sNavbarLink }, "\uD83D\uDCC4 Pages"),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorList(this.props.workspace), style: sNavbarLink }, "\uD83D\uDC6D People"),
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.search(this.props.workspace), style: sNavbarLink }, "\uD83D\uDD0D Search"),
                 React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer })));
     }
 }
@@ -71043,11 +71048,74 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WikiPageView = exports.WikiPageFetch = exports.RoutedWikiPageView = void 0;
+exports.WikiPageList = exports.FetchWikiPageList = exports.RoutedWikiPageList = void 0;
+const React = __importStar(require("react"));
+const react_router_dom_1 = require("react-router-dom");
+const layouts_1 = require("./layouts");
+const urls_1 = require("../urls");
+let logRoutedPageList = (...args) => console.log('RoutedWikiPageList |', ...args);
+let logFetchPageList = (...args) => console.log('FetchWikiPageList |', ...args);
+let logDisplayPageList = (...args) => console.log('WikiPageList |', ...args);
+// url params:
+// :workspace
+exports.RoutedWikiPageList = (props) => {
+    let { workspace } = react_router_dom_1.useParams();
+    workspace = '//' + workspace;
+    logRoutedPageList('render', workspace);
+    return React.createElement(FetchWikiPageList, Object.assign({}, props));
+};
+class FetchWikiPageList extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    componentDidMount() {
+        logDisplayPageList('subscribing to storage onChange');
+        this.props.storage.onChange.subscribe(() => {
+            logDisplayPageList('onChange =============');
+            this.forceUpdate();
+        });
+    }
+    render() {
+        // do all the data loading here.  WikiPageList is just a display component. 
+        logDisplayPageList('render()');
+        // HACK: for now, limit to shared pages
+        let pageInfos = this.props.wikiLayer.listPageInfos('shared');
+        return React.createElement(exports.WikiPageList, { workspace: this.props.storage.workspace, pageInfos: pageInfos });
+    }
+}
+exports.FetchWikiPageList = FetchWikiPageList;
+exports.WikiPageList = (props) => React.createElement(layouts_1.Stack, null,
+    React.createElement("h3", null, "All shared pages"),
+    props.pageInfos.map((pageInfo) => React.createElement("p", { key: pageInfo.path },
+        React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.wiki(props.workspace, pageInfo.path) }, pageInfo.title))));
+
+},{"../urls":279,"./layouts":281,"react":225,"react-router-dom":219}],287:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WikiPageView = exports.FetchWikiPageView = exports.RoutedWikiPageView = void 0;
 const React = __importStar(require("react"));
 const react_router_dom_1 = require("react-router-dom");
 let logRoutedPage = (...args) => console.log('RoutedWikiPageView |', ...args);
-let logFetchPage = (...args) => console.log('WikiPageViewFetch |', ...args);
+let logFetchPage = (...args) => console.log('FetchWikiPageView |', ...args);
 let logDisplayPage = (...args) => console.log('WikiPageView |', ...args);
 // url params:
 // :workspace
@@ -71059,9 +71127,9 @@ exports.RoutedWikiPageView = (props) => {
     // but we actually want to keep it, so we have to do it again
     let path = `/wiki/${owner}/${encodeURIComponent(title)}`;
     logRoutedPage('render', workspace, path);
-    return React.createElement(WikiPageFetch, Object.assign({ workspace: workspace, path: path }, props));
+    return React.createElement(FetchWikiPageView, Object.assign({ workspace: workspace, path: path }, props));
 };
-class WikiPageFetch extends React.Component {
+class FetchWikiPageView extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -71080,7 +71148,7 @@ class WikiPageFetch extends React.Component {
         return React.createElement(WikiPageView, { aboutLayer: this.props.aboutLayer, wikiLayer: this.props.wikiLayer, pageDetail: pageDetail, lastAuthorProfile: lastAuthorProfile });
     }
 }
-exports.WikiPageFetch = WikiPageFetch;
+exports.FetchWikiPageView = FetchWikiPageView;
 class WikiPageView extends React.Component {
     constructor(props) {
         super(props);

@@ -24,9 +24,9 @@ export let Urls = class {
         return `/ws/${workspace.slice(2)}/${path.slice(1)}`;
     }
 
-    static recentFeedTemplate = '/ws/:workspace/recent';
-    static recentFeed(workspace : WorkspaceAddress) {
-        return `/ws/${workspace.slice(2)}/recent`;
+    static allPagesTemplate = '/ws/:workspace/pages';
+    static allPages(workspace : WorkspaceAddress) {
+        return `/ws/${workspace.slice(2)}/pages`;
     }
 
     static searchTemplate = '/ws/:workspace/search';

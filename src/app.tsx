@@ -32,6 +32,7 @@ import {
 import { Urls } from './urls';
 
 import { RoutedWikiPageView, WikiPageView } from './views/wikiPageView';
+import { RoutedWikiPageList, WikiPageList } from './views/wikiPageList';
 import { WikiNavbar } from './views/navbar';
 import {
     LoginFlow,
@@ -141,9 +142,10 @@ const RouterView : React.FunctionComponent<BasicProps> = (props) =>
                     <RoutedWikiPageView {...props} />
                 </MainLayout>
             </Route>
-            <Route exact path={Urls.recentFeedTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
-                <h3>TODO: recent wiki pages</h3>
+            <Route exact path={Urls.allPagesTemplate}>
+                <MainLayout {...props}>
+                    <RoutedWikiPageList {...props} />
+                </MainLayout>
             </Route>
             <Route exact path={Urls.searchTemplate}>
                 <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />

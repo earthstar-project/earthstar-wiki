@@ -4,22 +4,18 @@ import {
 } from "react-router-dom";
 import {
     AboutLayer,
+    AuthorKeypair,
+    AuthorProfile,
+    IStorage,
+    Path,
+    Syncer,
     WikiLayer,
     WikiPageDetail,
-    IStorage,
-    AuthorKeypair,
-    Syncer,
-    AuthorProfile,
     WorkspaceAddress,
-    Path,
 } from 'earthstar';
-import {
-    FlexItem,
-    FlexRow,
-} from './layouts';
 
 let logRoutedPage = (...args : any[]) => console.log('RoutedWikiPageView |', ...args);
-let logFetchPage = (...args : any[]) => console.log('WikiPageViewFetch |', ...args);
+let logFetchPage = (...args : any[]) => console.log('FetchWikiPageView |', ...args);
 let logDisplayPage = (...args : any[]) => console.log('WikiPageView |', ...args);
 
 interface BasicProps {
@@ -46,13 +42,13 @@ export const RoutedWikiPageView : React.FunctionComponent<BasicProps> = (props) 
     // but we actually want to keep it, so we have to do it again
     let path = `/wiki/${owner}/${encodeURIComponent(title)}`;
     logRoutedPage('render', workspace, path);
-    return <WikiPageFetch
+    return <FetchWikiPageView
         workspace={workspace}
         path={path}
         {...props}
         />;
 }
-export class WikiPageFetch extends React.Component<ExtraProps> {
+export class FetchWikiPageView extends React.Component<ExtraProps> {
     constructor(props : ExtraProps) {
         super(props);
     }
