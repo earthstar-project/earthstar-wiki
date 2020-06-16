@@ -13,7 +13,7 @@ export let Urls = class {
     }
 
     static authorTemplate = '/ws/:workspace/author/:author';
-    static author(workspace : WorkspaceAddress, author : AuthorAddress) {
+    static authorProfile(workspace : WorkspaceAddress, author : AuthorAddress) {
         return `/ws/${workspace.slice(2)}/author/${author}`;
     }
 

@@ -70367,6 +70367,7 @@ const wikiPageList_1 = require("./views/wikiPageList");
 const navbar_1 = require("./views/navbar");
 const loginFlow_1 = require("./views/loginFlow");
 const esDebugView_1 = require("./views/esDebugView");
+const profileView_1 = require("./views/profileView");
 //================================================================================
 // SET UP DEMO CONTENT
 let prepareEarthstar = () => {
@@ -70423,8 +70424,8 @@ const RouterView = (props) => React.createElement(react_router_dom_1.BrowserRout
             React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
             React.createElement("h3", null, "TODO: author list")),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
-            React.createElement("h3", null, "TODO: one author's page")),
+            React.createElement(MainLayout, Object.assign({}, props),
+                React.createElement(profileView_1.RoutedProfileView, Object.assign({}, props)))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.wikiTemplate },
             React.createElement(MainLayout, Object.assign({}, props),
                 React.createElement(wikiPageView_1.RoutedWikiPageView, Object.assign({}, props)))),
@@ -70512,7 +70513,7 @@ const StorybookRouterView = (props) => {
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
 ReactDOM.render(React.createElement(RouterView, { storage: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./urls":279,"./views/esDebugView":280,"./views/layouts":281,"./views/loginFlow":282,"./views/navbar":283,"./views/storybook":284,"./views/wikiPageList":286,"./views/wikiPageView":287,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
+},{"./urls":279,"./views/esDebugView":280,"./views/layouts":281,"./views/loginFlow":282,"./views/navbar":283,"./views/profileView":284,"./views/storybook":285,"./views/wikiPageList":287,"./views/wikiPageView":288,"earthstar":96,"react":225,"react-dom":213,"react-router-dom":219}],279:[function(require,module,exports){
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -70522,7 +70523,7 @@ exports.Urls = (_a = class {
         static authorList(workspace) {
             return `/ws/${workspace.slice(2)}/authors`;
         }
-        static author(workspace, author) {
+        static authorProfile(workspace, author) {
             return `/ws/${workspace.slice(2)}/author/${author}`;
         }
         static wiki(workspace, path) {
@@ -70682,7 +70683,7 @@ class EsDebugView extends React.Component {
 }
 exports.EsDebugView = EsDebugView;
 
-},{"./layouts":281,"./syncButton":285,"react":225}],281:[function(require,module,exports){
+},{"./layouts":281,"./syncButton":286,"react":225}],281:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70921,7 +70922,7 @@ class WikiNavbar extends React.Component {
                     React.createElement("b", null,
                         "\uD83D\uDCC2 ",
                         workspaceText)),
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.author(this.props.workspace, this.props.author), style: sNavbarLink },
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorProfile(this.props.workspace, this.props.author), style: sNavbarLink },
                     "\uD83D\uDC31 ",
                     authorText),
                 React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.allPages(this.props.workspace), style: sNavbarLink }, "\uD83D\uDCC4 Pages"),
@@ -70932,7 +70933,94 @@ class WikiNavbar extends React.Component {
 }
 exports.WikiNavbar = WikiNavbar;
 
-},{"../urls":279,"./layouts":281,"./syncButton":285,"earthstar":96,"react":225,"react-router-dom":219}],284:[function(require,module,exports){
+},{"../urls":279,"./layouts":281,"./syncButton":286,"earthstar":96,"react":225,"react-router-dom":219}],284:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProfileView = exports.FetchProfileView = exports.RoutedProfileView = void 0;
+const React = __importStar(require("react"));
+const react_router_dom_1 = require("react-router-dom");
+const layouts_1 = require("./layouts");
+let logRouted = (...args) => console.log('RoutedProfileView |', ...args);
+let logFetch = (...args) => console.log('FetchProfileView |', ...args);
+let logDisplay = (...args) => console.log('ProfileView |', ...args);
+// url params:
+// :workspace
+// :author
+exports.RoutedProfileView = (props) => {
+    let { workspace, author } = react_router_dom_1.useParams();
+    workspace = '//' + workspace;
+    logRouted('render', workspace, author);
+    return React.createElement(FetchProfileView, Object.assign({}, props, { workspace: workspace, author: author }));
+};
+class FetchProfileView extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    componentDidMount() {
+        logDisplay('subscribing to storage onChange');
+        this.props.storage.onChange.subscribe(() => {
+            logDisplay('onChange =============');
+            this.forceUpdate();
+        });
+    }
+    render() {
+        // do all the data loading here.  WikiPageList is just a display component. 
+        logDisplay('render()');
+        // HACK: for now, limit to shared pages
+        let profile = this.props.aboutLayer.getAuthorProfile(this.props.author);
+        return React.createElement(ProfileView, { workspace: this.props.workspace, authorProfile: profile, aboutLayer: this.props.aboutLayer });
+    }
+}
+exports.FetchProfileView = FetchProfileView;
+class ProfileView extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    _renameAuthor(oldName) {
+        let newName = window.prompt('Rename author', oldName);
+        if (!newName) {
+            return;
+        }
+        this.props.aboutLayer.setMyAuthorLongname(newName);
+    }
+    render() {
+        if (this.props.authorProfile === null) {
+            return React.createElement("h3", null, "Unknown author");
+        }
+        let profile = this.props.authorProfile;
+        return React.createElement(layouts_1.Stack, null,
+            React.createElement("button", { type: "button", style: { float: 'right', marginLeft: 10 }, onClick: () => this._renameAuthor(profile.longname || '') }, "Change name"),
+            React.createElement("h3", null,
+                "\uD83D\uDC31 ",
+                profile.longname),
+            React.createElement("div", null,
+                React.createElement("code", { className: "cAuthor" },
+                    React.createElement("b", null, '@' + profile.shortname)),
+                React.createElement("code", { className: "small" }, profile.address)));
+    }
+}
+exports.ProfileView = ProfileView;
+
+},{"./layouts":281,"react":225,"react-router-dom":219}],285:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70985,7 +71073,7 @@ exports.StoryFrame = (props) => React.createElement("div", { style: {
             minHeight: props.minHeight,
         } }, props.children));
 
-},{"react":225}],285:[function(require,module,exports){
+},{"react":225}],286:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -71026,7 +71114,7 @@ class SyncButton extends React.Component {
 }
 exports.SyncButton = SyncButton;
 
-},{"react":225}],286:[function(require,module,exports){
+},{"react":225}],287:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -71089,7 +71177,7 @@ exports.WikiPageList = (props) => React.createElement(layouts_1.Stack, null,
     props.pageInfos.map((pageInfo) => React.createElement("p", { key: pageInfo.path },
         React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.wiki(props.workspace, pageInfo.path) }, pageInfo.title))));
 
-},{"../urls":279,"./layouts":281,"react":225,"react-router-dom":219}],287:[function(require,module,exports){
+},{"../urls":279,"./layouts":281,"react":225,"react-router-dom":219}],288:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;

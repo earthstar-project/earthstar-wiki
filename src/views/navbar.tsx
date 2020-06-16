@@ -49,7 +49,7 @@ export class WikiNavbar extends React.Component<WikiNavbarProps, WikiNavbarState
         return <Box style={{background: 'var(--cAccentDark)'}}>
             <Cluster>
                 <Link to={Urls.allPages(this.props.workspace)} style={sNavbarLink}><b>📂 {workspaceText}</b></Link>
-                <Link to={Urls.author(this.props.workspace, this.props.author)} style={sNavbarLink}>🐱 {authorText}</Link>
+                <Link to={Urls.authorProfile(this.props.workspace, this.props.author)} style={sNavbarLink}>🐱 {authorText}</Link>
                 <Link to={Urls.allPages(this.props.workspace)} style={sNavbarLink}>📄 Pages</Link>
                 <Link to={Urls.authorList(this.props.workspace)} style={sNavbarLink}>👭 People</Link>
                 <Link to={Urls.search(this.props.workspace)} style={sNavbarLink}>🔍 Search</Link>

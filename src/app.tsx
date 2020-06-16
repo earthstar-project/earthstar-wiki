@@ -43,6 +43,7 @@ import {
     LoginCreateOrLoginUser,
 } from './views/loginFlow';
 import { EsDebugView } from './views/esDebugView';
+import { ProfileView, RoutedProfileView } from './views/profileView';
 
 //================================================================================
 // SET UP DEMO CONTENT
@@ -134,8 +135,9 @@ const RouterView : React.FunctionComponent<BasicProps> = (props) =>
                 <h3>TODO: author list</h3>
             </Route>
             <Route exact path={Urls.authorTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
-                <h3>TODO: one author's page</h3>
+                <MainLayout {...props}>
+                    <RoutedProfileView {...props} />
+                </MainLayout>
             </Route>
             <Route exact path={Urls.wikiTemplate}>
                 <MainLayout {...props}>
