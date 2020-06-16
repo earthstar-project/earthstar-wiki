@@ -71274,15 +71274,8 @@ class WikiPageView extends React.Component {
             editedText: '',
         });
     }
-    _renameAuthor(oldName) {
-        let newName = window.prompt('Rename author', oldName);
-        if (!newName) {
-            return;
-        }
-        this.props.aboutLayer.setMyAuthorLongname(newName);
-    }
     render() {
-        var _a, _b;
+        var _a, _b, _c;
         logDisplayPage('render()');
         if (this.props.pageDetail === null) {
             return React.createElement("i", null, "No such page.");
@@ -71292,7 +71285,6 @@ class WikiPageView extends React.Component {
         let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime = new Date(page.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
-        let wasLastEditedByMe = wiki.keypair.address === page.lastAuthor;
         let lastAuthorName = ((_a = this.props.lastAuthorProfile) === null || _a === void 0 ? void 0 : _a.longname) || (((_b = this.props.lastAuthorProfile) === null || _b === void 0 ? void 0 : _b.address.slice(0, 10)) + '...');
         return React.createElement("div", null,
             isEditing
@@ -71310,13 +71302,8 @@ class WikiPageView extends React.Component {
                     "updated ",
                     editedTime,
                     React.createElement("br", null),
-                    wasLastEditedByMe
-                        ? React.createElement("span", null,
-                            "by ",
-                            React.createElement("a", { href: "#", onClick: () => this._renameAuthor(lastAuthorName) }, lastAuthorName))
-                        : React.createElement("span", null,
-                            "by ",
-                            lastAuthorName))),
+                    "by ",
+                    React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorProfile(workspace, ((_c = this.props.lastAuthorProfile) === null || _c === void 0 ? void 0 : _c.address) || '?') }, lastAuthorName))),
             isEditing
                 ? React.createElement("textarea", { rows: 7, value: this.state.editedText, style: { width: '100%' }, onChange: (e) => this.setState({ editedText: e.target.value }) })
                 : React.createElement("p", { style: { whiteSpace: 'pre-wrap' } }, page.text));

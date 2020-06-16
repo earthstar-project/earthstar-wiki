@@ -120,11 +120,6 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
             editedText: '',
         });
     }
-    _renameAuthor(oldName : string) {
-        let newName = window.prompt('Rename author', oldName);
-        if (!newName) { return; }
-        this.props.aboutLayer.setMyAuthorLongname(newName);
-    }
     render() {
         logDisplayPage('render()');
         if (this.props.pageDetail === null) {
@@ -135,7 +130,6 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
         let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime : string = new Date(page.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
-        let wasLastEditedByMe = wiki.keypair.address === page.lastAuthor;
         let lastAuthorName : string = this.props.lastAuthorProfile?.longname || (this.props.lastAuthorProfile?.address.slice(0, 10) + '...');
         return <div>
             {isEditing
@@ -156,10 +150,7 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
             </h2>
             <p className="small"><i>
                 updated {editedTime}<br/>
-                {wasLastEditedByMe
-                    ? <span>by <a href="#" onClick={() => this._renameAuthor(lastAuthorName)}>{lastAuthorName}</a></span>
-                    : <span>by {lastAuthorName}</span>
-                }
+                by <Link to={Urls.authorProfile(workspace, this.props.lastAuthorProfile?.address || '?')}>{lastAuthorName}</Link>
             </i></p>
             {isEditing
                 ? <textarea rows={7}
