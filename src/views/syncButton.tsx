@@ -11,12 +11,17 @@ interface SyncButtonProps {
 interface SyncButtonState {
 }
 export class SyncButton extends React.Component<SyncButtonProps, SyncButtonState> {
+    unsub : () => void;
     constructor(props : SyncButtonProps) {
         super(props);
         this.state = {};
+        this.unsub = () => {};
     }
     componentDidMount() {
-        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
+        this.unsub = this.props.syncer.onChange.subscribe(() => this.forceUpdate());
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         log('render()');

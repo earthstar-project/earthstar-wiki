@@ -52,15 +52,20 @@ export const RoutedProfileView : React.FunctionComponent<BasicProps> = (props) =
     />;
 }
 export class FetchProfileView extends React.Component<ExtraProps> {
+    unsub : () => void;
     constructor(props : ExtraProps) {
         super(props);
+        this.unsub = () => {};
     }
     componentDidMount() {
         logDisplay('subscribing to storage onChange');
-        this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.storage.onChange.subscribe(() => {
             logDisplay('onChange =============');
             this.forceUpdate()
         });
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         // do all the data loading here.  WikiPageList is just a display component. 

@@ -51,15 +51,20 @@ export const RoutedWikiPageView : React.FunctionComponent<BasicProps> = (props) 
         />;
 }
 export class FetchWikiPageView extends React.Component<ExtraProps> {
+    unsub : () => void;
     constructor(props : ExtraProps) {
         super(props);
+        this.unsub = () => {};
     }
     componentDidMount() {
         logDisplayPage('subscribing to storage onChange');
-        this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.storage.onChange.subscribe(() => {
             logDisplayPage('onChange =============');
             this.forceUpdate()
         });
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         // do all the data loading here.  WikiPageView is just a display component. 

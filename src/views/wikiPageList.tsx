@@ -39,15 +39,20 @@ export const RoutedWikiPageList : React.FunctionComponent<BasicProps> = (props) 
     return <FetchWikiPageList {...props} />;
 }
 export class FetchWikiPageList extends React.Component<BasicProps> {
+    unsub : () => void;
     constructor(props : BasicProps) {
         super(props);
+        this.unsub = () => {};
     }
     componentDidMount() {
         logDisplayPageList('subscribing to storage onChange');
-        this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.storage.onChange.subscribe(() => {
             logDisplayPageList('onChange =============');
             this.forceUpdate()
         });
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         // do all the data loading here.  WikiPageList is just a display component. 

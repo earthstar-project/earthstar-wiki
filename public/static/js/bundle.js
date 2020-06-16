@@ -70592,20 +70592,26 @@ class EsDebugView extends React.Component {
             newPath: '',
             newValue: '',
         };
+        this.unsubStorage = () => { };
+        this.unsubSyncer = () => { };
     }
     componentDidMount() {
         // update on changes to the earthstar contents...
         log('subscribing to storage onChange');
-        this.props.storage.onChange.subscribe(() => {
+        this.unsubStorage = this.props.storage.onChange.subscribe(() => {
             log('onChange =============');
             this.forceUpdate();
         });
         // and the syncer details
         log('subscribing to syncer onChange');
-        this.props.syncer.onChange.subscribe(() => {
+        this.unsubSyncer = this.props.syncer.onChange.subscribe(() => {
             log('onChange (syncer) >>>>>>>>');
             this.forceUpdate();
         });
+    }
+    componentWillUnmount() {
+        this.unsubStorage();
+        this.unsubSyncer();
     }
     _setPath() {
         if (this.state.newPath === '') {
@@ -70980,13 +70986,17 @@ exports.RoutedProfileView = (props) => {
 class FetchProfileView extends React.Component {
     constructor(props) {
         super(props);
+        this.unsub = () => { };
     }
     componentDidMount() {
         logDisplay('subscribing to storage onChange');
-        this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.storage.onChange.subscribe(() => {
             logDisplay('onChange =============');
             this.forceUpdate();
         });
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         // do all the data loading here.  WikiPageList is just a display component. 
@@ -71111,9 +71121,13 @@ class SyncButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
+        this.unsub = () => { };
     }
     componentDidMount() {
-        this.props.syncer.onChange.subscribe(() => this.forceUpdate());
+        this.unsub = this.props.syncer.onChange.subscribe(() => this.forceUpdate());
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         log('render()');
@@ -71165,13 +71179,17 @@ exports.RoutedWikiPageList = (props) => {
 class FetchWikiPageList extends React.Component {
     constructor(props) {
         super(props);
+        this.unsub = () => { };
     }
     componentDidMount() {
         logDisplayPageList('subscribing to storage onChange');
-        this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.storage.onChange.subscribe(() => {
             logDisplayPageList('onChange =============');
             this.forceUpdate();
         });
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         // do all the data loading here.  WikiPageList is just a display component. 
@@ -71258,13 +71276,17 @@ exports.RoutedWikiPageView = (props) => {
 class FetchWikiPageView extends React.Component {
     constructor(props) {
         super(props);
+        this.unsub = () => { };
     }
     componentDidMount() {
         logDisplayPage('subscribing to storage onChange');
-        this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.storage.onChange.subscribe(() => {
             logDisplayPage('onChange =============');
             this.forceUpdate();
         });
+    }
+    componentWillUnmount() {
+        this.unsub();
     }
     render() {
         // do all the data loading here.  WikiPageView is just a display component. 
