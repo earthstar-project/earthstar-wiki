@@ -115,17 +115,17 @@ const RouterView : React.FunctionComponent<BasicProps> = (props) =>
     <Router>
         {logRouter('render()')}
         <Switch>
-            <Route exact path='/navbar'>
-                {/* hack */}
-                <MainLayout {...props} />
+            <Route exact path='/'>
+                {/* HACK: for now, start on the page list */}
+                <MainLayout {...props}>
+                    <RoutedWikiPageList {...props} />
+                </MainLayout>
             </Route>
+
             <Route path='/storybook'>
                 <StorybookRouterView {...props}/>
             </Route>
 
-            <Route exact path='/'>
-                <LoginFlow />
-            </Route>
             <Route exact path={Urls.loginTemplate}>
                 <LoginFlow />
             </Route>
