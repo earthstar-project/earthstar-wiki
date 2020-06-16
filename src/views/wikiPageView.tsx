@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+    Link,
     useParams,
 } from "react-router-dom";
 import {
@@ -13,6 +14,7 @@ import {
     WikiPageDetail,
     WorkspaceAddress,
 } from 'earthstar';
+import { Urls } from '../urls';
 
 let logRoutedPage = (...args : any[]) => console.log('RoutedWikiPageView |', ...args);
 let logFetchPage = (...args : any[]) => console.log('FetchWikiPageView |', ...args);
@@ -129,6 +131,7 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
             return <i>No such page.</i>;
         }
         let wiki = this.props.wikiLayer;
+        let workspace = wiki.storage.workspace;
         let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime : string = new Date(page.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
@@ -142,12 +145,12 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
                 </div>
                 : <button type="button" style={{float: 'right'}} onClick={() => this._startEditing()}>Edit</button>
             }
-            <p className="small">
+            <p className="small"><i>
                 {page.owner === 'shared'
-                    ? 'shared wiki'
+                    ? <Link to={Urls.allPages(workspace)}>shared wiki</Link>
                     : `${page.owner}'s wiki`
                 }
-            </p>
+            </i></p>
             <h2 style={{marginTop: 0, fontFamily: '"Georgia", "Times", serif'}}>
                 {page.title}
             </h2>

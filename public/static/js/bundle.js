@@ -71114,6 +71114,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WikiPageView = exports.FetchWikiPageView = exports.RoutedWikiPageView = void 0;
 const React = __importStar(require("react"));
 const react_router_dom_1 = require("react-router-dom");
+const urls_1 = require("../urls");
 let logRoutedPage = (...args) => console.log('RoutedWikiPageView |', ...args);
 let logFetchPage = (...args) => console.log('FetchWikiPageView |', ...args);
 let logDisplayPage = (...args) => console.log('WikiPageView |', ...args);
@@ -71199,6 +71200,7 @@ class WikiPageView extends React.Component {
             return React.createElement("i", null, "No such page.");
         }
         let wiki = this.props.wikiLayer;
+        let workspace = wiki.storage.workspace;
         let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime = new Date(page.timestamp / 1000).toString().split(' ').slice(0, 5).join(' ');
@@ -71210,9 +71212,10 @@ class WikiPageView extends React.Component {
                     React.createElement("button", { type: "button", style: { float: 'right', marginLeft: 10 }, onClick: () => this._save() }, "Save"),
                     React.createElement("button", { type: "button", className: "secondary", style: { float: 'right' }, onClick: () => this._cancelEditing() }, "Cancel"))
                 : React.createElement("button", { type: "button", style: { float: 'right' }, onClick: () => this._startEditing() }, "Edit"),
-            React.createElement("p", { className: "small" }, page.owner === 'shared'
-                ? 'shared wiki'
-                : `${page.owner}'s wiki`),
+            React.createElement("p", { className: "small" },
+                React.createElement("i", null, page.owner === 'shared'
+                    ? React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.allPages(workspace) }, "shared wiki")
+                    : `${page.owner}'s wiki`)),
             React.createElement("h2", { style: { marginTop: 0, fontFamily: '"Georgia", "Times", serif' } }, page.title),
             React.createElement("p", { className: "small" },
                 React.createElement("i", null,
@@ -71233,4 +71236,4 @@ class WikiPageView extends React.Component {
 }
 exports.WikiPageView = WikiPageView;
 
-},{"react":225,"react-router-dom":219}]},{},[278]);
+},{"../urls":279,"react":225,"react-router-dom":219}]},{},[278]);
