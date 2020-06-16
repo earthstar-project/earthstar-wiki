@@ -70987,7 +70987,7 @@ class FetchProfileView extends React.Component {
         logDisplay('render()');
         // HACK: for now, limit to shared pages
         let profile = this.props.aboutLayer.getAuthorProfile(this.props.author);
-        return React.createElement(ProfileView, { workspace: this.props.workspace, authorProfile: profile, aboutLayer: this.props.aboutLayer });
+        return React.createElement(ProfileView, { workspace: this.props.workspace, keypair: this.props.keypair, authorProfile: profile, aboutLayer: this.props.aboutLayer });
     }
 }
 exports.FetchProfileView = FetchProfileView;
@@ -71007,11 +71007,14 @@ class ProfileView extends React.Component {
             return React.createElement("h3", null, "Unknown author");
         }
         let profile = this.props.authorProfile;
+        let isMe = this.props.keypair.address === profile.address;
         return React.createElement(layouts_1.Stack, null,
-            React.createElement("button", { type: "button", style: { float: 'right', marginLeft: 10 }, onClick: () => this._renameAuthor(profile.longname || '') }, "Change name"),
+            isMe
+                ? React.createElement("button", { type: "button", style: { float: 'right', marginLeft: 10 }, onClick: () => this._renameAuthor(profile.longname || '') }, "Change name")
+                : null,
             React.createElement("h3", null,
                 "\uD83D\uDC31 ",
-                profile.longname),
+                profile.longname || '@' + profile.shortname),
             React.createElement("div", null,
                 React.createElement("code", { className: "cAuthor" },
                     React.createElement("b", null, '@' + profile.shortname)),

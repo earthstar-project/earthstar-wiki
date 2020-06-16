@@ -69,6 +69,7 @@ export class FetchProfileView extends React.Component<ExtraProps> {
         let profile = this.props.aboutLayer.getAuthorProfile(this.props.author);
         return <ProfileView
             workspace={this.props.workspace}
+            keypair={this.props.keypair}
             authorProfile={profile}
             aboutLayer={this.props.aboutLayer}
             />;
@@ -78,6 +79,7 @@ export class FetchProfileView extends React.Component<ExtraProps> {
 
 interface ProfileViewProps {
     workspace : WorkspaceAddress,
+    keypair : AuthorKeypair,
     authorProfile : AuthorProfile | null,
     aboutLayer : AboutLayer,
 }
@@ -95,14 +97,18 @@ export class ProfileView extends React.Component<ProfileViewProps> {
             return <h3>Unknown author</h3>;
         }
         let profile : AuthorProfile = this.props.authorProfile;
+        let isMe = this.props.keypair.address === profile.address;
         return <Stack>
-            <button type="button"
-                style={{float: 'right', marginLeft: 10}}
-                onClick={() => this._renameAuthor(profile.longname || '')}
-                >
-                Change name
-            </button>
-            <h3>🐱 {profile.longname}</h3>
+            {isMe
+                ? <button type="button"
+                    style={{float: 'right', marginLeft: 10}}
+                    onClick={() => this._renameAuthor(profile.longname || '')}
+                    >
+                    Change name
+                </button>
+                : null
+            }
+            <h3>🐱 {profile.longname || '@' + profile.shortname}</h3>
             <div>
                 <code className="cAuthor"><b>{'@' + profile.shortname}</b></code>
                 <code className="small">{profile.address}</code>
