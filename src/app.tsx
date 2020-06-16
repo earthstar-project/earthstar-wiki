@@ -117,7 +117,7 @@ const RouterView : React.FunctionComponent<BasicProps> = (props) =>
         <Switch>
             <Route exact path='/navbar'>
                 {/* hack */}
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
+                <MainLayout {...props} />
             </Route>
             <Route path='/storybook'>
                 <StorybookRouterView {...props}/>
@@ -131,8 +131,9 @@ const RouterView : React.FunctionComponent<BasicProps> = (props) =>
             </Route>
 
             <Route exact path={Urls.authorListTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
-                <h3>TODO: author list</h3>
+                <MainLayout {...props}>
+                    <h3>TODO: list of all authors</h3>
+                </MainLayout>
             </Route>
             <Route exact path={Urls.authorTemplate}>
                 <MainLayout {...props}>
@@ -150,12 +151,13 @@ const RouterView : React.FunctionComponent<BasicProps> = (props) =>
                 </MainLayout>
             </Route>
             <Route exact path={Urls.searchTemplate}>
-                <WikiNavbar author={props.keypair.address} workspace={props.storage.workspace} syncer={props.syncer} />
-                <h3>TODO: search</h3>
+                <MainLayout {...props}>
+                    <h3>TODO: search</h3>
+                </MainLayout>
             </Route>
 
             <Route path='*'>
-                <h3>404 from root</h3>
+                <h3>404</h3>
             </Route>
         </Switch>
     </Router>

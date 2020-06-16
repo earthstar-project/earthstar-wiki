@@ -70413,7 +70413,7 @@ const RouterView = (props) => React.createElement(react_router_dom_1.BrowserRout
     logRouter('render()'),
     React.createElement(react_router_dom_1.Switch, null,
         React.createElement(react_router_dom_1.Route, { exact: true, path: '/navbar' },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer })),
+            React.createElement(MainLayout, Object.assign({}, props))),
         React.createElement(react_router_dom_1.Route, { path: '/storybook' },
             React.createElement(StorybookRouterView, Object.assign({}, props))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: '/' },
@@ -70421,8 +70421,8 @@ const RouterView = (props) => React.createElement(react_router_dom_1.BrowserRout
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.loginTemplate },
             React.createElement(loginFlow_1.LoginFlow, null)),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorListTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
-            React.createElement("h3", null, "TODO: author list")),
+            React.createElement(MainLayout, Object.assign({}, props),
+                React.createElement("h3", null, "TODO: list of all authors"))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorTemplate },
             React.createElement(MainLayout, Object.assign({}, props),
                 React.createElement(profileView_1.RoutedProfileView, Object.assign({}, props)))),
@@ -70433,10 +70433,10 @@ const RouterView = (props) => React.createElement(react_router_dom_1.BrowserRout
             React.createElement(MainLayout, Object.assign({}, props),
                 React.createElement(wikiPageList_1.RoutedWikiPageList, Object.assign({}, props)))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.searchTemplate },
-            React.createElement(navbar_1.WikiNavbar, { author: props.keypair.address, workspace: props.storage.workspace, syncer: props.syncer }),
-            React.createElement("h3", null, "TODO: search")),
+            React.createElement(MainLayout, Object.assign({}, props),
+                React.createElement("h3", null, "TODO: search"))),
         React.createElement(react_router_dom_1.Route, { path: '*' },
-            React.createElement("h3", null, "404 from root"))));
+            React.createElement("h3", null, "404"))));
 //================================================================================
 let logStorybook = (...args) => console.log('Storybook |', ...args);
 const StorybookRouterView = (props) => {
