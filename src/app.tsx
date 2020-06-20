@@ -33,6 +33,7 @@ import { Urls } from './urls';
 
 import { RoutedWikiPageView, WikiPageView } from './views/wikiPageView';
 import { RoutedWikiPageList, WikiPageList } from './views/wikiPageList';
+import { FetchListOfAuthorsView, ListOfAuthorsView } from './views/listOfAuthorsView';
 import { WikiNavbar } from './views/navbar';
 import {
     LoginFlow,
@@ -132,7 +133,7 @@ const RouterView : React.FunctionComponent<BasicProps> = (props) =>
 
             <Route exact path={Urls.authorListTemplate}>
                 <MainLayout {...props}>
-                    <h3>TODO: list of all authors</h3>
+                    <FetchListOfAuthorsView {...props} />
                 </MainLayout>
             </Route>
             <Route exact path={Urls.authorTemplate}>

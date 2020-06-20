@@ -17914,14 +17914,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StorageMemory = exports._historySortFn = void 0;
 const emitter_1 = require("../util/emitter");
 const addresses_1 = require("../util/addresses");
-//let log = console.log;
+let log = console.log;
 //let logWarning = console.log;
-let log = (...args) => void {}; // turn off logging for now
+//let log = (...args : any[]) => void {};  // turn off logging for now
 let logWarning = (...args) => void {}; // turn off logging for now
 exports._historySortFn = (a, b) => {
-    // Sorts docs within one key from multiple authors,
-    // so that the winning doc is first.
-    // timestamp DESC (newest first), signature DESC (to break timestamp ties)
+    // When used within one key, puts the winning revision first.
+    // path ASC (abcd), then timestamp DESC (newest first), then signature DESC (to break timestamp ties)
+    if (a.path > b.path) {
+        return 1;
+    }
+    if (a.path < b.path) {
+        return -1;
+    }
     if (a.timestamp < b.timestamp) {
         return 1;
     }
@@ -17973,10 +17978,7 @@ class StorageMemory {
         }
     }
     paths(query) {
-        // return sorted keys that match the query
-        if (query === undefined) {
-            query = {};
-        }
+        query = query || {};
         // if asking for a single key, check if it exists and return it by itself
         if (query.path !== undefined) {
             if (this._docs[query.path] !== undefined) {
@@ -17986,52 +17988,68 @@ class StorageMemory {
                 return [];
             }
         }
-        let keys = Object.keys(this._docs);
-        keys.sort();
-        // filter the keys in various ways
-        if (query.lowPath !== undefined && query.highPath !== undefined) {
-            keys = keys.filter(k => (query === null || query === void 0 ? void 0 : query.lowPath) <= k && k < (query === null || query === void 0 ? void 0 : query.highPath));
+        // don't apply the limit in documents(), do it here
+        // after removing duplicates
+        let docs = this.documents(Object.assign(Object.assign({}, query), { limit: undefined }));
+        // get unique paths up to limit
+        let paths = {};
+        let ii = 0;
+        for (let doc of docs) {
+            paths[doc.path] = true;
+            ii += 1;
+            if (query.limit !== undefined && ii >= query.limit) {
+                break;
+            }
         }
-        if (query.pathPrefix !== undefined) {
-            keys = keys.filter(k => k.startsWith(query === null || query === void 0 ? void 0 : query.pathPrefix));
-        }
-        if (query.limit) {
-            keys = keys.slice(0, query.limit);
-        }
-        // opts.includeHistory has no effect for keys()
-        return keys;
+        return Object.keys(paths);
     }
     documents(query) {
-        // return docs that match the query, sorted by keys.
-        // TODO: note that opts.limit applies to the number of keys,
-        //   not the number of unique history docs
-        //log('------------------------------------------ DOCS');
-        //log('query', JSON.stringify(query));
-        let includeHistory = (query === null || query === void 0 ? void 0 : query.includeHistory) === true; // default to false
-        let keys = this.paths(query);
-        //log('keys', keys);
+        // return docs that match the query, sorted by path and timestamp
+        query = query || {};
         let docs = [];
-        for (let key of keys) {
-            //log('key', key);
-            let keyHistoryDocs = Object.values(this._docs[key]);
-            // sort by timestamp etc
-            //log(JSON.stringify(keyHistoryDocs, null, 4));
-            //log('sorting newest first...');
-            keyHistoryDocs.sort(exports._historySortFn);
-            //log(JSON.stringify(keyHistoryDocs, null, 4));
-            if (includeHistory) {
-                docs = docs.concat(keyHistoryDocs);
+        for (let key of Object.keys(this._docs)) {
+            // ignore unwanted keys
+            if (query.lowPath !== undefined && key < query.lowPath) {
+                continue;
             }
-            else {
-                docs.push(keyHistoryDocs[0]);
+            if (query.highPath !== undefined && key >= query.highPath) {
+                continue;
             }
+            if (query.pathPrefix !== undefined && !key.startsWith(query.pathPrefix)) {
+                continue;
+            }
+            // get all history docs for this key
+            let authorToDoc = this._docs[key];
+            let keyDocs = Object.values(authorToDoc);
+            // is the desired participatingAuthor anywhere in this set of docs?
+            // if not, discard it
+            if (query.participatingAuthor !== undefined) {
+                if (authorToDoc[query.participatingAuthor] === undefined) {
+                    continue;
+                }
+            }
+            // sort newest first within this key
+            keyDocs.sort(exports._historySortFn);
+            // discard history?
+            if (!query.includeHistory) {
+                keyDocs = keyDocs.slice(0, 1);
+            }
+            docs = docs.concat(keyDocs);
+        }
+        // apply author filters
+        if (query.versionsByAuthor !== undefined) {
+            docs = docs.filter(doc => doc.author === (query === null || query === void 0 ? void 0 : query.versionsByAuthor));
+        }
+        // sort
+        docs.sort(exports._historySortFn);
+        // limit
+        if (query.limit) {
+            docs = docs.slice(0, query.limit);
         }
         return docs;
     }
     values(query) {
-        // get docs that match the query, sort by key, and return their values.
-        // TODO: note that opts.limit applies to the number of keys,
-        //   not the number of unique history docs
+        // same as docs, but we just return the values.
         return this.documents(query).map(doc => doc.value);
     }
     authors() {
@@ -70370,6 +70388,7 @@ const storybook_1 = require("./views/storybook");
 const urls_1 = require("./urls");
 const wikiPageView_1 = require("./views/wikiPageView");
 const wikiPageList_1 = require("./views/wikiPageList");
+const listOfAuthorsView_1 = require("./views/listOfAuthorsView");
 const navbar_1 = require("./views/navbar");
 const loginFlow_1 = require("./views/loginFlow");
 const esDebugView_1 = require("./views/esDebugView");
@@ -70427,7 +70446,7 @@ const RouterView = (props) => React.createElement(react_router_dom_1.BrowserRout
             React.createElement(loginFlow_1.LoginFlow, null)),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorListTemplate },
             React.createElement(MainLayout, Object.assign({}, props),
-                React.createElement("h3", null, "TODO: list of all authors"))),
+                React.createElement(listOfAuthorsView_1.FetchListOfAuthorsView, Object.assign({}, props)))),
         React.createElement(react_router_dom_1.Route, { exact: true, path: urls_1.Urls.authorTemplate },
             React.createElement(MainLayout, Object.assign({}, props),
                 React.createElement(profileView_1.RoutedProfileView, Object.assign({}, props)))),
@@ -70518,7 +70537,7 @@ const StorybookRouterView = (props) => {
 let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
 ReactDOM.render(React.createElement(RouterView, { storage: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
-},{"./urls":282,"./views/esDebugView":283,"./views/layouts":284,"./views/loginFlow":285,"./views/navbar":286,"./views/profileView":287,"./views/storybook":288,"./views/wikiPageList":290,"./views/wikiPageView":291,"earthstar":96,"react":228,"react-dom":210,"react-router-dom":216}],282:[function(require,module,exports){
+},{"./urls":282,"./views/esDebugView":283,"./views/layouts":284,"./views/listOfAuthorsView":285,"./views/loginFlow":286,"./views/navbar":287,"./views/profileView":288,"./views/storybook":289,"./views/wikiPageList":291,"./views/wikiPageView":292,"earthstar":96,"react":228,"react-dom":210,"react-router-dom":216}],282:[function(require,module,exports){
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -70694,7 +70713,7 @@ class EsDebugView extends React.Component {
 }
 exports.EsDebugView = EsDebugView;
 
-},{"./layouts":284,"./syncButton":289,"react":228}],284:[function(require,module,exports){
+},{"./layouts":284,"./syncButton":290,"react":228}],284:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70737,6 +70756,78 @@ exports.FlexRow = (props) => React.createElement("div", { className: "flexRow", 
 exports.FlexItem = (props) => React.createElement("div", { className: "flexItem", style: Object.assign({ flexGrow: props.grow, flexShrink: props.shrink, flexBasis: props.basis }, props.style) }, props.children);
 
 },{"react":228}],285:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ListOfAuthorsView = exports.FetchListOfAuthorsView = void 0;
+const React = __importStar(require("react"));
+const layouts_1 = require("./layouts");
+const urls_1 = require("../urls");
+let logDisplay = (...args) => console.log('ListOfAuthorsView |', ...args);
+class FetchListOfAuthorsView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.unsub = () => { };
+    }
+    componentDidMount() {
+        logDisplay('subscribing to storage onChange');
+        this.unsub = this.props.storage.onChange.subscribe(() => {
+            logDisplay('onChange =============');
+            this.forceUpdate();
+        });
+    }
+    componentWillUnmount() {
+        this.unsub();
+    }
+    render() {
+        // do all the data loading here.  WikiPageList is just a display component. 
+        logDisplay('render()');
+        // HACK: for now, limit to shared pages
+        let authors = this.props.storage.authors();
+        let profiles = authors
+            .map(author => this.props.aboutLayer.getAuthorProfile(author))
+            .filter(profile => profile !== null);
+        return React.createElement(ListOfAuthorsView, { workspace: this.props.storage.workspace, profiles: profiles });
+    }
+}
+exports.FetchListOfAuthorsView = FetchListOfAuthorsView;
+class ListOfAuthorsView extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return React.createElement(layouts_1.Stack, null, this.props.profiles.map(profile => React.createElement("div", { key: profile.address },
+            React.createElement("a", { href: urls_1.Urls.authorProfile(this.props.workspace, profile.address) },
+                React.createElement("h3", null,
+                    "\uD83D\uDC31 ",
+                    profile.longname || '@' + profile.shortname),
+                React.createElement("div", null,
+                    React.createElement("code", { className: "cAuthor" },
+                        React.createElement("b", null, '@' + profile.shortname)),
+                    React.createElement("code", { className: "small" }, profile.address))))));
+    }
+}
+exports.ListOfAuthorsView = ListOfAuthorsView;
+
+},{"../urls":282,"./layouts":284,"react":228}],286:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70882,7 +70973,7 @@ exports.LoginCreateUser = (props) => React.createElement(layouts_1.Stack, null,
     React.createElement("div", null,
         React.createElement("button", { type: "button", disabled: true }, "Create user")));
 
-},{"./layouts":284,"react":228}],286:[function(require,module,exports){
+},{"./layouts":284,"react":228}],287:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -70944,7 +71035,7 @@ class WikiNavbar extends React.Component {
 }
 exports.WikiNavbar = WikiNavbar;
 
-},{"../urls":282,"./layouts":284,"./syncButton":289,"earthstar":96,"react":228,"react-router-dom":216}],287:[function(require,module,exports){
+},{"../urls":282,"./layouts":284,"./syncButton":290,"earthstar":96,"react":228,"react-router-dom":216}],288:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -71038,7 +71129,7 @@ class ProfileView extends React.Component {
 }
 exports.ProfileView = ProfileView;
 
-},{"./layouts":284,"react":228,"react-router-dom":216}],288:[function(require,module,exports){
+},{"./layouts":284,"react":228,"react-router-dom":216}],289:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -71091,7 +71182,7 @@ exports.StoryFrame = (props) => React.createElement("div", { style: {
             minHeight: props.minHeight,
         } }, props.children));
 
-},{"react":228}],289:[function(require,module,exports){
+},{"react":228}],290:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -71136,7 +71227,7 @@ class SyncButton extends React.Component {
 }
 exports.SyncButton = SyncButton;
 
-},{"react":228}],290:[function(require,module,exports){
+},{"react":228}],291:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -71231,7 +71322,7 @@ class WikiPageList extends React.Component {
 }
 exports.WikiPageList = WikiPageList;
 
-},{"../urls":282,"./layouts":284,"earthstar":96,"react":228,"react-router-dom":216}],291:[function(require,module,exports){
+},{"../urls":282,"./layouts":284,"earthstar":96,"react":228,"react-router-dom":216}],292:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
