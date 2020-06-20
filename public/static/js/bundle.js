@@ -70779,6 +70779,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListOfAuthorsView = exports.FetchListOfAuthorsView = void 0;
 const React = __importStar(require("react"));
+const react_router_dom_1 = require("react-router-dom");
 const layouts_1 = require("./layouts");
 const urls_1 = require("../urls");
 let logDisplay = (...args) => console.log('ListOfAuthorsView |', ...args);
@@ -70815,7 +70816,7 @@ class ListOfAuthorsView extends React.Component {
     }
     render() {
         return React.createElement(layouts_1.Stack, null, this.props.profiles.map(profile => React.createElement("div", { key: profile.address },
-            React.createElement("a", { href: urls_1.Urls.authorProfile(this.props.workspace, profile.address) },
+            React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorProfile(this.props.workspace, profile.address) },
                 React.createElement("h3", null,
                     "\uD83D\uDC31 ",
                     profile.longname || '@' + profile.shortname),
@@ -70827,7 +70828,7 @@ class ListOfAuthorsView extends React.Component {
 }
 exports.ListOfAuthorsView = ListOfAuthorsView;
 
-},{"../urls":282,"./layouts":284,"react":228}],286:[function(require,module,exports){
+},{"../urls":282,"./layouts":284,"react":228,"react-router-dom":216}],286:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -71061,6 +71062,7 @@ exports.ProfileView = exports.FetchProfileView = exports.RoutedProfileView = voi
 const React = __importStar(require("react"));
 const react_router_dom_1 = require("react-router-dom");
 const layouts_1 = require("./layouts");
+const urls_1 = require("../urls");
 let logRouted = (...args) => console.log('RoutedProfileView |', ...args);
 let logFetch = (...args) => console.log('FetchProfileView |', ...args);
 let logDisplay = (...args) => console.log('ProfileView |', ...args);
@@ -71093,7 +71095,12 @@ class FetchProfileView extends React.Component {
         logDisplay('render()');
         // HACK: for now, limit to shared pages
         let profile = this.props.aboutLayer.getAuthorProfile(this.props.author);
-        return React.createElement(ProfileView, { workspace: this.props.workspace, keypair: this.props.keypair, authorProfile: profile, aboutLayer: this.props.aboutLayer });
+        // find docs this author has ever contributed to, but only return latest version (maybe not by this author)
+        let paths = this.props.storage.paths({ participatingAuthor: this.props.author, includeHistory: false, pathPrefix: '/wiki/' });
+        let pageDetails = paths
+            .map(path => this.props.wikiLayer.getPageDetails(path))
+            .filter(pd => pd !== null);
+        return React.createElement(ProfileView, { workspace: this.props.workspace, keypair: this.props.keypair, authorProfile: profile, aboutLayer: this.props.aboutLayer, pageDetails: pageDetails });
     }
 }
 exports.FetchProfileView = FetchProfileView;
@@ -71124,12 +71131,16 @@ class ProfileView extends React.Component {
             React.createElement("div", null,
                 React.createElement("code", { className: "cAuthor" },
                     React.createElement("b", null, '@' + profile.shortname)),
-                React.createElement("code", { className: "small" }, profile.address)));
+                React.createElement("code", { className: "small" }, profile.address)),
+            React.createElement("hr", null),
+            React.createElement("h3", null, "Pages"),
+            this.props.pageDetails.map(pageDetail => React.createElement("p", { key: pageDetail.path },
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.wiki(this.props.workspace, pageDetail.path) }, pageDetail.title))));
     }
 }
 exports.ProfileView = ProfileView;
 
-},{"./layouts":284,"react":228,"react-router-dom":216}],289:[function(require,module,exports){
+},{"../urls":282,"./layouts":284,"react":228,"react-router-dom":216}],289:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;

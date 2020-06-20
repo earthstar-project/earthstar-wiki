@@ -1,5 +1,9 @@
 import * as React from 'react';
 import {
+    Link,
+    useParams,
+} from "react-router-dom";
+import {
     AboutLayer,
     AuthorKeypair,
     IStorage,
@@ -68,13 +72,13 @@ export class ListOfAuthorsView extends React.Component<ListOfAuthorsViewProps> {
         return <Stack>
             {this.props.profiles.map(profile =>
                 <div key={profile.address}>
-                    <a href={Urls.authorProfile(this.props.workspace, profile.address)}>
+                    <Link to={Urls.authorProfile(this.props.workspace, profile.address)}>
                         <h3>🐱 {profile.longname || '@' + profile.shortname}</h3>
                         <div>
                             <code className="cAuthor"><b>{'@' + profile.shortname}</b></code>
                             <code className="small">{profile.address}</code>
                         </div>
-                    </a>
+                    </Link>
                 </div>
             )}
         </Stack>;
