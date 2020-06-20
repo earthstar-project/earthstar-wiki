@@ -53,7 +53,7 @@ export class WikiNavbar extends React.Component<WikiNavbarProps, WikiNavbarState
                 <Link to={Urls.allPages(this.props.workspace)} style={sNavbarLink}>📄 Pages</Link>
                 <Link to={Urls.authorList(this.props.workspace)} style={sNavbarLink}>👭 People</Link>
                 <Link to={Urls.search(this.props.workspace)} style={sNavbarLink}>🔍 Search</Link>
-                <SyncButton syncer={this.props.syncer} />
+                <SyncButton syncer={this.props.syncer} style={{border: '2px solid var(--cGrayShadow)'}} />
             </Cluster>
         </Box>;
     }

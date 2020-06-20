@@ -7,6 +7,7 @@ let log = (...args : any[]) => console.log('SyncButton |', ...args);
 
 interface SyncButtonProps {
     syncer : Syncer,
+    style? : React.CSSProperties,
 }
 interface SyncButtonState {
 }
@@ -29,6 +30,7 @@ export class SyncButton extends React.Component<SyncButtonProps, SyncButtonState
         return <button type="button"
             onClick={() => this.props.syncer.sync()}
             disabled={isSyncing}
+            style={this.props.style}
             >
             {isSyncing ? "Syncing..." : "Sync now"}
         </button>

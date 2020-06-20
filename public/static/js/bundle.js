@@ -71037,7 +71037,7 @@ class WikiNavbar extends React.Component {
                 React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.allPages(this.props.workspace), style: sNavbarLink }, "\uD83D\uDCC4 Pages"),
                 React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.authorList(this.props.workspace), style: sNavbarLink }, "\uD83D\uDC6D People"),
                 React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.search(this.props.workspace), style: sNavbarLink }, "\uD83D\uDD0D Search"),
-                React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer })));
+                React.createElement(syncButton_1.SyncButton, { syncer: this.props.syncer, style: { border: '2px solid var(--cGrayShadow)' } })));
     }
 }
 exports.WikiNavbar = WikiNavbar;
@@ -71236,7 +71236,7 @@ class SyncButton extends React.Component {
     render() {
         log('render()');
         let isSyncing = this.props.syncer.state.syncState === 'syncing';
-        return React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: isSyncing }, isSyncing ? "Syncing..." : "Sync now");
+        return React.createElement("button", { type: "button", onClick: () => this.props.syncer.sync(), disabled: isSyncing, style: this.props.style }, isSyncing ? "Syncing..." : "Sync now");
     }
 }
 exports.SyncButton = SyncButton;
