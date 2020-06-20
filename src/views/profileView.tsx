@@ -74,16 +74,13 @@ export class FetchProfileView extends React.Component<ExtraProps> {
         // HACK: for now, limit to shared pages
         let profile = this.props.aboutLayer.getAuthorProfile(this.props.author);
         // find docs this author has ever contributed to, but only return latest version (maybe not by this author)
-        let paths = this.props.storage.paths({ participatingAuthor: this.props.author, includeHistory: false, pathPrefix: '/wiki/' });
-        let pageDetails = paths
-            .map(path => this.props.wikiLayer.getPageDetails(path))
-            .filter(pd => pd !== null) as any as WikiPageDetail[];
+        let pageInfos = this.props.wikiLayer.listPageInfos({ participatingAuthor: this.props.author });
         return <ProfileView
             workspace={this.props.workspace}
             keypair={this.props.keypair}
             authorProfile={profile}
             aboutLayer={this.props.aboutLayer}
-            pageDetails={pageDetails}
+            pageInfos={pageInfos}
             />;
     }
 }
@@ -94,7 +91,7 @@ interface ProfileViewProps {
     keypair : AuthorKeypair,
     authorProfile : AuthorProfile | null,
     aboutLayer : AboutLayer,
-    pageDetails : WikiPageDetail[],
+    pageInfos : WikiPageInfo[],
 }
 export class ProfileView extends React.Component<ProfileViewProps> {
     constructor(props : ProfileViewProps) {
@@ -128,9 +125,9 @@ export class ProfileView extends React.Component<ProfileViewProps> {
             </div>
             <hr />
             <h3>Pages</h3>
-            {this.props.pageDetails.map(pageDetail =>
-                <p key={pageDetail.path}>
-                    <Link to={Urls.wiki(this.props.workspace, pageDetail.path)}>{pageDetail.title}</Link>
+            {this.props.pageInfos.map(pageInfo =>
+                <p key={pageInfo.path}>
+                    <Link to={Urls.wiki(this.props.workspace, pageInfo.path)}>{pageInfo.title}</Link>
                 </p>
             )}
         </Stack>;

@@ -17858,8 +17858,10 @@ class WikiLayer {
         }
         return { path: path, owner, title };
     }
-    listPageInfos(owner) {
-        // owner is optional
+    listPageInfos(opts) {
+        opts = opts || {};
+        let owner = opts.owner;
+        let author = opts.participatingAuthor;
         let pathPrefix = '/wiki/';
         if (owner && owner.startsWith('@')) {
             pathPrefix = `/wiki/~${owner}/`;
@@ -17870,7 +17872,11 @@ class WikiLayer {
         else if (owner !== undefined) {
             throw 'invalid wiki owner: ' + owner;
         }
-        let pageInfoOrNulls = this.storage.paths({ pathPrefix })
+        let query = { pathPrefix };
+        if (author) {
+            query.participatingAuthor = author;
+        }
+        let pageInfoOrNulls = this.storage.paths(query)
             .map(path => WikiLayer.parsePagePath(path));
         let pageInfos = pageInfoOrNulls.filter(pi => pi !== null);
         return pageInfos;
@@ -71096,11 +71102,8 @@ class FetchProfileView extends React.Component {
         // HACK: for now, limit to shared pages
         let profile = this.props.aboutLayer.getAuthorProfile(this.props.author);
         // find docs this author has ever contributed to, but only return latest version (maybe not by this author)
-        let paths = this.props.storage.paths({ participatingAuthor: this.props.author, includeHistory: false, pathPrefix: '/wiki/' });
-        let pageDetails = paths
-            .map(path => this.props.wikiLayer.getPageDetails(path))
-            .filter(pd => pd !== null);
-        return React.createElement(ProfileView, { workspace: this.props.workspace, keypair: this.props.keypair, authorProfile: profile, aboutLayer: this.props.aboutLayer, pageDetails: pageDetails });
+        let pageInfos = this.props.wikiLayer.listPageInfos({ participatingAuthor: this.props.author });
+        return React.createElement(ProfileView, { workspace: this.props.workspace, keypair: this.props.keypair, authorProfile: profile, aboutLayer: this.props.aboutLayer, pageInfos: pageInfos });
     }
 }
 exports.FetchProfileView = FetchProfileView;
@@ -71134,8 +71137,8 @@ class ProfileView extends React.Component {
                 React.createElement("code", { className: "small" }, profile.address)),
             React.createElement("hr", null),
             React.createElement("h3", null, "Pages"),
-            this.props.pageDetails.map(pageDetail => React.createElement("p", { key: pageDetail.path },
-                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.wiki(this.props.workspace, pageDetail.path) }, pageDetail.title))));
+            this.props.pageInfos.map(pageInfo => React.createElement("p", { key: pageInfo.path },
+                React.createElement(react_router_dom_1.Link, { to: urls_1.Urls.wiki(this.props.workspace, pageInfo.path) }, pageInfo.title))));
     }
 }
 exports.ProfileView = ProfileView;
@@ -71296,7 +71299,7 @@ class FetchWikiPageList extends React.Component {
         // do all the data loading here.  WikiPageList is just a display component. 
         logDisplayPageList('render()');
         // HACK: for now, limit to shared pages
-        let pageInfos = this.props.wikiLayer.listPageInfos('shared');
+        let pageInfos = this.props.wikiLayer.listPageInfos({ owner: 'shared' });
         return React.createElement(WikiPageList, { workspace: this.props.storage.workspace, pageInfos: pageInfos, wikiLayer: this.props.wikiLayer });
     }
 }

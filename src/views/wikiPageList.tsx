@@ -58,7 +58,7 @@ export class FetchWikiPageList extends React.Component<BasicProps> {
         // do all the data loading here.  WikiPageList is just a display component. 
         logDisplayPageList('render()');
         // HACK: for now, limit to shared pages
-        let pageInfos = this.props.wikiLayer.listPageInfos('shared');
+        let pageInfos = this.props.wikiLayer.listPageInfos({ owner: 'shared' });
         return <WikiPageList
             workspace={this.props.storage.workspace}
             pageInfos={pageInfos}
