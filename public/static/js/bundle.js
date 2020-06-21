@@ -18305,9 +18305,10 @@ class Syncer {
 }
 exports.Syncer = Syncer;
 let urlGetDocuments = (domain, workspace) => 
-// domain should end in a slash.
-// output is like https://mypub.com/earthstar-api/v1/workspace//gardening.xxxxxxxx/documents
-`${domain}earthstar-api/v1/workspace${workspace}/documents`;
+// domain should already end in a slash.
+// output is like https://mypub.com/earthstar-api/v1/workspace/gardening.xxxxxxxx/documents
+// note we remove the double slash from workspace
+`${domain}earthstar-api/v1/workspace/${workspace.slice(2)}/documents`;
 let urlPostDocuments = urlGetDocuments;
 let logSyncAlg = (...args) => console.log('  🌲  sync algorithm | ', ...args);
 exports.syncLocalAndHttp = (storage, domain) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
