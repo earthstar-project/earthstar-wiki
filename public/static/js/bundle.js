@@ -70404,14 +70404,14 @@ const profileView_1 = require("./views/profileView");
 // SET UP DEMO CONTENT
 let prepareEarthstar = () => {
     let workspace = '//gardening.xxxxxxxxxxxxxxxxxxxx';
-    let es = new earthstar_1.StorageMemory([earthstar_1.ValidatorEs2], workspace);
+    let storage = new earthstar_1.StorageMemory([earthstar_1.ValidatorEs2], workspace);
     // let demoKeypair = Crypto.generateKeypair();
     let demoKeypair = {
         address: "@suzy.E4JHZTPXfc939fnLrpPDzRwjDEiTBFJHadFH32CN97yc",
         secret: "5DokVzbQ8f6DHBJQvGXvN96uSYj7V152McYruLhBXR2a"
     };
-    let wikiLayer = new earthstar_1.WikiLayer(es, demoKeypair);
-    let aboutLayer = new earthstar_1.AboutLayer(es, demoKeypair);
+    let wikiLayer = new earthstar_1.WikiLayer(storage, demoKeypair);
+    let aboutLayer = new earthstar_1.AboutLayer(storage, demoKeypair);
     // use an old time so we don't keep overwriting stuff with our demo content
     // one year ago
     let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
@@ -70419,13 +70419,13 @@ let prepareEarthstar = () => {
     wikiLayer.setPageText(earthstar_1.WikiLayer.makePagePath('shared', 'Bumblebee'), 'Buzz buzz buzz', now);
     wikiLayer.setPageText(earthstar_1.WikiLayer.makePagePath('shared', 'Duck'), 'Quack quack quack', now);
     wikiLayer.setPageText(earthstar_1.WikiLayer.makePagePath('shared', 'Fish Of The Deep Sea'), '🐟🐠\n           🐙\n    🐡', now);
-    let syncer = new earthstar_1.Syncer(es);
+    let syncer = new earthstar_1.Syncer(storage);
     syncer.addPub('http://localhost:3333');
     //syncer.addPub('http://167.71.153.73:3333');  // this only works when the wiki page is http, not https
     syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
     syncer.addPub('https://cinnamon-bun-earthstar-pub4.glitch.me');
     syncer.addPub('https://earthstar-pub--rabbitface.repl.co/');
-    return { es, demoKeypair, syncer, wikiLayer, aboutLayer };
+    return { storage, demoKeypair, syncer, wikiLayer, aboutLayer };
 };
 //================================================================================
 let logMainLayout = (...args) => console.log('MainLayout |', ...args);
@@ -70543,8 +70543,8 @@ const StorybookRouterView = (props) => {
 };
 //================================================================================
 // MAIN
-let { es, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
-ReactDOM.render(React.createElement(RouterView, { storage: es, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
+let { storage, demoKeypair, syncer, wikiLayer, aboutLayer } = prepareEarthstar();
+ReactDOM.render(React.createElement(RouterView, { storage: storage, keypair: demoKeypair, syncer: syncer, wikiLayer: wikiLayer, aboutLayer: aboutLayer }), document.getElementById('react-slot'));
 
 },{"./urls":282,"./views/esDebugView":283,"./views/layouts":284,"./views/listOfAuthorsView":285,"./views/loginFlow":286,"./views/navbar":287,"./views/profileView":288,"./views/storybook":289,"./views/wikiPageList":291,"./views/wikiPageView":292,"earthstar":96,"react":228,"react-dom":210,"react-router-dom":216}],282:[function(require,module,exports){
 "use strict";

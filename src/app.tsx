@@ -4,9 +4,7 @@ import {
     BrowserRouter as Router,
     Switch,
     Route,
-    Link,
     NavLink,
-    useParams,
 } from "react-router-dom";
 
 import {
@@ -32,8 +30,8 @@ import {
 import { Urls } from './urls';
 
 import { RoutedWikiPageView, WikiPageView } from './views/wikiPageView';
-import { RoutedWikiPageList, WikiPageList } from './views/wikiPageList';
-import { FetchListOfAuthorsView, ListOfAuthorsView } from './views/listOfAuthorsView';
+import { RoutedWikiPageList } from './views/wikiPageList';
+import { FetchListOfAuthorsView } from './views/listOfAuthorsView';
 import { WikiNavbar } from './views/navbar';
 import {
     LoginFlow,
@@ -44,22 +42,22 @@ import {
     LoginCreateOrLoginUser,
 } from './views/loginFlow';
 import { EsDebugView } from './views/esDebugView';
-import { ProfileView, RoutedProfileView } from './views/profileView';
+import { RoutedProfileView } from './views/profileView';
 
 //================================================================================
 // SET UP DEMO CONTENT
 
 let prepareEarthstar = () => {
     let workspace = '//gardening.xxxxxxxxxxxxxxxxxxxx';
-    let es = new StorageMemory([ValidatorEs2], workspace);
+    let storage = new StorageMemory([ValidatorEs2], workspace);
     // let demoKeypair = Crypto.generateKeypair();
     let demoKeypair = {
         address: "@suzy.E4JHZTPXfc939fnLrpPDzRwjDEiTBFJHadFH32CN97yc",
         secret: "5DokVzbQ8f6DHBJQvGXvN96uSYj7V152McYruLhBXR2a"
     }
 
-    let wikiLayer = new WikiLayer(es, demoKeypair);
-    let aboutLayer = new AboutLayer(es, demoKeypair);
+    let wikiLayer = new WikiLayer(storage, demoKeypair);
+    let aboutLayer = new AboutLayer(storage, demoKeypair);
 
     // use an old time so we don't keep overwriting stuff with our demo content
     // one year ago
@@ -69,13 +67,13 @@ let prepareEarthstar = () => {
     wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Duck'), 'Quack quack quack', now);
     wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Fish Of The Deep Sea'), '🐟🐠\n           🐙\n    🐡', now);
 
-    let syncer = new Syncer(es);
+    let syncer = new Syncer(storage);
     syncer.addPub('http://localhost:3333');
     //syncer.addPub('http://167.71.153.73:3333');  // this only works when the wiki page is http, not https
     syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
     syncer.addPub('https://cinnamon-bun-earthstar-pub4.glitch.me');
     syncer.addPub('https://earthstar-pub--rabbitface.repl.co/');
-    return {es, demoKeypair, syncer, wikiLayer, aboutLayer};
+    return {storage, demoKeypair, syncer, wikiLayer, aboutLayer};
 }
 
 //================================================================================
@@ -262,10 +260,10 @@ const StorybookRouterView : React.FunctionComponent<BasicProps> = (props) => {
 //================================================================================
 // MAIN
 
-let {es, demoKeypair, syncer, wikiLayer, aboutLayer} = prepareEarthstar();
+let {storage, demoKeypair, syncer, wikiLayer, aboutLayer} = prepareEarthstar();
 
 ReactDOM.render(
-    <RouterView storage={es} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer} />,
+    <RouterView storage={storage} keypair={demoKeypair} syncer={syncer} wikiLayer={wikiLayer} aboutLayer={aboutLayer} />,
     document.getElementById('react-slot')
 );
 
