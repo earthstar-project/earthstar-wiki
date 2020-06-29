@@ -6,6 +6,7 @@ import {
     Route,
     NavLink,
 } from "react-router-dom";
+import debounce = require('lodash.debounce');
 
 import {
     StorageMemory,
@@ -56,20 +57,46 @@ let prepareEarthstar = () => {
         secret: "5DokVzbQ8f6DHBJQvGXvN96uSYj7V152McYruLhBXR2a"
     }
 
+
+    // HACK to persiste the memory storage to localStorage
+    let localStorageKey = `earthstar-${workspace}`;
+    let existingData = localStorage.getItem(localStorageKey);
+    if (existingData !== null) {
+        storage._docs = JSON.parse(existingData);
+    }
+    // saving will get triggered on every incoming document, so we should debounce it
+    let saveToLocalStorage = () => {
+        console.log('SAVING=====================================');
+        localStorage.setItem(localStorageKey, JSON.stringify(storage._docs));
+    };
+    let debouncedSave = debounce(saveToLocalStorage, 80, { trailing: true });
+    storage.onChange.subscribe(debouncedSave);
+    // END HACK
+
+
     let wikiLayer = new WikiLayer(storage, demoKeypair);
     let aboutLayer = new AboutLayer(storage, demoKeypair);
 
+    // add demo content.
     // use an old time so we don't keep overwriting stuff with our demo content
-    // one year ago
+    // one year ago.  But note that earthstar bumps the time forward for us...
     let now = (Date.now() - 1000 * 60 * 60 * 24 * 7 * 52) * 1000;
-    aboutLayer.setMyAuthorLongname('Suzy The Example Wiki Author', now);
-    wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Bumblebee'), 'Buzz buzz buzz', now);
-    wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Duck'), 'Quack quack quack', now);
-    wikiLayer.setPageText(WikiLayer.makePagePath('shared', 'Fish Of The Deep Sea'), '🐟🐠\n           🐙\n    🐡', now);
+    let profile = aboutLayer.getAuthorProfile(demoKeypair.address);
+    if (profile === null || profile.longname === null || profile.longname === '') {
+        aboutLayer.setMyAuthorLongname('Suzy The Example Wiki Author', now);
+    }
+    let setPageIfNotThere = (owner : string, title : string, content : string, now : number) => {
+        if (wikiLayer.getPageDetails(WikiLayer.makePagePath(owner, title)) === null) {
+            wikiLayer.setPageText(WikiLayer.makePagePath(owner, title), content, now);
+        }
+    }
+    setPageIfNotThere('shared', 'Bumblebee', 'Buzz buzz buzz', now);
+    setPageIfNotThere('shared', 'Duck', 'Quack quack quack', now);
+    setPageIfNotThere('shared', 'Fish Of The Deep Sea', '🐟🐠\n           🐙\n    🐡', now);
 
+    // add pubs.
     let syncer = new Syncer(storage);
     syncer.addPub('http://localhost:3333');
-    //syncer.addPub('http://167.71.153.73:3333');  // this only works when the wiki page is http, not https
     syncer.addPub('https://cinnamon-bun-earthstar-pub3.glitch.me');
     syncer.addPub('https://cinnamon-bun-earthstar-pub4.glitch.me');
     syncer.addPub('https://earthstar-pub--rabbitface.repl.co/');
