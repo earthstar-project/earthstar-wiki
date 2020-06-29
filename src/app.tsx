@@ -58,7 +58,7 @@ let prepareEarthstar = () => {
     }
 
 
-    // HACK to persiste the memory storage to localStorage
+    // HACK to persist the memory storage to localStorage
     let localStorageKey = `earthstar-${workspace}`;
     let existingData = localStorage.getItem(localStorageKey);
     if (existingData !== null) {

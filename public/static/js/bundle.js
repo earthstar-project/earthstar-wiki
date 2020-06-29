@@ -70792,7 +70792,7 @@ let prepareEarthstar = () => {
         address: "@suzy.E4JHZTPXfc939fnLrpPDzRwjDEiTBFJHadFH32CN97yc",
         secret: "5DokVzbQ8f6DHBJQvGXvN96uSYj7V152McYruLhBXR2a"
     };
-    // HACK to persiste the memory storage to localStorage
+    // HACK to persist the memory storage to localStorage
     let localStorageKey = `earthstar-${workspace}`;
     let existingData = localStorage.getItem(localStorageKey);
     if (existingData !== null) {
