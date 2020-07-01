@@ -4,32 +4,22 @@ import {
     useParams,
 } from "react-router-dom";
 import {
-    AboutLayer,
-    AuthorKeypair,
     AuthorProfile,
-    IStorage,
     Path,
-    Syncer,
-    WikiLayer,
     WikiPageDetail,
-    WorkspaceAddress,
 } from 'earthstar';
 import { Urls } from '../urls';
+import { Workspace } from '../helpers/workspace';
 
 let logRoutedPage = (...args : any[]) => console.log('RoutedWikiPageView |', ...args);
 let logFetchPage = (...args : any[]) => console.log('FetchWikiPageView |', ...args);
 let logDisplayPage = (...args : any[]) => console.log('WikiPageView |', ...args);
 
-interface BasicProps {
-    storage : IStorage,
-    keypair : AuthorKeypair,
-    wikiLayer : WikiLayer,
-    aboutLayer : AboutLayer,
-    syncer : Syncer,
+type WorkspaceProps = {
+    workspace : Workspace
 }
 
-interface ExtraProps extends BasicProps {
-    workspace : WorkspaceAddress,
+interface ExtraProps extends WorkspaceProps {
     path : Path,
 }
 
@@ -37,17 +27,15 @@ interface ExtraProps extends BasicProps {
 // :workspace
 // :rest_of_path
 
-export const RoutedWikiPageView : React.FunctionComponent<BasicProps> = (props) => {
+export const RoutedWikiPageView : React.FunctionComponent<WorkspaceProps> = (props) => {
     let { workspace, owner, title } = useParams();
-    workspace = '//' + workspace;
     // reactRouter removes percent-encoding for us,
     // but we actually want to keep it, so we have to do it again
     let path = `/wiki/${owner}/${encodeURIComponent(title)}`;
     logRoutedPage('render', workspace, path);
     return <FetchWikiPageView
-        workspace={workspace}
+        workspace={props.workspace}
         path={path}
-        {...props}
         />;
 }
 export class FetchWikiPageView extends React.Component<ExtraProps> {
@@ -58,7 +46,7 @@ export class FetchWikiPageView extends React.Component<ExtraProps> {
     }
     componentDidMount() {
         logDisplayPage('subscribing to storage onChange');
-        this.unsub = this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.workspace.storage.onChange.subscribe(() => {
             logDisplayPage('onChange =============');
             this.forceUpdate()
         });
@@ -69,11 +57,11 @@ export class FetchWikiPageView extends React.Component<ExtraProps> {
     render() {
         // do all the data loading here.  WikiPageView is just a display component. 
         logDisplayPage('render()');
-        let pageDetail = this.props.wikiLayer.getPageDetails(this.props.path);
-        let lastAuthorProfile = pageDetail === null ? null : this.props.aboutLayer.getAuthorProfile(pageDetail.lastAuthor);
+        let ws = this.props.workspace;
+        let pageDetail = ws.layerWiki.getPageDetails(this.props.path);
+        let lastAuthorProfile = pageDetail === null ? null : ws.layerAbout.getAuthorProfile(pageDetail.lastAuthor);
         return <WikiPageView
-            aboutLayer={this.props.aboutLayer}
-            wikiLayer={this.props.wikiLayer}
+            workspace={ws}
             pageDetail={pageDetail}
             lastAuthorProfile={lastAuthorProfile}
             />;
@@ -81,8 +69,7 @@ export class FetchWikiPageView extends React.Component<ExtraProps> {
 }
 
 interface WikiPageViewProps {
-    aboutLayer : AboutLayer,
-    wikiLayer : WikiLayer,
+    workspace : Workspace,
     pageDetail : WikiPageDetail | null,
     lastAuthorProfile : AuthorProfile | null,
 }
@@ -107,7 +94,8 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
     }
     _save() {
         if (this.props.pageDetail === null) { return; }
-        let ok = this.props.wikiLayer.setPageText(
+        let ok = this.props.workspace.layerWiki.setPageText(
+            this.props.workspace.authorKeypair,
             this.props.pageDetail.path,
             this.state.editedText
         );
@@ -130,8 +118,7 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
         if (this.props.pageDetail === null) {
             return <i>No such page.</i>;
         }
-        let wiki = this.props.wikiLayer;
-        let workspace = wiki.storage.workspace;
+        let ws = this.props.workspace;
         let page = this.props.pageDetail;
         let isEditing = this.state.isEditing;
         let editedTime : string = new Date(page.timestamp/1000).toString().split(' ').slice(0, 5).join(' ');
@@ -146,7 +133,7 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
             }
             <p className="small"><i>
                 {page.owner === 'shared'
-                    ? <Link to={Urls.allPages(workspace)}>shared wiki</Link>
+                    ? <Link to={Urls.allPages(ws.address)}>shared wiki</Link>
                     : `${page.owner}'s wiki`
                 }
             </i></p>
@@ -155,7 +142,7 @@ export class WikiPageView extends React.Component<WikiPageViewProps, WikiPageVie
             </h2>
             <p className="small"><i>
                 updated {editedTime}<br/>
-                by <Link to={Urls.authorProfile(workspace, this.props.lastAuthorProfile?.address || '?')}>{lastAuthorName}</Link>
+                by <Link to={Urls.authorProfile(ws.address, this.props.lastAuthorProfile?.address || '?')}>{lastAuthorName}</Link>
             </i></p>
             {isEditing
                 ? <textarea rows={7}

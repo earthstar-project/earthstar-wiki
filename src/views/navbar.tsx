@@ -1,59 +1,49 @@
 import * as React from 'react';
 import {
-    AuthorParsed,
-    WorkspaceParsed,
-    AuthorAddress,
-    WorkspaceAddress,
     parseAuthorAddress,
     parseWorkspaceAddress,
-    Syncer,
 } from 'earthstar';
 import {
+    Workspace
+} from '../helpers/workspace';
+import {
     Link,
-    NavLink,
-    useParams,
 } from "react-router-dom";
 import {
     Box,
     Cluster,
-    FlexItem,
-    FlexRow,   
 } from './layouts';
 import { Urls } from '../urls';
 import { SyncButton } from './syncButton';
 
 let log = (...args : any[]) => console.log('WikiNavbar |', ...args);
 
-interface WikiNavbarProps {
-    author : AuthorAddress,
-    workspace : WorkspaceAddress,
-    syncer : Syncer,
-}
-interface WikiNavbarState {
+interface WorkspaceProps {
+    workspace : Workspace,
 }
 let sNavbarLink : React.CSSProperties = {
     textDecoration: 'none',
     color: 'var(--cWhite)',
 }
-export class WikiNavbar extends React.Component<WikiNavbarProps, WikiNavbarState> {
-    constructor(props : WikiNavbarProps) {
+export class WikiNavbar extends React.Component<WorkspaceProps, any> {
+    constructor(props : WorkspaceProps) {
         super(props);
-        this.state = {};
     }
     render() {
         log('render()');
-        let { authorParsed, err: err1 } = parseAuthorAddress(this.props.author);
-        let { workspaceParsed, err: err2 } = parseWorkspaceAddress(this.props.workspace);
+        let ws = this.props.workspace;
+        let { authorParsed, err: err1 } = parseAuthorAddress(ws.authorKeypair.address);
+        let { workspaceParsed, err: err2 } = parseWorkspaceAddress(ws.address);
         let authorText = authorParsed === null ? '@?' : '@' + authorParsed.shortname;
-        let workspaceText = workspaceParsed === null ? '//?' : '//' + workspaceParsed.name;
+        let workspaceText = workspaceParsed === null ? '+?' : '+' + workspaceParsed.name;
         return <Box style={{background: 'var(--cAccentDark)'}}>
             <Cluster>
-                <Link to={Urls.allPages(this.props.workspace)} style={sNavbarLink}><b>📂 {workspaceText}</b></Link>
-                <Link to={Urls.authorProfile(this.props.workspace, this.props.author)} style={sNavbarLink}>🐱 {authorText}</Link>
-                <Link to={Urls.allPages(this.props.workspace)} style={sNavbarLink}>📄 Pages</Link>
-                <Link to={Urls.authorList(this.props.workspace)} style={sNavbarLink}>👭 People</Link>
-                <Link to={Urls.search(this.props.workspace)} style={sNavbarLink}>🔍 Search</Link>
-                <SyncButton syncer={this.props.syncer} style={{border: '2px solid var(--cGrayShadow)'}} />
+                <Link to={Urls.allPages(ws.address)} style={sNavbarLink}><b>📂 {workspaceText}</b></Link>
+                <Link to={Urls.authorProfile(ws.address, ws.authorKeypair.address)} style={sNavbarLink}>🐱 {authorText}</Link>
+                <Link to={Urls.allPages(ws.address)} style={sNavbarLink}>📄 Pages</Link>
+                <Link to={Urls.authorList(ws.address)} style={sNavbarLink}>👭 People</Link>
+                <Link to={Urls.search(ws.address)} style={sNavbarLink}>🔍 Search</Link>
+                <SyncButton syncer={ws.syncer} style={{border: '2px solid var(--cGrayShadow)'}} />
             </Cluster>
         </Box>;
     }

@@ -4,51 +4,38 @@ import {
     useParams,
 } from "react-router-dom";
 import {
-    AboutLayer,
-    AuthorKeypair,
-    IStorage,
-    Syncer,
-    WikiLayer,
-    WikiPageInfo,
-    WorkspaceAddress,
-    AuthorProfile,
-    AuthorParsed,
     AuthorAddress,
-    parseAuthorAddress,
-    WikiPageDetail,
+    AuthorProfile,
+    WikiPageInfo,
 } from 'earthstar';
 import {
     Stack,
 } from './layouts';
 import { Urls } from '../urls';
+import { Workspace } from '../helpers/workspace';
 
 let logRouted = (...args : any[]) => console.log('RoutedProfileView |', ...args);
 let logFetch = (...args : any[]) => console.log('FetchProfileView |', ...args);
 let logDisplay = (...args : any[]) => console.log('ProfileView |', ...args);
 
-interface BasicProps {
-    storage : IStorage,
-    keypair : AuthorKeypair,
-    wikiLayer : WikiLayer,
-    aboutLayer : AboutLayer,
-    syncer : Syncer,
+type WorkspaceProps = {
+    workspace : Workspace
 }
 
-interface ExtraProps extends BasicProps {
-    workspace : WorkspaceAddress,
+interface ExtraProps extends WorkspaceProps {
     author : AuthorAddress,
 }
 
 // url params:
 // :workspace
 // :author
-export const RoutedProfileView : React.FunctionComponent<BasicProps> = (props) => {
+export const RoutedProfileView : React.FunctionComponent<WorkspaceProps> = (props) => {
     let { workspace, author } = useParams();
-    workspace = '//' + workspace;
+    author = '@' + author;
     logRouted('render', workspace, author);
     return <FetchProfileView
         {...props}
-        workspace={workspace}
+        workspace={props.workspace}
         author={author}
     />;
 }
@@ -60,7 +47,7 @@ export class FetchProfileView extends React.Component<ExtraProps> {
     }
     componentDidMount() {
         logDisplay('subscribing to storage onChange');
-        this.unsub = this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.workspace.storage.onChange.subscribe(() => {
             logDisplay('onChange =============');
             this.forceUpdate()
         });
@@ -72,14 +59,13 @@ export class FetchProfileView extends React.Component<ExtraProps> {
         // do all the data loading here.  WikiPageList is just a display component. 
         logDisplay('render()');
         // HACK: for now, limit to shared pages
-        let profile = this.props.aboutLayer.getAuthorProfile(this.props.author);
+        let ws = this.props.workspace;
+        let profile = ws.layerAbout.getAuthorProfile(this.props.author);
         // find docs this author has ever contributed to, but only return latest version (maybe not by this author)
-        let pageInfos = this.props.wikiLayer.listPageInfos({ participatingAuthor: this.props.author });
+        let pageInfos = ws.layerWiki.listPageInfos({ participatingAuthor: this.props.author });
         return <ProfileView
-            workspace={this.props.workspace}
-            keypair={this.props.keypair}
+            workspace={ws}
             authorProfile={profile}
-            aboutLayer={this.props.aboutLayer}
             pageInfos={pageInfos}
             />;
     }
@@ -87,10 +73,8 @@ export class FetchProfileView extends React.Component<ExtraProps> {
 
 
 interface ProfileViewProps {
-    workspace : WorkspaceAddress,
-    keypair : AuthorKeypair,
+    workspace : Workspace,
     authorProfile : AuthorProfile | null,
-    aboutLayer : AboutLayer,
     pageInfos : WikiPageInfo[],
 }
 export class ProfileView extends React.Component<ProfileViewProps> {
@@ -100,14 +84,15 @@ export class ProfileView extends React.Component<ProfileViewProps> {
     _renameAuthor(oldName : string) {
         let newName = window.prompt('Rename author', oldName);
         if (!newName) { return; }
-        this.props.aboutLayer.setMyAuthorLongname(newName);
+        this.props.workspace.layerAbout.setMyAuthorLongname(this.props.workspace.authorKeypair, newName);
     }
     render() {
         if (this.props.authorProfile === null) {
             return <h3>Unknown author</h3>;
         }
+        let ws = this.props.workspace;
         let profile : AuthorProfile = this.props.authorProfile;
-        let isMe = this.props.keypair.address === profile.address;
+        let isMe = ws.authorKeypair.address === profile.address;
         return <Stack>
             {isMe
                 ? <button type="button"
@@ -127,7 +112,7 @@ export class ProfileView extends React.Component<ProfileViewProps> {
             <h3>Pages</h3>
             {this.props.pageInfos.map(pageInfo =>
                 <p key={pageInfo.path}>
-                    <Link to={Urls.wiki(this.props.workspace, pageInfo.path)}>{pageInfo.title}</Link>
+                    <Link to={Urls.wiki(ws.address, pageInfo.path)}>{pageInfo.title}</Link>
                 </p>
             )}
         </Stack>;

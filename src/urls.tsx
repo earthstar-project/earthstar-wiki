@@ -7,31 +7,31 @@ export let Urls = class {
     static loginTemplate = '/login';
     static login() { return Urls.loginTemplate; }
 
-    static authorListTemplate = '/ws/:workspace/authors';
+    static authorListTemplate = '/:workspace/authors';
     static authorList(workspace : WorkspaceAddress) {
-        return `/ws/${workspace.slice(2)}/authors`;
+        return `/${workspace}/authors`;
     }
 
-    static authorTemplate = '/ws/:workspace/author/:author';
+    static authorTemplate = '/:workspace/@:author';
     static authorProfile(workspace : WorkspaceAddress, author : AuthorAddress) {
-        return `/ws/${workspace.slice(2)}/author/${author}`;
+        return `/${workspace}/${author}`;
     }
 
     // a wiki path is like "/wiki/shared/Dogs"
-    static wikiTemplate = '/ws/:workspace/wiki/:owner/:title';
+    static wikiTemplate = '/:workspace/wiki/:owner/:title';
     static wiki(workspace : WorkspaceAddress, path : string) {
         if (!path.startsWith('/wiki/')) { throw "bad wiki path should start with '/wiki/': " + path; }
-        return `/ws/${workspace.slice(2)}/${path.slice(1)}`;
+        return `/${workspace}/${path.slice(1)}`;
     }
 
-    static allPagesTemplate = '/ws/:workspace/pages';
+    static allPagesTemplate = '/:workspace/pages';
     static allPages(workspace : WorkspaceAddress) {
-        return `/ws/${workspace.slice(2)}/pages`;
+        return `/${workspace}/pages`;
     }
 
-    static searchTemplate = '/ws/:workspace/search';
+    static searchTemplate = '/:workspace/search';
     static search(workspace : WorkspaceAddress, text? : string) {
-        let result = `/ws/${workspace.slice(2)}/search`;
+        let result = `/${workspace}/search`;
         if (text) { result += '?q=' + encodeURIComponent(text); }
         return result;
     }

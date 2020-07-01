@@ -1,42 +1,32 @@
 import * as React from 'react';
 import {
     Link,
-    useParams,
 } from "react-router-dom";
 import {
-    AboutLayer,
-    AuthorKeypair,
-    IStorage,
-    Syncer,
-    WikiLayer,
     AuthorAddress,
-    WorkspaceAddress,
     AuthorProfile,
 } from 'earthstar';
 import {
     Stack,
 } from './layouts';
 import { Urls } from '../urls';
+import { Workspace } from '../helpers/workspace';
 
 let logDisplay = (...args : any[]) => console.log('ListOfAuthorsView |', ...args);
 
-interface BasicProps {
-    storage : IStorage,
-    keypair : AuthorKeypair,
-    wikiLayer : WikiLayer,
-    aboutLayer : AboutLayer,
-    syncer : Syncer,
+type WorkspaceProps = {
+    workspace : Workspace
 }
 
-export class FetchListOfAuthorsView extends React.Component<BasicProps> {
+export class FetchListOfAuthorsView extends React.Component<WorkspaceProps> {
     unsub : () => void;
-    constructor(props : BasicProps) {
+    constructor(props : WorkspaceProps) {
         super(props);
         this.unsub = () => {};
     }
     componentDidMount() {
         logDisplay('subscribing to storage onChange');
-        this.unsub = this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.workspace.storage.onChange.subscribe(() => {
             logDisplay('onChange =============');
             this.forceUpdate()
         });
@@ -48,12 +38,13 @@ export class FetchListOfAuthorsView extends React.Component<BasicProps> {
         // do all the data loading here.  WikiPageList is just a display component. 
         logDisplay('render()');
         // HACK: for now, limit to shared pages
-        let authors : AuthorAddress[] = this.props.storage.authors();
+        let ws = this.props.workspace;
+        let authors : AuthorAddress[] = ws.storage.authors();
         let profiles : AuthorProfile[] = authors
-            .map(author => this.props.aboutLayer.getAuthorProfile(author))
+            .map(author => ws.layerAbout.getAuthorProfile(author))
             .filter(profile => profile !== null) as any as AuthorProfile[];
         return <ListOfAuthorsView
-            workspace={this.props.storage.workspace}
+            workspace={ws}
             profiles={profiles}
             />;
     }
@@ -61,7 +52,7 @@ export class FetchListOfAuthorsView extends React.Component<BasicProps> {
 
 
 interface ListOfAuthorsViewProps {
-    workspace : WorkspaceAddress,
+    workspace : Workspace,
     profiles : AuthorProfile[],
 }
 export class ListOfAuthorsView extends React.Component<ListOfAuthorsViewProps> {
@@ -72,7 +63,7 @@ export class ListOfAuthorsView extends React.Component<ListOfAuthorsViewProps> {
         return <Stack>
             {this.props.profiles.map(profile =>
                 <div key={profile.address}>
-                    <Link to={Urls.authorProfile(this.props.workspace, profile.address)}>
+                    <Link to={Urls.authorProfile(this.props.workspace.address, profile.address)}>
                         <h3>🐱 {profile.longname || '@' + profile.shortname}</h3>
                         <div>
                             <code className="cAuthor"><b>{'@' + profile.shortname}</b></code>

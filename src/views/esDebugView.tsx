@@ -1,21 +1,15 @@
 import * as React from 'react';
 import {
-    IStorage,
-    AuthorKeypair,
-    Syncer,
-} from 'earthstar';
-import {
     Stack,
 } from './layouts';
 import {
     SyncButton
 } from './syncButton';
+import { Workspace } from '../helpers/workspace';
 
 
 interface EsDebugProps {
-    storage : IStorage,
-    keypair : AuthorKeypair,
-    syncer : Syncer,
+    workspace : Workspace
 }
 interface EsDebugState {
     newPath : string,
@@ -37,13 +31,13 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
     componentDidMount() {
         // update on changes to the earthstar contents...
         log('subscribing to storage onChange');
-        this.unsubStorage = this.props.storage.onChange.subscribe(() => {
+        this.unsubStorage = this.props.workspace.storage.onChange.subscribe(() => {
             log('onChange =============');
             this.forceUpdate()
         });
         // and the syncer details
         log('subscribing to syncer onChange');
-        this.unsubSyncer = this.props.syncer.onChange.subscribe(() => {
+        this.unsubSyncer = this.props.workspace.syncer.onChange.subscribe(() => {
             log('onChange (syncer) >>>>>>>>');
             this.forceUpdate()
         });
@@ -54,8 +48,8 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
     }
     _setPath() {
         if (this.state.newPath === '') { return; }
-        let ok = this.props.storage.set(this.props.keypair, {
-            format: 'es.2',
+        let ok = this.props.workspace.storage.set(this.props.workspace.authorKeypair, {
+            format: 'es.3',
             path: this.state.newPath,
             value: this.state.newValue,
         });
@@ -67,14 +61,14 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
     }
     render() {
         log('render()');
-        let storage = this.props.storage;
+        let ws = this.props.workspace;
         return <Stack>
-            <div><b>Workspace:</b> <code className='cWorkspace'>{storage.workspace}</code></div>
+            <div><b>Workspace:</b> <code className='cWorkspace'>{ws.address}</code></div>
             <hr/>
-            <div><b>Demo author:</b> <code className='cAuthor'>{this.props.keypair.address.slice(0,10)+'...'}</code></div>
+            <div><b>Demo author:</b> <code className='cAuthor'>{ws.authorKeypair.address.slice(0,10)+'...'}</code></div>
             <hr/>
             <div><b>Networking: Pubs</b></div>
-            {this.props.syncer.state.pubs.map(pub => {
+            {ws.syncer.state.pubs.map(pub => {
                 let lastSynced : string = pub.lastSync === 0
                     ? 'never'
                     : new Date(pub.lastSync)
@@ -86,7 +80,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
                     <div style={{paddingLeft: 50}}>state: <b>{pub.syncState}</b></div>
                 </div>
             })}
-            <SyncButton syncer={this.props.syncer} />
+            <SyncButton syncer={ws.syncer} />
             <hr/>
             <div id="es-editor"><b>Editor:</b></div>
             <div>
@@ -116,7 +110,7 @@ export class EsDebugView extends React.Component<EsDebugProps, EsDebugState> {
             </div>
             <hr/>
             <div><b>Paths and document values:</b> (Click to load into the edit box)</div>
-            {storage.documents().map(doc =>
+            {ws.storage.documents().map(doc =>
                 <div key={doc.path}
                     onClick={() => {
                         // load this doc into the editor

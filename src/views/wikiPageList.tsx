@@ -1,52 +1,40 @@
 import * as React from 'react';
 import {
     Link,
-    useParams,
     Redirect,
+    useParams,
 } from "react-router-dom";
 import {
-    AboutLayer,
-    AuthorKeypair,
-    IStorage,
-    Syncer,
-    WikiLayer,
+    LayerWiki,
     WikiPageInfo,
-    WorkspaceAddress,
 } from 'earthstar';
 import {
     Stack,
 } from './layouts';
 import { Urls } from '../urls';
+import { Workspace } from '../helpers/workspace';
 
 let logRoutedPageList = (...args : any[]) => console.log('RoutedWikiPageList |', ...args);
 let logFetchPageList = (...args : any[]) => console.log('FetchWikiPageList |', ...args);
 let logDisplayPageList = (...args : any[]) => console.log('WikiPageList |', ...args);
 
-interface BasicProps {
-    storage : IStorage,
-    keypair : AuthorKeypair,
-    wikiLayer : WikiLayer,
-    aboutLayer : AboutLayer,
-    syncer : Syncer,
+type WorkspaceProps = {
+    workspace : Workspace
 }
-
-// url params:
-// :workspace
-export const RoutedWikiPageList : React.FunctionComponent<BasicProps> = (props) => {
+export const RoutedWikiPageList : React.FunctionComponent<WorkspaceProps> = (props) => {
     let { workspace } = useParams();
-    workspace = '//' + workspace;
     logRoutedPageList('render', workspace);
-    return <FetchWikiPageList {...props} />;
+    return <FetchWikiPageList workspace={props.workspace} />;
 }
-export class FetchWikiPageList extends React.Component<BasicProps> {
+export class FetchWikiPageList extends React.Component<WorkspaceProps> {
     unsub : () => void;
-    constructor(props : BasicProps) {
+    constructor(props : WorkspaceProps) {
         super(props);
         this.unsub = () => {};
     }
     componentDidMount() {
         logDisplayPageList('subscribing to storage onChange');
-        this.unsub = this.props.storage.onChange.subscribe(() => {
+        this.unsub = this.props.workspace.storage.onChange.subscribe(() => {
             logDisplayPageList('onChange =============');
             this.forceUpdate()
         });
@@ -58,20 +46,19 @@ export class FetchWikiPageList extends React.Component<BasicProps> {
         // do all the data loading here.  WikiPageList is just a display component. 
         logDisplayPageList('render()');
         // HACK: for now, limit to shared pages
-        let pageInfos = this.props.wikiLayer.listPageInfos({ owner: 'shared' });
+        let ws = this.props.workspace;
+        let pageInfos = ws.layerWiki.listPageInfos({ owner: 'shared' });
         return <WikiPageList
-            workspace={this.props.storage.workspace}
+            workspace={ws}
             pageInfos={pageInfos}
-            wikiLayer={this.props.wikiLayer}
             />;
     }
 }
 
 
 interface WikiPageListProps {
-    workspace : WorkspaceAddress,
+    workspace : Workspace,
     pageInfos : WikiPageInfo[],
-    wikiLayer : WikiLayer,
 }
 interface WikiPageListState {
     redirectTo : string | null;
@@ -85,10 +72,11 @@ export class WikiPageList extends React.Component<WikiPageListProps, WikiPageLis
         logDisplayPageList('makeNewPage');
         let title = window.prompt('Page title');
         if (!title) { return; }
-        let path = WikiLayer.makePagePath('shared', title);  // TODO: allow making personal pages too, not just shared
-        let ok = this.props.wikiLayer.setPageText(path, '...');
+        let ws = this.props.workspace;
+        let path = LayerWiki.makePagePath('shared', title);  // TODO: allow making personal pages too, not just shared
+        let ok = ws.layerWiki.setPageText(ws.authorKeypair, path, '...');
         if (ok) {
-            let newUrl = Urls.wiki(this.props.wikiLayer.storage.workspace, path);
+            let newUrl = Urls.wiki(ws.address, path);
             this.setState({ redirectTo: newUrl });
         }
     }
@@ -106,7 +94,7 @@ export class WikiPageList extends React.Component<WikiPageListProps, WikiPageLis
             </button>
             <h3>All shared pages</h3>
             {this.props.pageInfos.map((pageInfo : WikiPageInfo) =>
-                <p key={pageInfo.path}><Link to={Urls.wiki(this.props.workspace, pageInfo.path)}>{pageInfo.title}</Link></p>
+                <p key={pageInfo.path}><Link to={Urls.wiki(this.props.workspace.address, pageInfo.path)}>{pageInfo.title}</Link></p>
             )}
         </Stack>
     }
