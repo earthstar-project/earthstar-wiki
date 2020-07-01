@@ -3,6 +3,9 @@
   "version": "0.0.7",
   "description": "",
   "main": "./build/index.js",
+  "engines": {
+    "node": "12.x"
+  },
   "scripts": {
     "clean": "rm -f public/static/js/bundle.js build/*",
     "build": "browserify src/app.tsx -p tsify > public/static/js/bundle.js",
