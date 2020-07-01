@@ -102,7 +102,7 @@ export const LoginStartWorkspace : React.FunctionComponent<{ api : LoginFlow }> 
             The full workspace name will be:
         </p>
         <pre>
-            //garden-club.xxxxxxxxxxxxxxxxxxxx
+            +garden-club.xxxxxxxxxxxxxxxxxxxx
         </pre>
         <div>
             <button type="button"
@@ -119,7 +119,7 @@ export const LoginJoinWorkspace : React.FunctionComponent<{ api : LoginFlow }> =
         <h2>Join a workspace</h2>
         <h3>Workspace name</h3>
         <p>Paste the full workspace name here including the random number.</p>
-        <input type="text" defaultValue="//garden-club.xxxxxxxxxxxxxxxxxxxx"/>
+        <input type="text" defaultValue="+garden-club.xxxxxxxxxxxxxxxxxxxx"/>
         <div>
             <button type="button"
                 onClick={() => props.api.goto('CREATE_OR_LOGIN_USER')}
@@ -133,7 +133,7 @@ export const LoginCreateOrLoginUser : React.FunctionComponent<{ api : LoginFlow 
     <Stack>
         <div><a href="#" onClick={() => props.api.back()}>&larr;</a></div>
         <p>Welcome to</p>
-        <h2>//garden-club.xxxxxxxxxxxxxxxxxxxx</h2>
+        <h2>+garden-club.xxxxxxxxxxxxxxxxxxxx</h2>
         <div>
             <button type="button"
                 onClick={() => props.api.goto('CREATE_USER')}
