@@ -2,6 +2,9 @@
 
 # Earthstar Wiki
 
+**NOTE:** This repo is old; Earthstar has changed since this was last touched.
+
+
 An example app using [Earthstar](https://github.com/cinnamon-bun/earthstar) to hold a wiki.
 
 ## Live demo
